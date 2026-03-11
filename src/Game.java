@@ -7,10 +7,11 @@ import java.awt.*;
 public class Game {
 
     private JFrame window;
+    private Board board = new Board();
 
     public Game() {
         setupWindow();
-        Board.setupBoard(window);
+        board.setupBoard(window);
         this.window.setVisible(true); // we make the window visible after all setup is made
     }
 
