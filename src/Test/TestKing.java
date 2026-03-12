@@ -107,6 +107,7 @@ public class TestKing {
         IndexPosition[] moves = king.getPossibleMoves(board);
 
         Set<String> moveSet = toSet(moves);
+
         assertFalse(moveSet.contains("3,3"), "King should not be able to move to ally square at (3,3)");
     }
 

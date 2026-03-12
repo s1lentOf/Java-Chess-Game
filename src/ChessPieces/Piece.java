@@ -32,7 +32,7 @@ public abstract class Piece {
 
     // check if piece on the square is enemy of friendly
     public boolean isEnemy(Piece other) {
-        return other.isWhite() == this.isWhite();
+        return other.isWhite() != this.isWhite();
     }
 
     // this method will return an array of all possible piece moves
