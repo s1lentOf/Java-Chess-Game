@@ -30,7 +30,7 @@ public class King extends Piece {
                 continue;
             }
             // this check avoids placing the king on the square with allied piece
-            if (board[r][c] != null && isEnemy(board[r][c])) {
+            if (board[r][c] != null && !isEnemy(board[r][c])) {
                 continue;
             }
             // after all checks add the square to array of possible squares
