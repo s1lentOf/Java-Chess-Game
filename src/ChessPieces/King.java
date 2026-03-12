@@ -3,16 +3,16 @@ package ChessPieces;
 import Constants.ColorForChessPieces;
 
 public class King extends Piece {
-    public King(ColorForChessPieces color,IndexPosition position){
-        super( color, position);
+    public King(ColorForChessPieces color, IndexPosition position) {
+        super(color, position);
     }
-
     @Override
     public IndexPosition[] getPossibleMoves(Piece[][] board) {
+        // create an array  of all possible direction of moves from a king(assuming that he can move to every direction)
         int[][] offsets = {
-            {-1, -1}, {-1, 0}, {-1, 1},
-            { 0, -1},          { 0, 1},
-            { 1, -1}, { 1, 0}, { 1, 1}
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
         };
 
         int currentRow = getPosition().getRow();
@@ -20,18 +20,19 @@ public class King extends Piece {
 
         IndexPosition[] temp = new IndexPosition[8];
         int count = 0;
-
+        //change the position on the board by incrementing each coordinate by the value of the offset
         for (int[] offset : offsets) {
             int r = currentRow + offset[0];
             int c = currentCol + offset[1];
-
-            if (r < 0 || r >= board.length || c < 0 || c >= board[0].length){
+            // this check avoids king from leaving the board
+            if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) {
                 continue;
             }
-            if (board[r][c] != null && board[r][c].isWhite() == this.isWhite()){
+            // this check avoids placing the king on the square with allied piece
+            if (board[r][c] != null && board[r][c].isWhite() == this.isWhite()) {
                 continue;
             }
-
+            // after all checks add the square to array of possible squares
             temp[count++] = new IndexPosition(r, c);
         }
 
@@ -39,12 +40,19 @@ public class King extends Piece {
         System.arraycopy(temp, 0, moves, 0, count);
         return moves;
     }
+    // this method just checks if the king has stayed on the starting squared designed by the rules of chess
+    public boolean hasMoved() {
+       if(this.isWhite()){
+           if(this.getPosition().getRow() !=0 || this.getPosition().getCol() !=3){
+               return true;
+           }
 
-    public boolean hasMoved(){
-        if((this.getPosition().getRow() == 0 && this.getPosition().getCol() == 3)||
-                (this.getPosition().getRow() == 7 && this.getPosition().getCol() == 3)){
-            return true;
-        }
+       }else  {
+           if(this.getPosition().getRow() !=7 || this.getPosition().getCol() !=3){
+               return true;
+           }
+
+       }
         return false;
 
     }
