@@ -5,17 +5,18 @@ import Constants.ColorForChessPieces;
 import java.awt.*;
 
 public class Knight extends Piece {
-    public Knight(ColorForChessPieces color,IndexPosition position) {
+    public Knight(ColorForChessPieces color, IndexPosition position) {
         super(color, position);
     }
 
     @Override
     public IndexPosition[] getPossibleMoves(Piece[][] board) {
-        int [][] offsets = {
-                {2,1},{2,-1},
-                {1,2},{1,-2},
-                {-2,1},{-2,-1},
-                {-1,2},{-1,-2},
+        // offset of all legal knight moves
+        int[][] offsets = {
+                {2, 1}, {2, -1},
+                {1, 2}, {1, -2},
+                {-2, 1}, {-2, -1},
+                {-1, 2}, {-1, -2},
 
         };
 
@@ -25,15 +26,15 @@ public class Knight extends Piece {
         int count = 0;
         IndexPosition[] temp = new IndexPosition[8];
 
-        for(int[] offset : offsets) {
-            int r=currentRow+offset[0];
-            int c=currentCol+offset[1];
+        for (int[] offset : offsets) {
+            int r = currentRow + offset[0];
+            int c = currentCol + offset[1];
 
-
-            if(r<0 || r>=board.length || c<0 || c>=board[0].length) {
+            // this checks avoids knight from moving out of the board and moving on the allied occupied square
+            if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) {
                 continue;
             }
-            if(board[r][c]!=null && !isEnemy(board[r][c])) {
+            if (board[r][c] != null && !isEnemy(board[r][c])) {
                 continue;
             }
 
