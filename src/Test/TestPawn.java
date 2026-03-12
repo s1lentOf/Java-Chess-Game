@@ -63,6 +63,10 @@ public class TestPawn {
         Pawn pawn2 = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(2, 2));
         Pawn pawn3 = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(2, 4));
 
+        board[2][3] = pawn;
+        board[2][2] = pawn2;
+        board[2][4] = pawn3;
+
         IndexPosition[] moves = pawn.getPossibleMoves(board);
 
         assertEquals(2, moves.length);
