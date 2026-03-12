@@ -6,6 +6,7 @@ public class King extends Piece {
     public King(ColorForChessPieces color, IndexPosition position) {
         super(color, position);
     }
+
     @Override
     public IndexPosition[] getPossibleMoves(Piece[][] board) {
         // create an array  of all possible direction of moves from a king(assuming that he can move to every direction)
@@ -29,7 +30,7 @@ public class King extends Piece {
                 continue;
             }
             // this check avoids placing the king on the square with allied piece
-            if (board[r][c] != null && board[r][c].isWhite() == this.isWhite()) {
+            if (board[r][c] != null && isEnemy(board[r][c])) {
                 continue;
             }
             // after all checks add the square to array of possible squares
@@ -40,19 +41,20 @@ public class King extends Piece {
         System.arraycopy(temp, 0, moves, 0, count);
         return moves;
     }
+
     // this method just checks if the king has stayed on the starting squared designed by the rules of chess
     public boolean hasMoved() {
-       if(this.isWhite()){
-           if(this.getPosition().getRow() !=0 || this.getPosition().getCol() !=3){
-               return true;
-           }
+        if (this.isWhite()) {
+            if (this.getPosition().getRow() != 0 || this.getPosition().getCol() != 3) {
+                return true;
+            }
 
-       }else  {
-           if(this.getPosition().getRow() !=7 || this.getPosition().getCol() !=3){
-               return true;
-           }
+        } else {
+            if (this.getPosition().getRow() != 7 || this.getPosition().getCol() != 3) {
+                return true;
+            }
 
-       }
+        }
         return false;
 
     }
