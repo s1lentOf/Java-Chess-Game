@@ -11,6 +11,36 @@ public class Knight extends Piece {
 
     @Override
     public IndexPosition[] getPossibleMoves(Piece[][] board) {
-        return new IndexPosition[0];
+        int [][] offsets = {
+                {2,1},{2,-1},
+                {1,2},{1,-2},
+                {-2,1},{-2,-1},
+                {-1,2},{-1,-2},
+
+        };
+
+        int currentRow = getPosition().getRow();
+        int currentCol = getPosition().getCol();
+
+        int count = 0;
+        IndexPosition[] temp = new IndexPosition[8];
+
+        for(int[] offset : offsets) {
+            int r=currentRow+offset[0];
+            int c=currentCol+offset[1];
+
+
+            if(r<0 || r>=board.length || c<0 || c>=board[0].length) {
+                continue;
+            }
+            if(board[r][c]!=null && !isEnemy(board[r][c])) {
+                continue;
+            }
+
+            temp[count++] = new IndexPosition(r, c);
+        }
+        IndexPosition[] moves = new IndexPosition[count];
+        System.arraycopy(temp, 0, moves, 0, count);
+        return moves;
     }
 }
