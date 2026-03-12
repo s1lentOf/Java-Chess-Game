@@ -40,4 +40,14 @@ public class King extends Piece {
         return moves;
     }
 
+    public boolean hasMoved(){
+        if((this.getPosition().getRow() == 0 && this.getPosition().getCol() == 3)||
+                (this.getPosition().getRow() == 7 && this.getPosition().getCol() == 3)){
+            return true;
+        }
+        return false;
+
+    }
+
+
 }
