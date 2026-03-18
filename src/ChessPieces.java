@@ -1,6 +1,9 @@
 import Constants.Piece;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.util.Base64;
 
 public class ChessPieces {
     private static final String WHITE_KING_64 = "data:image/png;base64,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";
@@ -17,7 +20,18 @@ public class ChessPieces {
     private static final String BLACK_PAWN_64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAAAL34HQAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAwUExURUxpcSUlJSwsKyUlJSQkJCUlJSUlJSUlJSUlJVZTUiYmJkVCQnd0dDo5OU1KSWZjYph8/hkAAAAJdFJOUwDg+3ofVjfEo/HPvWQAAANwSURBVHja7ZsLjqswDEUHAwHnu//dvjYg3QqG0GmDjfRyVnB0Y4zj0p9Go9FoNBqNRqPRaDQajUajcVsGM45muJXSOHd2ZerNTWLqsxPo+h99erI7SFvMdIuH45QSswur5DSoFlW2COy9T7ziKIuOigeYBdIiBZx9MqpaOf+AN5Ci12gfMKJ6JdgHRqUxEKx2xKdXp1H305EVCn/WOcKAutoSs5dRCQtWe1x4ti+NsCKO8C5xzUtYiY+1nLW2F9aipWPxMe4ZVydrZay1CWEB4HJ1DeINHmEdaDnxVj/n7pDOtXrp9uDOtUi6o3a5PfC51iSvlZrWH2qLS0TUlvCTWA4LT6Js30rvaI3iXf7kDNHlZd+JoWyFd6Igczkut57hrDGcFq0wbwl3LhsLR4jp9C5xOZ2wMMw73hNhNWvdE92RFe6J8scIL0jByhrFHURgOEW3Qpq7EbOsjHghArI4Qp2wbEi8I5LaTtBMS1SeAbwCdoLiURXmeecQmPTKlFJhM+IQmHhUCGsfl3RgA6LyngtasoGNdt3WlBc2aGBGTCsmTnkVD47bvREbmCOf4DKSg/OAV+F7WnITYOAyr2/HTnCOj2dWCKsXvI2FMys8iYPkYAocQERAbkQ1ZS1nLaBB8Jb4vlYv+kPwSmct/ao19SubsOR6RXQbsEDSIj+T8Co3K9Hadwyv3RtHb5xHo4KW1r0HpUW88SrsauTbfdwWF+meYWR43eQUKZ/hStx2LtWCB3ETl1Es+MQgaseFsBL/7kWoLvn9FvnEB16q30FAC16orlnnCJ335cG011gFks9aR14KqzdD+A29dBcjI27FCEvdC1bRPzi5JIp6jadrJI3Vbo+NDYOCVy/RRSdYpeINFl7TIPOZKfsMl3i9y9IoEBUlj7BKgQmtBEdain1vdb4SJHP9Z6YZfoMYEdh48WemyOptM4LXFd2KC1EV1cJFXgZWiOoPhGu2N93nVvCaLhmvIPWpV19/u0yw+gwcY809W0Ktf4arHdeAkeEbyFqqXVnpayuOiKva0g9Wn0NVH0aDEfk7sI8T+vj1/VMca95UCUf4DVWXvYTvJr8/xa5me2DPNXAoriqzQ0JY3xaXqVnxDLRrHlrkuQ4VG+qMrd/dtLgSVFcr1AHLuBpa9fgPtLqq9O1v1Y1Go9FoNC7hH8tnsgZelOfoAAAAAElFTkSuQmCC";
 
     public static BufferedImage get(Piece piece){
-        return null;
+        String b64 = getBase64(piece);
+        if (b64 == null || b64.equals("PASTE_BASE64_HERE")) {
+            System.err.println("ChessPieces: image not set yet for " + piece);
+            return null;
+        }
+        try {
+            byte[] bytes = Base64.getDecoder().decode(b64);
+            return ImageIO.read(new ByteArrayInputStream(bytes));
+        } catch (Exception e) {
+            System.err.println("ChessPieces: failed to decode " + piece + " — " + e.getMessage());
+            return null;
+        }
     }
 
     public static String getBase64(Piece piece){
