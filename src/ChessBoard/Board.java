@@ -1,7 +1,9 @@
 package ChessBoard;
 
+import ChessPieces.Piece;
 import Constants.Colors;
 import javax.swing.*;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 
 // This class is responsible for the chess board logic
@@ -57,4 +59,11 @@ public class Board {
         System.out.println(Arrays.deepToString(boardPositions));
     }
 
+    /*
+        This method returns a board indices where the mouse was tapped.
+     */
+    public void detectMouseClickPosition(MouseEvent mouseEvent) {
+        int mouse_x = mouseEvent.getX();
+        int mouse_y = mouseEvent.getY();
+    }
 }
