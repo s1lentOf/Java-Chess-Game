@@ -1,4 +1,6 @@
-import org.junit.jupiter.api.Test;
+package Test;
+
+import ChessPieces.ChessPieces;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 

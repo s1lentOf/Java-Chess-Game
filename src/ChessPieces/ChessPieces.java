@@ -1,3 +1,5 @@
+package ChessPieces;
+
 import Constants.Piece;
 
 import javax.imageio.ImageIO;
@@ -22,7 +24,7 @@ public class ChessPieces {
     public static BufferedImage get(Piece piece){
         String b64 = getBase64(piece);
         if (b64 == null || b64.equals("PASTE_BASE64_HERE")) {
-            System.err.println("ChessPieces: image not set yet for " + piece);
+            System.err.println("ChessPieces.ChessPieces: image not set yet for " + piece);
             return null;
         }
         try {
@@ -32,7 +34,7 @@ public class ChessPieces {
             byte[] bytes = Base64.getDecoder().decode(b64);
             return ImageIO.read(new ByteArrayInputStream(bytes));
         } catch (Exception e) {
-            System.err.println("ChessPieces: failed to decode " + piece + " — " + e.getMessage());
+            System.err.println("ChessPieces.ChessPieces: failed to decode " + piece + " — " + e.getMessage());
             return null;
         }
     }
