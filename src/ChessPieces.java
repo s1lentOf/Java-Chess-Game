@@ -26,6 +26,9 @@ public class ChessPieces {
             return null;
         }
         try {
+            if (b64.contains(",")) {
+                b64 = b64.substring(b64.indexOf(",") + 1);
+            }
             byte[] bytes = Base64.getDecoder().decode(b64);
             return ImageIO.read(new ByteArrayInputStream(bytes));
         } catch (Exception e) {
