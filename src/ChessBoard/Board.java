@@ -24,9 +24,9 @@ public class Board {
                 JPanel square = new JPanel();
 
                 if ((row + col) % 2 == 0) {
-                    square.setBackground(Colors.BROWN.getColor());
-                } else {
                     square.setBackground(Colors.WHITE.getColor());
+                } else {
+                    square.setBackground(Colors.BROWN.getColor());
                 }
 
                 window.add(square);
