@@ -37,6 +37,7 @@ public class Board {
         setUpPiecesOnTheBoard();
 
     }
+
     /*
      This method creates matrix, which represents a chess board.
      Each element stores x and y coordinates of the square on the chess board
@@ -50,20 +51,27 @@ public class Board {
      This method gives helps us to know the exact pixel position of each square for drawing
      pieces or handling mouse clicks.
      */
+    public void setUpMatrix() {
+        int cellSize = 75;
 
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
 
-    public void setUpMatrix(){
-        for(int row = 75; row<=600;row+=75){
-            for(int col = 75; col<=600;col+=75){
-                BoardSquarePosition temp = new BoardSquarePosition(row, col);
-                int x_matrix = row/75 -1;
-                int y_matrix = col/75 -1;
-                boardPositions[x_matrix][y_matrix] = temp;
+                int x = (col + 1) * cellSize;
+                int y = (row + 1) * cellSize;
+
+                BoardSquarePosition temp = new BoardSquarePosition(x, y);
+
+                boardPositions[row][col] = temp;
             }
         }
+
         System.out.println(Arrays.deepToString(boardPositions));
     }
 
+    /*
+    Initial setup of the pieces on the board
+     */
     public void setUpPiecesOnTheBoard() {
 
         // Pawns
@@ -108,10 +116,47 @@ public class Board {
     }
 
     /*
-        This method returns a board indices where the mouse was tapped.
+    This method returns a board indices where the mouse was tapped.
      */
     public void detectMouseClickPosition(MouseEvent mouseEvent) {
         int mouse_x = mouseEvent.getX();
         int mouse_y = mouseEvent.getY();
+
+        int cellWidth = 75;
+        int cellHeight = 75;
+
+        int clickedRow = -1;
+        int clickedCol = -1;
+
+        // Firstly iterate over the rows, to select the one, where the use has tapped.
+        for (int row = 0; row < boardPositions.length; row++) {
+            int bottomY = boardPositions[row][0].getY();
+            int topY = bottomY - cellHeight;
+
+            if (mouse_y >= topY && mouse_y <= bottomY) {
+                clickedRow = row;
+                break;
+            }
+        }
+
+        // Then iterate over each cell in the selected row, to get an exact cell indices.
+        if (clickedRow != -1) {
+            for (int col = 0; col < boardPositions[clickedRow].length; col++) {
+                int rightX = boardPositions[clickedRow][col].getX();
+                int leftX = rightX - cellWidth;
+
+                if (mouse_x >= leftX && mouse_x <= rightX) {
+                    clickedCol = col;
+                    break;
+                }
+            }
+        }
+
+        if (clickedRow != -1 && clickedCol != -1) {
+            // TODO: Call a method to select a piece on this indices.
+            System.out.println("Clicked cell -> row: " + clickedRow + ", col: " + clickedCol);
+        } else {
+            System.out.println("Click outside board");
+        }
     }
 }
