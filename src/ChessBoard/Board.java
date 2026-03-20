@@ -115,12 +115,19 @@ public class Board {
         int mouse_y = mouseEvent.getY();
     }
 
-    /* TODO:  a method which checks if the move is possible for the piece
+
+    /*  a method which checks if the move is possible for the piece
         by taking the array of all possible moves and checking if the move that the user wants to do is in that array
      */
 
-    public boolean isMovePossible(IndexPosition[] currentPosition, int[] futurePosition){
-        return true;
+    public boolean isMovePossible(IndexPosition[] possibleMoves, IndexPosition nextMove){
+        for (IndexPosition move : possibleMoves) {
+            if (move.getRow() == nextMove.getRow() && move.getCol() == nextMove.getCol()) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
 }
