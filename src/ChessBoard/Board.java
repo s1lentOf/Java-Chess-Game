@@ -16,6 +16,8 @@ public class Board {
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
 
+    private Piece selected = null;
+
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
         for (int row = 0; row < 8; row++) {
@@ -173,6 +175,13 @@ public class Board {
         }
         return false;
 
+    }
+
+    // a method which will select a piece for the detectMouseClickPosition() method
+    public void selectPiece(int row, int col){
+        if(piecesOnTheBoard[row][col]!=null){
+            selected = piecesOnTheBoard[row][col];
+        }
     }
 
 }
