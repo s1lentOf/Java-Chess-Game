@@ -32,12 +32,13 @@ class BoardTest {
 
     @Test
     void testAllPositionsHaveCorrectCoordinates() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                assertEquals((i + 1) * 75, positions[i][j].getX(),
-                        "Row mismatch at [" + i + "][" + j + "]");
-                assertEquals((j + 1) * 75, positions[i][j].getY(),
-                        "Col mismatch at [" + i + "][" + j + "]");
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                assertEquals((col + 1) * 75, positions[row][col].getX(),
+                        "row mismatch at [" + row + "][" + col + "]");
+
+                assertEquals((row + 1) * 75, positions[row][col].getY(),
+                        "col mismatch at [" + row + "][" + col + "]");
             }
         }
     }
@@ -57,11 +58,17 @@ class BoardTest {
     @Test
     void testSetUpMatrixIsIdempotent() {
         board.setUpMatrix();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                assertNotNull(positions[i][j]);
-                assertEquals((i + 1) * 75, positions[i][j].getX());
-                assertEquals((j + 1) * 75, positions[i][j].getY());
+        board.setUpMatrix();
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                assertNotNull(positions[row][col],
+                        "Position should not be null at [" + row + "][" + col + "]");
+                assertEquals((col + 1) * 75, positions[row][col].getX(),
+                        "row mismatch at [" + row + "][" + col + "]");
+
+                assertEquals((row + 1) * 75, positions[row][col].getY(),
+                        "col mismatch at [" + row + "][" + col + "]");
             }
         }
     }
