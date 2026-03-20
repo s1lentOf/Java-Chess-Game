@@ -10,8 +10,6 @@ public class BoardSquarePosition {
         this.y = y;
 
     }
-
-
     public int getX() {
         return x;
     }

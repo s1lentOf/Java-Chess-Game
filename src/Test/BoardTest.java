@@ -2,6 +2,7 @@ package Test;
 
 import ChessBoard.Board;
 import ChessBoard.BoardSquarePosition;
+import ChessPieces.IndexPosition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
@@ -63,5 +64,20 @@ class BoardTest {
                 assertEquals((j + 1) * 75, positions[i][j].getY());
             }
         }
+    }
+
+    @Test
+    void testisMovePossible(){
+        IndexPosition[] possibleMoves = {
+                new IndexPosition(2, 3),
+                new IndexPosition(3, 3)
+        };
+
+        IndexPosition validMove = new IndexPosition(2, 3);
+        IndexPosition invalidMove = new IndexPosition(4, 4);
+
+        assertTrue(board.isMovePossible(possibleMoves,validMove));
+        assertFalse(board.isMovePossible(possibleMoves,invalidMove));
+
     }
 }
