@@ -3,6 +3,7 @@ package Test;
 import ChessBoard.Board;
 import ChessBoard.BoardSquarePosition;
 import ChessPieces.IndexPosition;
+import ChessPieces.Pawn;
 import ChessPieces.Piece;
 import ChessPieces.Rook;
 import Constants.ColorForChessPieces;
@@ -135,5 +136,125 @@ class BoardTest {
         assertNotNull(result);
         assertEquals(600, result.getX());
         assertEquals(600, result.getY());
+    }
+
+    @Test
+    void testHandleSquareClick_SelectPiece() throws Exception {
+        Piece piece = new Pawn(null, new IndexPosition(0, 0));
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = piece;
+        boardField.set(board, boardArray);
+
+        board.handleSquareClick(new IndexPosition[]{}, new IndexPosition(0, 0));
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        Piece selected = (Piece) selectedField.get(board);
+
+        assertEquals(piece, selected);
+    }
+
+    @Test
+    void testHandleSquareClick_MoveToEmptySquare() throws Exception {
+        Piece piece = new Pawn(null, new IndexPosition(0, 0));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = piece;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, piece);
+
+        IndexPosition move = new IndexPosition(0, 1);
+
+        board.handleSquareClick(new IndexPosition[]{move}, move);
+
+        Piece[][] result = (Piece[][]) boardField.get(board);
+
+        assertNull(result[0][0]);
+        assertEquals(piece, result[0][1]);
+    }
+
+    @Test
+    void testHandleSquareClick_CaptureEnemy() throws Exception {
+        Piece white = new Pawn(null, new IndexPosition(0, 0));
+        Piece black = new Pawn(null, new IndexPosition(0, 1));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = white;
+        boardArray[0][1] = black;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, white);
+
+        IndexPosition move = new IndexPosition(0, 1);
+
+        board.handleSquareClick(new IndexPosition[]{move}, move);
+
+        Piece[][] result = (Piece[][]) boardField.get(board);
+
+        assertNull(result[0][0]);
+        assertEquals(white, result[0][1]);
+    }
+
+    @Test
+    void testHandleSquareClick_ReselectSameColor() throws Exception {
+        Piece first = new Pawn(null, new IndexPosition(0, 0));
+        Piece second = new Pawn(null, new IndexPosition(1, 0));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = first;
+        boardArray[1][0] = second;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, first);
+
+        board.handleSquareClick(new IndexPosition[]{}, new IndexPosition(1, 0));
+
+        Piece selected = (Piece) selectedField.get(board);
+
+        assertEquals(second, selected);
+    }
+
+    @Test
+    void testHandleSquareClick_InvalidMove() throws Exception {
+        Piece piece = new Pawn(null, new IndexPosition(0, 0));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = piece;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, piece);
+
+        IndexPosition invalidMove = new IndexPosition(5, 5);
+
+        board.handleSquareClick(new IndexPosition[]{}, invalidMove);
+
+        Piece[][] result = (Piece[][]) boardField.get(board);
+
+        assertEquals(piece, result[0][0]);
+        assertNull(result[5][5]);
     }
 }
