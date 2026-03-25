@@ -177,13 +177,27 @@ public class Board {
 
     }
 
-    /* TODO: create a method which will:
+    /* what this method does:
     //  1) check if there is a piece on the square
             1.2) if yes check if any piece was selected.
             1.3) if the piece is the same color, then reassign piece.
             1.4) if not, check if the move is possible( if yes capture)
         2) if there is no piece - check if the move is possible(if yes move)
     */
+
+    public void handleSquareClick(IndexPosition[] possibleMoves, IndexPosition nextMove){
+
+    }
+
+    // helper method for moving the piece
+    private void moveSelectedPiece(IndexPosition nextMove) {
+
+    }
+
+    // helper method for capturing the piece
+    private void capturePiece(IndexPosition nextMove) {
+
+    }
 
     // a method which will select a piece for the detectMouseClickPosition() method
     public void selectPiece(int row, int col){
