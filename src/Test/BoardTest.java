@@ -3,6 +3,9 @@ package Test;
 import ChessBoard.Board;
 import ChessBoard.BoardSquarePosition;
 import ChessPieces.IndexPosition;
+import ChessPieces.Piece;
+import ChessPieces.Rook;
+import Constants.ColorForChessPieces;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
@@ -86,5 +89,51 @@ class BoardTest {
         assertTrue(board.isMovePossible(possibleMoves,validMove));
         assertFalse(board.isMovePossible(possibleMoves,invalidMove));
 
+    }
+
+    @Test
+    void testGetPixelsToDraw_FirstPosition() {
+        IndexPosition position = new IndexPosition(0, 0);
+        Piece piece = new Rook(ColorForChessPieces.WHITE, position);
+
+        Board board = new Board();
+        board.setUpMatrix();
+
+        BoardSquarePosition result = board.getPixelsToDraw(piece);
+
+        assertNotNull(result);
+        assertEquals(75, result.getX());
+        assertEquals(75, result.getY());
+    }
+
+    @Test
+    void testGetPixelsToDraw_MiddlePosition() {
+        IndexPosition position = new IndexPosition(3, 4);
+        Piece piece = new Rook(ColorForChessPieces.WHITE, position);
+
+        Board board = new Board();
+        board.setUpMatrix();
+
+
+        BoardSquarePosition result = board.getPixelsToDraw(piece);
+
+        assertNotNull(result);
+        assertEquals(375, result.getX());
+        assertEquals(300, result.getY());
+    }
+
+    @Test
+    void testGetPixelsToDraw_LastSquare() {
+        IndexPosition position = new IndexPosition(7, 7);
+        Piece piece = new Rook(ColorForChessPieces.BLACK, position);
+
+        Board board = new Board();
+        board.setUpMatrix();
+
+        BoardSquarePosition result = board.getPixelsToDraw(piece);
+
+        assertNotNull(result);
+        assertEquals(600, result.getX());
+        assertEquals(600, result.getY());
     }
 }

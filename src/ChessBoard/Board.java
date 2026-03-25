@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class Board {
 
     // Stores elements with its x and y coordinates of the square on the chess board.
-    private BoardSquarePosition[][] boardPositions = new BoardSquarePosition[8][8];
+    private static final BoardSquarePosition[][] boardPositions = new BoardSquarePosition[8][8];
 
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
@@ -38,6 +38,14 @@ public class Board {
         setUpMatrix();
         setUpPiecesOnTheBoard();
 
+    }
+
+    /*
+     This method returns pixels of the square we moved the piece to.
+     */
+    public static BoardSquarePosition getPixelsToDraw(Piece pieceToDraw) {
+        IndexPosition pieceToDrawNewPosition = pieceToDraw.getPosition();
+        return boardPositions[pieceToDrawNewPosition.getRow()][pieceToDrawNewPosition.getCol()];
     }
 
     /*
