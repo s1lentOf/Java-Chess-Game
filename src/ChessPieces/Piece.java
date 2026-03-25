@@ -3,6 +3,8 @@ package ChessPieces;
 import Constants.ColorForChessPieces;
 
 import javax.swing.text.Position;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public abstract class Piece {
     private ColorForChessPieces color;
@@ -37,6 +39,20 @@ public abstract class Piece {
 
     // this method will return an array of all possible piece moves
     public abstract IndexPosition[] getPossibleMoves(Piece[][] board);
+
+    public void paint(Graphics2D g, int x, int y) {
+        // Build the enum name: e.g. "WHITE_KING", "BLACK_PAWN"
+        String colorPrefix = isWhite() ? "WHITE" : "BLACK";
+        String pieceName = getClass().getSimpleName().toUpperCase(); // "King" → "KING"
+        String constantName = colorPrefix + "_" + pieceName;
+
+        // Fetch the image from ChessPieces using the Constants.Piece enum
+        Constants.Piece piece = Constants.Piece.valueOf(constantName);
+        BufferedImage image = ChessPieces.get(piece);
+        if (image != null) {
+            g.drawImage(image, x, y, null);
+        }
+    }
 
 
 }
