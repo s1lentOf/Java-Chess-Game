@@ -8,8 +8,8 @@ public class BoardSquarePosition {
     public BoardSquarePosition(int x, int y) {
         this.x = x;
         this.y = y;
-    }
 
+    }
     public int getX() {
         return x;
     }
