@@ -148,7 +148,7 @@ class BoardTest {
         boardArray[0][0] = piece;
         boardField.set(board, boardArray);
 
-        board.handleSquareClick(new IndexPosition[]{}, new IndexPosition(0, 0));
+        board.handleSquareClick(new IndexPosition(0, 0));
 
         Field selectedField = Board.class.getDeclaredField("selected");
         selectedField.setAccessible(true);
@@ -174,7 +174,7 @@ class BoardTest {
 
         IndexPosition move = new IndexPosition(0, 1);
 
-        board.handleSquareClick(new IndexPosition[]{move}, move);
+        board.handleSquareClick(move);
 
         Piece[][] result = (Piece[][]) boardField.get(board);
 
@@ -201,7 +201,7 @@ class BoardTest {
 
         IndexPosition move = new IndexPosition(0, 1);
 
-        board.handleSquareClick(new IndexPosition[]{move}, move);
+        board.handleSquareClick(move);
 
         Piece[][] result = (Piece[][]) boardField.get(board);
 
@@ -226,7 +226,7 @@ class BoardTest {
         selectedField.setAccessible(true);
         selectedField.set(board, first);
 
-        board.handleSquareClick(new IndexPosition[]{}, new IndexPosition(1, 0));
+        board.handleSquareClick(new IndexPosition(1, 0));
 
         Piece selected = (Piece) selectedField.get(board);
 
@@ -250,7 +250,7 @@ class BoardTest {
 
         IndexPosition invalidMove = new IndexPosition(5, 5);
 
-        board.handleSquareClick(new IndexPosition[]{}, invalidMove);
+        board.handleSquareClick(invalidMove);
 
         Piece[][] result = (Piece[][]) boardField.get(board);
 
