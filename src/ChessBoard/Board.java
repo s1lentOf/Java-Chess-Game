@@ -194,17 +194,43 @@ public class Board {
     */
 
     public void handleSquareClick(IndexPosition[] possibleMoves, IndexPosition nextMove){
+        Piece targetPiece = piecesOnTheBoard[nextMove.getCol()][nextMove.getRow()];
 
+        if (selected == null) {
+            if (targetPiece != null) {
+                selected = targetPiece;
+            }
+            return;
+        }
+        if (targetPiece != null) {
+            if (!selected.isEnemy(targetPiece)) {
+                selected = targetPiece;
+            } else if (isMovePossible(possibleMoves, nextMove)) {
+                capturePiece(nextMove);
+            }
+        }
+
+        else if (isMovePossible(possibleMoves, nextMove)) {
+            moveSelectedPiece(nextMove);
+        }
     }
 
-    // helper method for moving the piece
+    // helper method for moving a piece
     private void moveSelectedPiece(IndexPosition nextMove) {
+        IndexPosition selectedPiecePosition = selected.getPosition();
+        piecesOnTheBoard[selectedPiecePosition.getCol()][selectedPiecePosition.getRow()] = null;
 
+        selectedPiecePosition.setCol(nextMove.getCol());
+        selectedPiecePosition.setRow(nextMove.getRow());
+
+        piecesOnTheBoard[nextMove.getCol()][nextMove.getRow()] = selected;
+
+        selected = null;
     }
 
-    // helper method for capturing the piece
+    //helper method for capturing the piece
     private void capturePiece(IndexPosition nextMove) {
-
+        moveSelectedPiece(nextMove);
     }
 
     // a method which will select a piece for the detectMouseClickPosition() method
