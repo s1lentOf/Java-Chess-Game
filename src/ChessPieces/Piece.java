@@ -1,5 +1,6 @@
 package ChessPieces;
 
+import ChessBoard.*;
 import Constants.ColorForChessPieces;
 
 import javax.swing.text.Position;
@@ -49,8 +50,9 @@ public abstract class Piece {
         // Fetch the image from ChessPieces using the Constants.Piece enum
         Constants.Piece piece = Constants.Piece.valueOf(constantName);
         BufferedImage image = ChessPieces.get(piece);
+        BoardSquarePosition pos = ChessBoard.Board.getPixelsToDraw(this);
         if (image != null) {
-            g.drawImage(image, x, y, null);
+            g.drawImage(image, pos.getX()/2, pos.getY()/2, null);
         }
     }
 
