@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class Board {
 
     // Stores elements with its x and y coordinates of the square on the chess board.
-    private final BoardSquarePosition[][] boardPositions = new BoardSquarePosition[8][8];
+    private static final BoardSquarePosition[][] boardPositions = new BoardSquarePosition[8][8];
 
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
@@ -43,7 +43,7 @@ public class Board {
     /*
      This method returns pixels of the square we moved the piece to.
      */
-    public BoardSquarePosition getPixelsToDraw(Piece pieceToDraw) {
+    public static BoardSquarePosition getPixelsToDraw(Piece pieceToDraw) {
         IndexPosition pieceToDrawNewPosition = pieceToDraw.getPosition();
         return boardPositions[pieceToDrawNewPosition.getRow()][pieceToDrawNewPosition.getCol()];
     }
@@ -185,13 +185,53 @@ public class Board {
 
     }
 
-    /* TODO: create a method which will:
+    /* what this method does:
     //  1) check if there is a piece on the square
             1.2) if yes check if any piece was selected.
             1.3) if the piece is the same color, then reassign piece.
             1.4) if not, check if the move is possible( if yes capture)
         2) if there is no piece - check if the move is possible(if yes move)
     */
+
+    public void handleSquareClick(IndexPosition[] possibleMoves, IndexPosition nextMove){
+        Piece targetPiece = piecesOnTheBoard[nextMove.getCol()][nextMove.getRow()];
+
+        if (selected == null) {
+            if (targetPiece != null) {
+                selected = targetPiece;
+            }
+            return;
+        }
+        if (targetPiece != null) {
+            if (!selected.isEnemy(targetPiece)) {
+                selected = targetPiece;
+            } else if (isMovePossible(possibleMoves, nextMove)) {
+                capturePiece(nextMove);
+            }
+        }
+
+        else if (isMovePossible(possibleMoves, nextMove)) {
+            moveSelectedPiece(nextMove);
+        }
+    }
+
+    // helper method for moving a piece
+    private void moveSelectedPiece(IndexPosition nextMove) {
+        IndexPosition selectedPiecePosition = selected.getPosition();
+        piecesOnTheBoard[selectedPiecePosition.getCol()][selectedPiecePosition.getRow()] = null;
+
+        selectedPiecePosition.setCol(nextMove.getCol());
+        selectedPiecePosition.setRow(nextMove.getRow());
+
+        piecesOnTheBoard[nextMove.getCol()][nextMove.getRow()] = selected;
+
+        selected = null;
+    }
+
+    //helper method for capturing the piece
+    private void capturePiece(IndexPosition nextMove) {
+        moveSelectedPiece(nextMove);
+    }
 
     // a method which will select a piece for the detectMouseClickPosition() method
     public void selectPiece(int row, int col){
