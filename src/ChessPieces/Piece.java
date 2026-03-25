@@ -41,7 +41,7 @@ public abstract class Piece {
     // this method will return an array of all possible piece moves
     public abstract IndexPosition[] getPossibleMoves(Piece[][] board);
 
-    public void paint(Graphics2D g, int x, int y) {
+    public BufferedImage paint() {
         // Build the enum name: e.g. "WHITE_KING", "BLACK_PAWN"
         String colorPrefix = isWhite() ? "WHITE" : "BLACK";
         String pieceName = getClass().getSimpleName().toUpperCase(); // "King" → "KING"
@@ -49,11 +49,7 @@ public abstract class Piece {
 
         // Fetch the image from ChessPieces using the Constants.Piece enum
         Constants.Piece piece = Constants.Piece.valueOf(constantName);
-        BufferedImage image = ChessPieces.get(piece);
-        BoardSquarePosition pos = ChessBoard.Board.getPixelsToDraw(this);
-        if (image != null) {
-            g.drawImage(image, pos.getX()/2, pos.getY()/2, null);
-        }
+        return ChessPieces.get(piece);
     }
 
 
