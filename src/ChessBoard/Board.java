@@ -44,7 +44,8 @@ public class Board {
      This method returns pixels of the square we moved the piece to.
      */
     public BoardSquarePosition getPixelsToDraw(Piece pieceToDraw) {
-        return null;
+        IndexPosition pieceToDrawNewPosition = pieceToDraw.getPosition();
+        return boardPositions[pieceToDrawNewPosition.getRow()][pieceToDrawNewPosition.getCol()];
     }
 
     /*

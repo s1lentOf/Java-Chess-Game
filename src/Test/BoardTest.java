@@ -97,6 +97,7 @@ class BoardTest {
         Piece piece = new Rook(ColorForChessPieces.WHITE, position);
 
         Board board = new Board();
+        board.setUpMatrix();
 
         BoardSquarePosition result = board.getPixelsToDraw(piece);
 
@@ -111,6 +112,8 @@ class BoardTest {
         Piece piece = new Rook(ColorForChessPieces.WHITE, position);
 
         Board board = new Board();
+        board.setUpMatrix();
+
 
         BoardSquarePosition result = board.getPixelsToDraw(piece);
 
@@ -125,6 +128,7 @@ class BoardTest {
         Piece piece = new Rook(ColorForChessPieces.BLACK, position);
 
         Board board = new Board();
+        board.setUpMatrix();
 
         BoardSquarePosition result = board.getPixelsToDraw(piece);
 
