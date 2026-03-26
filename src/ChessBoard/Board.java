@@ -22,6 +22,19 @@ public class Board {
 
     private JPanel[][] squares = new JPanel[8][8];
 
+    // getters for easier testing
+    public Piece getSelected() {
+        return selected;
+    }
+
+    public Piece getPieceAt(int row, int col) {
+        return piecesOnTheBoard[row][col];
+    }
+
+    public void setPieceAt(int row, int col, Piece piece) {
+        piecesOnTheBoard[row][col] = piece;
+    }
+
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
         window.setLayout(new GridLayout(8, 8));
@@ -273,6 +286,8 @@ public class Board {
     public void refreshBoard() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
+
+                if (squares[row][col] == null) continue;
 
                 squares[row][col].removeAll();
 
