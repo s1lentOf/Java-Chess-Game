@@ -4,7 +4,9 @@ import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Constants.Colors;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 // This class is responsible for the chess board logic
@@ -18,12 +20,29 @@ public class Board {
 
     private Piece selected = null;
 
+    private JPanel[][] squares = new JPanel[8][8];
+
+    // getters for easier testing
+    public Piece getSelected() {
+        return selected;
+    }
+
+    public Piece getPieceAt(int row, int col) {
+        return piecesOnTheBoard[row][col];
+    }
+
+    public void setPieceAt(int row, int col, Piece piece) {
+        piecesOnTheBoard[row][col] = piece;
+    }
+
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
+        window.setLayout(new GridLayout(8, 8));
+
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
 
-                JPanel square = new JPanel();
+                JPanel square = new JPanel(new BorderLayout());
 
                 if ((row + col) % 2 == 0) {
                     square.setBackground(Colors.WHITE.getColor());
@@ -31,13 +50,13 @@ public class Board {
                     square.setBackground(Colors.BROWN.getColor());
                 }
 
+                squares[row][col] = square;
                 window.add(square);
             }
         }
 
         setUpMatrix();
         setUpPiecesOnTheBoard();
-
     }
 
     /*
@@ -122,7 +141,14 @@ public class Board {
         piecesOnTheBoard[7][4] = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
         piecesOnTheBoard[0][4] = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
 
-        System.out.println(Arrays.deepToString(piecesOnTheBoard));
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = piecesOnTheBoard[row][col];
+                if (piece != null) {
+                    drawPiece(piece);
+                }
+            }
+        }
     }
 
     /*
@@ -163,8 +189,8 @@ public class Board {
         }
 
         if (clickedRow != -1 && clickedCol != -1) {
-            // TODO: Call a method to select a piece on this indices.
-            System.out.println("Clicked cell -> row: " + clickedRow + ", col: " + clickedCol);
+            System.out.println("Handling new click");
+            handleSquareClick(new IndexPosition(clickedRow, clickedCol));
         } else {
             System.out.println("Click outside board");
         }
@@ -174,18 +200,16 @@ public class Board {
     /*  a method which checks if the move is possible for the piece
         by taking the array of all possible moves and checking if the move that the user wants to do is in that array
      */
-
-    public boolean isMovePossible(IndexPosition[] possibleMoves, IndexPosition nextMove){
+    public boolean isMovePossible(IndexPosition[] possibleMoves, IndexPosition nextMove) {
         for (IndexPosition move : possibleMoves) {
             if (move.getRow() == nextMove.getRow() && move.getCol() == nextMove.getCol()) {
                 return true;
             }
         }
         return false;
-
     }
 
-    /* TODO: create a method which will:
+    /* what this method does:
     //  1) check if there is a piece on the square
             1.2) if yes check if any piece was selected.
             1.3) if the piece is the same color, then reassign piece.
@@ -193,11 +217,89 @@ public class Board {
         2) if there is no piece - check if the move is possible(if yes move)
     */
 
+    public void handleSquareClick(IndexPosition nextMove) {
+        Piece targetPiece = piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()];
+
+        if (selected == null) {
+            if (targetPiece != null) {
+                selected = targetPiece;
+                System.out.println("Selected new piece");
+            }
+            return;
+        }
+
+        if (targetPiece != null) {
+            if (!selected.isEnemy(targetPiece)) {
+                System.out.println("Reselected piece");
+                selected = targetPiece;
+            } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
+                System.out.println("Captured piece");
+                capturePiece(nextMove);
+            }
+        } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
+            System.out.println("Just moved piece");
+            moveSelectedPiece(nextMove);
+        }
+
+        System.out.println(Arrays.deepToString(piecesOnTheBoard));
+    }
+
+    // helper method for moving a piece
+    private void moveSelectedPiece(IndexPosition nextMove) {
+        IndexPosition selectedPiecePosition = selected.getPosition();
+        piecesOnTheBoard[selectedPiecePosition.getRow()][selectedPiecePosition.getCol()] = null;
+
+        selectedPiecePosition.setCol(nextMove.getCol());
+        selectedPiecePosition.setRow(nextMove.getRow());
+
+        piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = selected;
+        refreshBoard();
+
+        selected = null;
+    }
+
+    //helper method for capturing the piece
+    private void capturePiece(IndexPosition nextMove) {
+        moveSelectedPiece(nextMove);
+    }
+
     // a method which will select a piece for the detectMouseClickPosition() method
-    public void selectPiece(int row, int col){
-        if(piecesOnTheBoard[row][col]!=null){
+    public void selectPiece(int row, int col) {
+        if (piecesOnTheBoard[row][col] != null) {
             selected = piecesOnTheBoard[row][col];
         }
     }
 
+    public void drawPiece(Piece piece) {
+        BufferedImage image = piece.paint();
+
+        if (image != null) {
+            JLabel label = new JLabel(new ImageIcon(image));
+
+            int row = piece.getPosition().getRow();
+            int col = piece.getPosition().getCol();
+
+            squares[row][col].add(label, BorderLayout.CENTER);
+        }
+    }
+
+    public void refreshBoard() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+
+                if (squares[row][col] == null) continue;
+
+                squares[row][col].removeAll();
+
+                Piece piece = piecesOnTheBoard[row][col];
+                if (piece != null) {
+                    BufferedImage img = piece.paint();
+                    squares[row][col].add(new JLabel(new ImageIcon(img)));
+                }
+
+                squares[row][col].revalidate();
+                squares[row][col].repaint();
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ package Test;
 import ChessBoard.Board;
 import ChessBoard.BoardSquarePosition;
 import ChessPieces.IndexPosition;
+import ChessPieces.Pawn;
 import ChessPieces.Piece;
 import ChessPieces.Rook;
 import Constants.ColorForChessPieces;
@@ -135,5 +136,91 @@ class BoardTest {
         assertNotNull(result);
         assertEquals(600, result.getX());
         assertEquals(600, result.getY());
+    }
+
+
+    @Test
+    void testHandleSquareClick_NoSelection_EmptySquare_DoesNothing() {
+        board.handleSquareClick(new IndexPosition(4, 4));
+
+        assertNull(board.getSelected(), "selected should remain null when clicking empty square");
+    }
+
+    @Test
+    void testHandleSquareClick_NoSelection_ClickPiece_SelectsPiece() {
+        Piece rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        board.setPieceAt(0, 0, rook);
+
+        board.handleSquareClick(new IndexPosition(0, 0));
+
+        assertEquals(rook, board.getSelected(), "Clicking a piece with nothing selected should select it");
+    }
+
+    @Test
+    void testHandleSquareClick_SameColor_Reselects() {
+        Piece rook1 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Piece rook2 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
+        board.setPieceAt(0, 0, rook1);
+        board.setPieceAt(1, 0, rook2);
+
+        board.handleSquareClick(new IndexPosition(0, 0));
+        board.handleSquareClick(new IndexPosition(1, 0));
+
+        assertEquals(rook2, board.getSelected(), "Clicking same-color piece should reselect to that piece");
+    }
+
+    @Test
+    void testHandleSquareClick_MoveToEmptySquare() {
+        Piece rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        board.setPieceAt(0, 0, rook);
+
+        board.handleSquareClick(new IndexPosition(0, 0));
+        board.handleSquareClick(new IndexPosition(0, 4));
+
+        assertNull(board.getPieceAt(0, 0), "Origin square should be empty after move");
+        assertEquals(rook, board.getPieceAt(0, 4), "Rook should now be at destination");
+        assertNull(board.getSelected(), "selected should be cleared after move");
+    }
+
+    @Test
+    void testHandleSquareClick_InvalidMove_DoesNotMove() {
+        Piece rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        board.setPieceAt(0, 0, rook);
+
+        board.handleSquareClick(new IndexPosition(0, 0));
+        board.handleSquareClick(new IndexPosition(5, 5)); // diagonal — invalid for Rook
+
+        assertEquals(rook, board.getPieceAt(0, 0), "Rook should not have moved");
+        assertNull(board.getPieceAt(5, 5), "Nothing should appear at invalid destination");
+        assertEquals(rook, board.getSelected(), "selected should still be the rook");
+    }
+
+    @Test
+    void testHandleSquareClick_CapturesEnemyPiece() {
+        Piece whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Piece blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(0, 4));
+        board.setPieceAt(0, 0, whiteRook);
+        board.setPieceAt(0, 4, blackRook);
+
+        board.handleSquareClick(new IndexPosition(0, 0));
+        board.handleSquareClick(new IndexPosition(0, 4));
+
+        assertNull(board.getPieceAt(0, 0), "Origin should be empty after capture");
+        assertEquals(whiteRook, board.getPieceAt(0, 4), "White rook should occupy the captured square");
+        assertNull(board.getSelected(), "selected should be cleared after capture");
+    }
+
+    @Test
+    void testHandleSquareClick_EnemyPiece_MoveNotPossible_NoCapture() {
+        Piece whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Piece blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(5, 5)); // diagonal
+        board.setPieceAt(0, 0, whiteRook);
+        board.setPieceAt(5, 5, blackRook);
+
+        board.handleSquareClick(new IndexPosition(0, 0));
+        board.handleSquareClick(new IndexPosition(5, 5));
+
+        assertEquals(whiteRook, board.getPieceAt(0, 0), "White rook should not have moved");
+        assertEquals(blackRook, board.getPieceAt(5, 5), "Black rook should not have been captured");
     }
 }
