@@ -1,7 +1,6 @@
 package Test;
 
 import ChessBoard.Board;
-import ChessBoard.BoardSquarePosition;
 import ChessPieces.IndexPosition;
 import ChessPieces.Pawn;
 import ChessPieces.Piece;
