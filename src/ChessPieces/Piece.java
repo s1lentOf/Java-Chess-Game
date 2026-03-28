@@ -52,5 +52,10 @@ public abstract class Piece {
         return ChessPieces.get(piece);
     }
 
+    @Override
+    public String toString() {
+        return "Position: " + position.getCol() + "," + position.getRow() + ", Color: " + color;
+    }
+
 
 }
