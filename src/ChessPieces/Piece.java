@@ -65,5 +65,10 @@ public abstract class Piece {
         return resized;
     }
 
+    @Override
+    public String toString() {
+        return "Position: " + position.getCol() + "," + position.getRow() + ", Color: " + color;
+    }
+
 
 }
