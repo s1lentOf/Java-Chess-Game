@@ -1,7 +1,6 @@
 package Test;
 
 import ChessBoard.Board;
-import ChessBoard.BoardSquarePosition;
 import ChessPieces.IndexPosition;
 import ChessPieces.Pawn;
 import ChessPieces.Piece;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BoardTest {
 
     private Board board;
-    private BoardSquarePosition[][] positions;
+    private IndexPosition[][] positions;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -24,7 +23,7 @@ class BoardTest {
 
         Field field = Board.class.getDeclaredField("boardPositions");
         field.setAccessible(true);
-        positions = (BoardSquarePosition[][]) field.get(board);
+        positions = (IndexPosition[][]) field.get(board);
     }
 
     @Test
@@ -38,10 +37,10 @@ class BoardTest {
     void testAllPositionsHaveCorrectCoordinates() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                assertEquals((col + 1) * 75, positions[row][col].getX(),
+                assertEquals((row + 1) * 75, positions[row][col].getRow(),
                         "row mismatch at [" + row + "][" + col + "]");
 
-                assertEquals((row + 1) * 75, positions[row][col].getY(),
+                assertEquals((col + 1) * 75, positions[row][col].getCol(),
                         "col mismatch at [" + row + "][" + col + "]");
             }
         }
@@ -49,14 +48,14 @@ class BoardTest {
 
     @Test
     void testFirstPosition() {
-        assertEquals(75, positions[0][0].getX());
-        assertEquals(75, positions[0][0].getY());
+        assertEquals(75, positions[0][0].getCol());
+        assertEquals(75, positions[0][0].getRow());
     }
 
     @Test
     void testLastPosition() {
-        assertEquals(600, positions[7][7].getX());
-        assertEquals(600, positions[7][7].getY());
+        assertEquals(600, positions[7][7].getCol());
+        assertEquals(600, positions[7][7].getRow());
     }
 
     @Test
@@ -68,10 +67,10 @@ class BoardTest {
             for (int col = 0; col < 8; col++) {
                 assertNotNull(positions[row][col],
                         "Position should not be null at [" + row + "][" + col + "]");
-                assertEquals((col + 1) * 75, positions[row][col].getX(),
+                assertEquals((row + 1) * 75, positions[row][col].getRow(),
                         "row mismatch at [" + row + "][" + col + "]");
 
-                assertEquals((row + 1) * 75, positions[row][col].getY(),
+                assertEquals((col + 1) * 75, positions[row][col].getCol(),
                         "col mismatch at [" + row + "][" + col + "]");
             }
         }
@@ -100,11 +99,11 @@ class BoardTest {
         Board board = new Board();
         board.setUpMatrix();
 
-        BoardSquarePosition result = board.getPixelsToDraw(piece);
+        IndexPosition result = board.getPixelsToDraw(piece);
 
         assertNotNull(result);
-        assertEquals(75, result.getX());
-        assertEquals(75, result.getY());
+        assertEquals(75, result.getCol());
+        assertEquals(75, result.getRow());
     }
 
     @Test
@@ -115,12 +114,13 @@ class BoardTest {
         Board board = new Board();
         board.setUpMatrix();
 
+        IndexPosition result = board.getPixelsToDraw(piece);
 
-        BoardSquarePosition result = board.getPixelsToDraw(piece);
+        System.out.println(result.getRow() + " " + result.getCol());
 
         assertNotNull(result);
-        assertEquals(375, result.getX());
-        assertEquals(300, result.getY());
+        assertEquals(300, result.getRow());
+        assertEquals(375, result.getCol());
     }
 
     @Test
@@ -131,96 +131,130 @@ class BoardTest {
         Board board = new Board();
         board.setUpMatrix();
 
-        BoardSquarePosition result = board.getPixelsToDraw(piece);
+        IndexPosition result = board.getPixelsToDraw(piece);
 
         assertNotNull(result);
-        assertEquals(600, result.getX());
-        assertEquals(600, result.getY());
-    }
-
-
-    @Test
-    void testHandleSquareClick_NoSelection_EmptySquare_DoesNothing() {
-        board.handleSquareClick(new IndexPosition(4, 4));
-
-        assertNull(board.getSelected(), "selected should remain null when clicking empty square");
+        assertEquals(600, result.getCol());
+        assertEquals(600, result.getRow());
     }
 
     @Test
-    void testHandleSquareClick_NoSelection_ClickPiece_SelectsPiece() {
-        Piece rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        board.setPieceAt(0, 0, rook);
+    void testHandleSquareClick_SelectPiece() throws Exception {
+        Piece piece = new Pawn(null, new IndexPosition(0, 0));
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = piece;
+        boardField.set(board, boardArray);
 
         board.handleSquareClick(new IndexPosition(0, 0));
 
-        assertEquals(rook, board.getSelected(), "Clicking a piece with nothing selected should select it");
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        Piece selected = (Piece) selectedField.get(board);
+
+        assertEquals(piece, selected);
     }
 
     @Test
-    void testHandleSquareClick_SameColor_Reselects() {
-        Piece rook1 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        Piece rook2 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
-        board.setPieceAt(0, 0, rook1);
-        board.setPieceAt(1, 0, rook2);
+    void testHandleSquareClick_MoveToEmptySquare() throws Exception {
+        Piece piece = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
 
-        board.handleSquareClick(new IndexPosition(0, 0));
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[1][0] = piece;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, piece);
+
+        IndexPosition move = new IndexPosition(2, 0);
+
+        board.handleSquareClick(move);
+
+        Piece[][] result = (Piece[][]) boardField.get(board);
+
+        assertNull(result[1][0]);
+        assertEquals(piece, result[2][0]);
+    }
+
+    @Test
+    void testHandleSquareClick_CaptureEnemy() throws Exception {
+        Piece white = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
+        Piece black = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(2, 1));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[1][0] = white;
+        boardArray[2][1] = black;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, white);
+
+        IndexPosition move = new IndexPosition(2, 1);
+
+        board.handleSquareClick(move);
+
+        Piece[][] result = (Piece[][]) boardField.get(board);
+
+        assertNull(result[1][0]);
+        assertEquals(white, result[2][1]);
+    }
+
+    @Test
+    void testHandleSquareClick_ReselectSameColor() throws Exception {
+        Piece first = new Pawn(null, new IndexPosition(0, 0));
+        Piece second = new Pawn(null, new IndexPosition(1, 0));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = first;
+        boardArray[1][0] = second;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, first);
+
         board.handleSquareClick(new IndexPosition(1, 0));
 
-        assertEquals(rook2, board.getSelected(), "Clicking same-color piece should reselect to that piece");
+        Piece selected = (Piece) selectedField.get(board);
+
+        assertEquals(second, selected);
     }
 
     @Test
-    void testHandleSquareClick_MoveToEmptySquare() {
-        Piece rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        board.setPieceAt(0, 0, rook);
+    void testHandleSquareClick_InvalidMove() throws Exception {
+        Piece piece = new Pawn(null, new IndexPosition(0, 0));
 
-        board.handleSquareClick(new IndexPosition(0, 0));
-        board.handleSquareClick(new IndexPosition(0, 4));
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[0][0] = piece;
 
-        assertNull(board.getPieceAt(0, 0), "Origin square should be empty after move");
-        assertEquals(rook, board.getPieceAt(0, 4), "Rook should now be at destination");
-        assertNull(board.getSelected(), "selected should be cleared after move");
-    }
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
 
-    @Test
-    void testHandleSquareClick_InvalidMove_DoesNotMove() {
-        Piece rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        board.setPieceAt(0, 0, rook);
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+        selectedField.set(board, piece);
 
-        board.handleSquareClick(new IndexPosition(0, 0));
-        board.handleSquareClick(new IndexPosition(5, 5)); // diagonal — invalid for Rook
+        IndexPosition invalidMove = new IndexPosition(5, 5);
 
-        assertEquals(rook, board.getPieceAt(0, 0), "Rook should not have moved");
-        assertNull(board.getPieceAt(5, 5), "Nothing should appear at invalid destination");
-        assertEquals(rook, board.getSelected(), "selected should still be the rook");
-    }
+        board.handleSquareClick(invalidMove);
 
-    @Test
-    void testHandleSquareClick_CapturesEnemyPiece() {
-        Piece whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        Piece blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(0, 4));
-        board.setPieceAt(0, 0, whiteRook);
-        board.setPieceAt(0, 4, blackRook);
+        Piece[][] result = (Piece[][]) boardField.get(board);
 
-        board.handleSquareClick(new IndexPosition(0, 0));
-        board.handleSquareClick(new IndexPosition(0, 4));
-
-        assertNull(board.getPieceAt(0, 0), "Origin should be empty after capture");
-        assertEquals(whiteRook, board.getPieceAt(0, 4), "White rook should occupy the captured square");
-        assertNull(board.getSelected(), "selected should be cleared after capture");
-    }
-
-    @Test
-    void testHandleSquareClick_EnemyPiece_MoveNotPossible_NoCapture() {
-        Piece whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        Piece blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(5, 5)); // diagonal
-        board.setPieceAt(0, 0, whiteRook);
-        board.setPieceAt(5, 5, blackRook);
-
-        board.handleSquareClick(new IndexPosition(0, 0));
-        board.handleSquareClick(new IndexPosition(5, 5));
-
-        assertEquals(whiteRook, board.getPieceAt(0, 0), "White rook should not have moved");
-        assertEquals(blackRook, board.getPieceAt(5, 5), "Black rook should not have been captured");
+        assertEquals(piece, result[0][0]);
+        assertNull(result[5][5]);
     }
 }

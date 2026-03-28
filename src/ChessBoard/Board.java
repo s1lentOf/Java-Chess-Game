@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class Board {
 
     // Stores elements with its x and y coordinates of the square on the chess board.
-    private static final BoardSquarePosition[][] boardPositions = new BoardSquarePosition[8][8];
+    private static final IndexPosition[][] boardPositions = new IndexPosition[8][8];
 
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
@@ -62,7 +62,7 @@ public class Board {
     /*
      This method returns pixels of the square we moved the piece to.
      */
-    public static BoardSquarePosition getPixelsToDraw(Piece pieceToDraw) {
+    public static IndexPosition getPixelsToDraw(Piece pieceToDraw) {
         IndexPosition pieceToDrawNewPosition = pieceToDraw.getPosition();
         return boardPositions[pieceToDrawNewPosition.getRow()][pieceToDrawNewPosition.getCol()];
     }
@@ -86,10 +86,10 @@ public class Board {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
 
-                int x = (col + 1) * cellSize;
-                int y = (row + 1) * cellSize;
+                int col_x = (col + 1) * cellSize;
+                int row_y = (row + 1) * cellSize;
 
-                BoardSquarePosition temp = new BoardSquarePosition(x, y);
+                IndexPosition temp = new IndexPosition(row_y, col_x);
 
                 boardPositions[row][col] = temp;
             }
@@ -166,7 +166,7 @@ public class Board {
 
         // Firstly iterate over the rows, to select the one, where the use has tapped.
         for (int row = 0; row < boardPositions.length; row++) {
-            int bottomY = boardPositions[row][0].getY();
+            int bottomY = boardPositions[row][0].getRow();
             int topY = bottomY - cellHeight;
 
             if (mouse_y >= topY && mouse_y <= bottomY) {
@@ -178,7 +178,7 @@ public class Board {
         // Then iterate over each cell in the selected row, to get an exact cell indices.
         if (clickedRow != -1) {
             for (int col = 0; col < boardPositions[clickedRow].length; col++) {
-                int rightX = boardPositions[clickedRow][col].getX();
+                int rightX = boardPositions[clickedRow][col].getCol();
                 int leftX = rightX - cellWidth;
 
                 if (mouse_x >= leftX && mouse_x <= rightX) {
@@ -191,6 +191,7 @@ public class Board {
         if (clickedRow != -1 && clickedCol != -1) {
             System.out.println("Handling new click");
             handleSquareClick(new IndexPosition(clickedRow, clickedCol));
+            refreshBoard();
         } else {
             System.out.println("Click outside board");
         }
@@ -246,14 +247,13 @@ public class Board {
 
     // helper method for moving a piece
     private void moveSelectedPiece(IndexPosition nextMove) {
-        IndexPosition selectedPiecePosition = selected.getPosition();
-        piecesOnTheBoard[selectedPiecePosition.getRow()][selectedPiecePosition.getCol()] = null;
+        IndexPosition oldPos = selected.getPosition();
 
-        selectedPiecePosition.setCol(nextMove.getCol());
-        selectedPiecePosition.setRow(nextMove.getRow());
+        piecesOnTheBoard[oldPos.getRow()][oldPos.getCol()] = null;
+
+        selected.setPosition(new IndexPosition(nextMove.getRow(), nextMove.getCol()));
 
         piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = selected;
-        refreshBoard();
 
         selected = null;
     }
