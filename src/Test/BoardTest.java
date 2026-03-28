@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BoardTest {
 
     private Board board;
-    private BoardSquarePosition[][] positions;
+    private IndexPosition[][] positions;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -24,7 +24,7 @@ class BoardTest {
 
         Field field = Board.class.getDeclaredField("boardPositions");
         field.setAccessible(true);
-        positions = (BoardSquarePosition[][]) field.get(board);
+        positions = (IndexPosition[][]) field.get(board);
     }
 
     @Test
@@ -38,10 +38,10 @@ class BoardTest {
     void testAllPositionsHaveCorrectCoordinates() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                assertEquals((col + 1) * 75, positions[row][col].getX(),
+                assertEquals((row + 1) * 75, positions[row][col].getRow(),
                         "row mismatch at [" + row + "][" + col + "]");
 
-                assertEquals((row + 1) * 75, positions[row][col].getY(),
+                assertEquals((col + 1) * 75, positions[row][col].getCol(),
                         "col mismatch at [" + row + "][" + col + "]");
             }
         }
@@ -49,14 +49,14 @@ class BoardTest {
 
     @Test
     void testFirstPosition() {
-        assertEquals(75, positions[0][0].getX());
-        assertEquals(75, positions[0][0].getY());
+        assertEquals(75, positions[0][0].getCol());
+        assertEquals(75, positions[0][0].getRow());
     }
 
     @Test
     void testLastPosition() {
-        assertEquals(600, positions[7][7].getX());
-        assertEquals(600, positions[7][7].getY());
+        assertEquals(600, positions[7][7].getCol());
+        assertEquals(600, positions[7][7].getRow());
     }
 
     @Test
@@ -68,10 +68,10 @@ class BoardTest {
             for (int col = 0; col < 8; col++) {
                 assertNotNull(positions[row][col],
                         "Position should not be null at [" + row + "][" + col + "]");
-                assertEquals((col + 1) * 75, positions[row][col].getX(),
+                assertEquals((row + 1) * 75, positions[row][col].getRow(),
                         "row mismatch at [" + row + "][" + col + "]");
 
-                assertEquals((row + 1) * 75, positions[row][col].getY(),
+                assertEquals((col + 1) * 75, positions[row][col].getCol(),
                         "col mismatch at [" + row + "][" + col + "]");
             }
         }
@@ -100,11 +100,11 @@ class BoardTest {
         Board board = new Board();
         board.setUpMatrix();
 
-        BoardSquarePosition result = board.getPixelsToDraw(piece);
+        IndexPosition result = board.getPixelsToDraw(piece);
 
         assertNotNull(result);
-        assertEquals(75, result.getX());
-        assertEquals(75, result.getY());
+        assertEquals(75, result.getCol());
+        assertEquals(75, result.getRow());
     }
 
     @Test
@@ -115,12 +115,13 @@ class BoardTest {
         Board board = new Board();
         board.setUpMatrix();
 
+        IndexPosition result = board.getPixelsToDraw(piece);
 
-        BoardSquarePosition result = board.getPixelsToDraw(piece);
+        System.out.println(result.getRow() + " " + result.getCol());
 
         assertNotNull(result);
-        assertEquals(375, result.getX());
-        assertEquals(300, result.getY());
+        assertEquals(300, result.getRow());
+        assertEquals(375, result.getCol());
     }
 
     @Test
@@ -131,11 +132,11 @@ class BoardTest {
         Board board = new Board();
         board.setUpMatrix();
 
-        BoardSquarePosition result = board.getPixelsToDraw(piece);
+        IndexPosition result = board.getPixelsToDraw(piece);
 
         assertNotNull(result);
-        assertEquals(600, result.getX());
-        assertEquals(600, result.getY());
+        assertEquals(600, result.getCol());
+        assertEquals(600, result.getRow());
     }
 
     @Test
@@ -159,10 +160,10 @@ class BoardTest {
 
     @Test
     void testHandleSquareClick_MoveToEmptySquare() throws Exception {
-        Piece piece = new Pawn(null, new IndexPosition(0, 0));
+        Piece piece = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
 
         Piece[][] boardArray = new Piece[8][8];
-        boardArray[0][0] = piece;
+        boardArray[1][0] = piece;
 
         Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
         boardField.setAccessible(true);
@@ -172,24 +173,24 @@ class BoardTest {
         selectedField.setAccessible(true);
         selectedField.set(board, piece);
 
-        IndexPosition move = new IndexPosition(0, 1);
+        IndexPosition move = new IndexPosition(2, 0);
 
         board.handleSquareClick(move);
 
         Piece[][] result = (Piece[][]) boardField.get(board);
 
-        assertNull(result[0][0]);
-        assertEquals(piece, result[0][1]);
+        assertNull(result[1][0]);
+        assertEquals(piece, result[2][0]);
     }
 
     @Test
     void testHandleSquareClick_CaptureEnemy() throws Exception {
-        Piece white = new Pawn(null, new IndexPosition(0, 0));
-        Piece black = new Pawn(null, new IndexPosition(0, 1));
+        Piece white = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
+        Piece black = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(2, 1));
 
         Piece[][] boardArray = new Piece[8][8];
-        boardArray[0][0] = white;
-        boardArray[0][1] = black;
+        boardArray[1][0] = white;
+        boardArray[2][1] = black;
 
         Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
         boardField.setAccessible(true);
@@ -199,14 +200,14 @@ class BoardTest {
         selectedField.setAccessible(true);
         selectedField.set(board, white);
 
-        IndexPosition move = new IndexPosition(0, 1);
+        IndexPosition move = new IndexPosition(2, 1);
 
         board.handleSquareClick(move);
 
         Piece[][] result = (Piece[][]) boardField.get(board);
 
-        assertNull(result[0][0]);
-        assertEquals(white, result[0][1]);
+        assertNull(result[1][0]);
+        assertEquals(white, result[2][1]);
     }
 
     @Test
