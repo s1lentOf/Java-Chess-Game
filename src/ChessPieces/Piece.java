@@ -49,7 +49,25 @@ public abstract class Piece {
 
         // Fetch the image from ChessPieces using the Constants.Piece enum
         Constants.Piece piece = Constants.Piece.valueOf(constantName);
-        return ChessPieces.get(piece);
+        BufferedImage original = ChessPieces.get(piece);
+
+        //Resize
+        //Creates a new blank image at the size you requested. TYPE_INT_ARGB means it supports transparency
+        int width = 70;
+        int height = 70;
+        BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resized.createGraphics();
+        //Tells the graphics context to use bilinear interpolation when resizing to make the result look smooth
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(original, 0, 0, width, height, null);
+        g.dispose();
+
+        return resized;
+    }
+
+    @Override
+    public String toString() {
+        return "Position: " + position.getCol() + "," + position.getRow() + ", Color: " + color;
     }
 
 
