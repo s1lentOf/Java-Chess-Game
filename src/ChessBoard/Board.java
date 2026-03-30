@@ -31,6 +31,8 @@ public class Board {
         return piecesOnTheBoard[row][col];
     }
 
+    public Piece[][] getPiecesOnTheBoard() { return this.piecesOnTheBoard; }
+
     public void setPieceAt(int row, int col, Piece piece) {
         piecesOnTheBoard[row][col] = piece;
     }
@@ -57,6 +59,7 @@ public class Board {
 
         setUpMatrix();
         setUpPiecesOnTheBoard();
+        initialDrawOfPieces();
     }
 
     /*
@@ -140,7 +143,9 @@ public class Board {
         // Kings
         piecesOnTheBoard[7][4] = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
         piecesOnTheBoard[0][4] = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+    }
 
+    private void initialDrawOfPieces() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 Piece piece = piecesOnTheBoard[row][col];

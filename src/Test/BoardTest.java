@@ -1,10 +1,7 @@
 package Test;
 
 import ChessBoard.Board;
-import ChessPieces.IndexPosition;
-import ChessPieces.Pawn;
-import ChessPieces.Piece;
-import ChessPieces.Rook;
+import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -256,5 +253,89 @@ class BoardTest {
 
         assertEquals(piece, result[0][0]);
         assertNull(result[5][5]);
+    }
+
+    @Test
+    void testSetUpPiecesOnTheBoard_Pawns() {
+        Board board = new Board();
+
+        board.setUpPiecesOnTheBoard();
+
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+
+        // --- Pawns ---
+        for (int i = 0; i < 8; i++) {
+            assertTrue(pieces[1][i] instanceof Pawn);
+            assertTrue(pieces[1][i].isWhite());
+
+            assertTrue(pieces[6][i] instanceof Pawn);
+            assertFalse(pieces[6][i].isWhite());
+        }
+    }
+
+    @Test
+    void testSetUpPiecesOnTheBoard_Rooks() {
+        Board board = new Board();
+
+        board.setUpPiecesOnTheBoard();
+
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+
+        assertTrue(pieces[0][0] instanceof Rook);
+        assertTrue(pieces[0][7] instanceof Rook);
+        assertTrue(pieces[7][0] instanceof Rook);
+        assertTrue(pieces[7][7] instanceof Rook);
+    }
+
+    @Test
+    void testSetUpPiecesOnTheBoard_Knights() {
+        Board board = new Board();
+
+        board.setUpPiecesOnTheBoard();
+
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+
+        assertTrue(pieces[0][1] instanceof Knight);
+        assertTrue(pieces[0][6] instanceof Knight);
+        assertTrue(pieces[7][1] instanceof Knight);
+        assertTrue(pieces[7][6] instanceof Knight);
+    }
+
+    @Test
+    void testSetUpPiecesOnTheBoard_Bishops() {
+        Board board = new Board();
+
+        board.setUpPiecesOnTheBoard();
+
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+
+        assertTrue(pieces[0][2] instanceof Bishop);
+        assertTrue(pieces[0][5] instanceof Bishop);
+        assertTrue(pieces[7][2] instanceof Bishop);
+        assertTrue(pieces[7][5] instanceof Bishop);
+    }
+
+    @Test
+    void testSetUpPiecesOnTheBoard_Queen() {
+        Board board = new Board();
+
+        board.setUpPiecesOnTheBoard();
+
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+
+        assertTrue(pieces[0][3] instanceof Queen);
+        assertTrue(pieces[7][3] instanceof Queen);
+    }
+
+    @Test
+    void testSetUpPiecesOnTheBoard_King() {
+        Board board = new Board();
+
+        board.setUpPiecesOnTheBoard();
+
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+
+        assertTrue(pieces[0][4] instanceof King);
+        assertTrue(pieces[7][4] instanceof King);
     }
 }
