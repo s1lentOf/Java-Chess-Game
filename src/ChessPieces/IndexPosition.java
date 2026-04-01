@@ -26,4 +26,9 @@ public class IndexPosition {
         this.col = col;
     }
 
+    @Override
+    public String toString() {
+        return "row: " + this.row + " col: " + this.col;
+    }
+
 }
