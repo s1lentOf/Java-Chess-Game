@@ -15,6 +15,12 @@ public class Board {
     // Stores elements with its x and y coordinates of the square on the chess board.
     private static final IndexPosition[][] boardPositions = new IndexPosition[8][8];
 
+
+    // a field to keep track of which side is moving next
+    private ColorForChessPieces currentColorToMove;
+
+    private int moveCounter = 1;
+
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
 
@@ -56,7 +62,6 @@ public class Board {
                 window.add(square);
             }
         }
-
         setUpMatrix();
         setUpPiecesOnTheBoard();
         initialDrawOfPieces();
@@ -226,10 +231,20 @@ public class Board {
     public void handleSquareClick(IndexPosition nextMove) {
         Piece targetPiece = piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()];
 
+        if(moveCounter%2 != 0){
+            currentColorToMove = ColorForChessPieces.WHITE;
+        }
+        else{
+            currentColorToMove = ColorForChessPieces.BLACK;
+        }
+
         if (selected == null) {
-            if (targetPiece != null) {
+            if (targetPiece != null && targetPiece.getColor() == currentColorToMove) {
                 selected = targetPiece;
                 System.out.println("Selected new piece");
+            }
+            else{
+                System.out.println("It is not your turn");
             }
             return;
         }
@@ -241,10 +256,12 @@ public class Board {
             } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
+                moveCounter++;
             }
         } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
+            moveCounter++;
         }
 
         System.out.println(Arrays.deepToString(piecesOnTheBoard));

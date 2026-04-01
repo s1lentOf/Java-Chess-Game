@@ -16,6 +16,10 @@ public abstract class Piece {
         this.position = position;
     }
 
+    public ColorForChessPieces getColor() {
+        return color;
+    }
+
     public IndexPosition getPosition() {
         return position;
     }
