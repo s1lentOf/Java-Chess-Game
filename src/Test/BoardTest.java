@@ -137,7 +137,7 @@ class BoardTest {
 
     @Test
     void testHandleSquareClick_SelectPiece() throws Exception {
-        Piece piece = new Pawn(null, new IndexPosition(0, 0));
+        Piece piece = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
 
         Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
         boardField.setAccessible(true);
@@ -337,5 +337,41 @@ class BoardTest {
 
         assertTrue(pieces[0][4] instanceof King);
         assertTrue(pieces[7][4] instanceof King);
+    }
+
+    @Test
+    void testPiecesTurn() throws Exception {
+        Piece white = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
+        Piece black = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(6, 0));
+
+        Piece[][] boardArray = new Piece[8][8];
+        boardArray[1][0] = white;
+        boardArray[6][0] = black;
+
+        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
+        boardField.setAccessible(true);
+        boardField.set(board, boardArray);
+
+        Field selectedField = Board.class.getDeclaredField("selected");
+        selectedField.setAccessible(true);
+
+        Field moveCounterField = Board.class.getDeclaredField("moveCounter");
+        moveCounterField.setAccessible(true);
+
+        moveCounterField.set(board, 0);
+
+        board.handleSquareClick(new IndexPosition(1, 0));
+        assertNull(selectedField.get(board), "cannot select white on blacks turn");
+
+        board.handleSquareClick(new IndexPosition(6, 0));
+        assertEquals(black, selectedField.get(board), "black should be selectable");
+
+        IndexPosition blackMove = new IndexPosition(5, 0);
+        board.handleSquareClick(blackMove);
+
+        selectedField.set(board, null);
+
+        board.handleSquareClick(new IndexPosition(1, 0));
+        assertEquals(white, selectedField.get(board), "white should be selectable");
     }
 }
