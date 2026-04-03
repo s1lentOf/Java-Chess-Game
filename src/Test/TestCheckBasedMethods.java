@@ -27,10 +27,23 @@ public class TestCheckBasedMethods {
     @Test
     @DisplayName("Check if square is under attack of the piece")
     public void testSuquare() {
-        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
         Piece[][] board = new Piece[8][8];
-        board[3][3] = pawn;
-        assertTrue(service.isSquareAttacked(new IndexPosition(2,4),ColorForChessPieces.WHITE,board));
+        board[3][3] = rook;
+        assertTrue(service.isSquareAttacked(new IndexPosition(7,3),ColorForChessPieces.WHITE,board));
 
     }
+
+
+    @Test
+    @DisplayName("Check if square is not under attack of the piece")
+    public void testSuquareIsNotAttacked() {
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = rook;
+        assertFalse(service.isSquareAttacked(new IndexPosition(4,4),ColorForChessPieces.WHITE,board));
+
+    }
+
+
 }
