@@ -70,4 +70,9 @@ public class GameService {
     }
 
 
+    public boolean canCaptureAttacker(ColorForChessPieces color, Piece[][] board) {
+        return false;
+    }
+
+
 }

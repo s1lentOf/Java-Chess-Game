@@ -108,6 +108,17 @@ public class TestCheckBasedMethods {
         assertEquals(0,length);
     }
 
+    @Test
+    @DisplayName("Allied piece can capture piece whihc checks king")
+    public void testAlliedPieceCanCapturePiece() {
+        fail("Not yet implemented");
+    }
+    @Test
+    @DisplayName("Allied piece cannot capture piece which checks king")
+    public void testAlliedPieceCannotCapturePiece() {
+        fail("Not yet implemented");
+    }
+
 
 
 
