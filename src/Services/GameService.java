@@ -70,9 +70,24 @@ public class GameService {
     }
 
 
-    public boolean canCaptureAttacker(ColorForChessPieces color, Piece[][] board) {
-        return false;
+    public boolean canCaptureAttacker(ColorForChessPieces kingColor, Piece[][] board) {
+        ArrayList<Piece> attackers = findAttackers(kingColor, board);
+        if(attackers.isEmpty()){
+            return false;
+        }
+        if(attackers.size() > 1 ){
+            return false;
+        }
+
+        Piece attacker = attackers.get(0);
+        if(!isSquareAttacked(attacker.getPosition(), kingColor, board)){
+            return false;
+        }
+
+        return true;
     }
+
+
 
 
 }

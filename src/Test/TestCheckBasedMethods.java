@@ -111,12 +111,35 @@ public class TestCheckBasedMethods {
     @Test
     @DisplayName("Allied piece can capture piece whihc checks king")
     public void testAlliedPieceCanCapturePiece() {
-        fail("Not yet implemented");
+        King king = new King(ColorForChessPieces.WHITE,new IndexPosition(3,3));
+        Bishop bishop = new Bishop(ColorForChessPieces.BLACK,new IndexPosition(4,4));
+        Queen queen = new Queen(ColorForChessPieces.WHITE,new IndexPosition(4,3));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = king;
+        board[4][4] = bishop;
+        board[4][3] = queen;
+        assertTrue(service.canCaptureAttacker(ColorForChessPieces.WHITE,board));
     }
     @Test
     @DisplayName("Allied piece cannot capture piece which checks king")
     public void testAlliedPieceCannotCapturePiece() {
-        fail("Not yet implemented");
+        King king = new King(ColorForChessPieces.WHITE,new IndexPosition(3,3));
+        Bishop bishop = new Bishop(ColorForChessPieces.BLACK,new IndexPosition(5,5));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = king;
+        board[5][5] = bishop;
+        assertFalse(service.canCaptureAttacker(ColorForChessPieces.WHITE,board));
+    }
+
+    @Test
+    @DisplayName("King can capture piece which delivers check ")
+    public void testKingCanCapturePiece() {
+        King king = new King(ColorForChessPieces.WHITE,new IndexPosition(3,3));
+        Bishop bishop = new Bishop(ColorForChessPieces.BLACK,new IndexPosition(4,4));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = king;
+        board[4][4] = bishop;
+        assertTrue(service.canCaptureAttacker(ColorForChessPieces.WHITE,board));
     }
 
 
