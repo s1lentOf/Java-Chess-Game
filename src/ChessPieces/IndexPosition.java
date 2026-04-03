@@ -27,6 +27,15 @@ public class IndexPosition {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        IndexPosition other = (IndexPosition) obj;
+        return this.row == other.row && this.col == other.col;
+    }
+
+
+    @Override
     public String toString() {
         return "row: " + this.row + " col: " + this.col;
     }
