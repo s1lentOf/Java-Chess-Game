@@ -84,13 +84,28 @@ public class TestCheckBasedMethods {
     @Test
     @DisplayName("The piece that attacks king is returned if it exists")
     public void testPieceThatAtacksKingIsReturned() {
-        fail("Not yet implemented");
+        King king = new King(ColorForChessPieces.WHITE,new IndexPosition(3,3));
+        Bishop bishop = new Bishop(ColorForChessPieces.BLACK,new IndexPosition(4,4));
+        Queen queen = new Queen(ColorForChessPieces.BLACK,new IndexPosition(4,3));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = king;
+        board[4][4] = bishop;
+        board[4][3] = queen;
+        int length = service.findAttackers(king.getColor(),board).size();
+        assertEquals(2,length);
+
     }
 
     @Test
     @DisplayName("The piece that atacks king is not  returned if does not exist")
     public void testPieceThatAtacksKingIsNotReturned() {
-        fail("Not yet implemented");
+        King king = new King(ColorForChessPieces.WHITE,new IndexPosition(3,3));
+        Bishop bishop = new Bishop(ColorForChessPieces.BLACK,new IndexPosition(3,4));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = king;
+        board[3][4] = bishop;
+        int length = service.findAttackers(king.getColor(),board).size();
+        assertEquals(0,length);
     }
 
 

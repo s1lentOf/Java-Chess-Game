@@ -50,8 +50,23 @@ public class GameService {
         return null;
     }
 
-    public ArrayList<Piece> findAttackers(ColorForChessPieces color, Piece[][] board) {
-        return new ArrayList<>();
+    public ArrayList<Piece> findAttackers(ColorForChessPieces kingColor, Piece[][] board) {
+        King king = findKing(kingColor, board);
+        ArrayList<Piece> attackers = new ArrayList<>();
+        ColorForChessPieces enemyColor = kingColor == ColorForChessPieces.WHITE ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
+        for(int row = 0; row < board.length; row++){
+            for(int col = 0; col < board[row].length; col++) {
+                Piece piece = board[row][col];
+                if (piece != null && piece.getColor().equals(enemyColor)) {
+                    IndexPosition[] pos = piece.getPossibleMoves(board);
+                    ArrayList<IndexPosition> temp = new ArrayList<IndexPosition>(Arrays.asList(pos));
+                    if (temp.contains(king.getPosition())) {
+                        attackers.add(piece);
+                    }
+                }
+            }
+        }
+        return attackers;
     }
 
 
