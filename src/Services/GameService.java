@@ -16,17 +16,17 @@ public class GameService {
 
     public boolean isInCheck(ColorForChessPieces color, Piece[][] board) {
         King king = findKing(color, board);
-        return king.isInCheck(board,this);
+        return king.isInCheck(board, this);
     }
 
     public boolean isSquareAttacked(IndexPosition square, ColorForChessPieces color, Piece[][] board) {
-        for(int row = 0; row < board.length; row++){
-            for(int col = 0; col < board[row].length; col++){
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
-                if(piece!=null && piece.getColor().equals(color)){
+                if (piece != null && piece.getColor().equals(color)) {
                     IndexPosition[] pos = piece.getPossibleMoves(board);
                     ArrayList<IndexPosition> temp = new ArrayList<IndexPosition>(Arrays.asList(pos));
-                    if(temp.contains(square)){
+                    if (temp.contains(square)) {
                         return true;
                     }
 
@@ -37,7 +37,7 @@ public class GameService {
     }
 
 
-    public King findKing( ColorForChessPieces color, Piece[][] board) {
+    public King findKing(ColorForChessPieces color, Piece[][] board) {
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
@@ -54,8 +54,8 @@ public class GameService {
         King king = findKing(kingColor, board);
         ArrayList<Piece> attackers = new ArrayList<>();
         ColorForChessPieces enemyColor = kingColor == ColorForChessPieces.WHITE ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
-        for(int row = 0; row < board.length; row++){
-            for(int col = 0; col < board[row].length; col++) {
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
                 if (piece != null && piece.getColor().equals(enemyColor)) {
                     IndexPosition[] pos = piece.getPossibleMoves(board);
@@ -72,22 +72,22 @@ public class GameService {
 
     public boolean canCaptureAttacker(ColorForChessPieces kingColor, Piece[][] board) {
         ArrayList<Piece> attackers = findAttackers(kingColor, board);
-        if(attackers.isEmpty()){
+        if (attackers.isEmpty()) {
             return false;
         }
-        if(attackers.size() > 1 ){
+        if (attackers.size() > 1) {
             return false;
         }
 
         Piece attacker = attackers.get(0);
-        if(!isSquareAttacked(attacker.getPosition(), kingColor, board)){
+        if (!isSquareAttacked(attacker.getPosition(), kingColor, board)) {
             return false;
         }
 
         return true;
     }
 
-    public ArrayList<IndexPosition> getSquaresBetween(IndexPosition from, IndexPosition to){
+    public ArrayList<IndexPosition> getSquaresBetween(IndexPosition from, IndexPosition to) {
         ArrayList<IndexPosition> squares = new ArrayList<>();
 
         int rowDir = Integer.signum(to.getRow() - from.getRow());
@@ -106,6 +106,37 @@ public class GameService {
     }
 
 
+    public boolean canBlockCheck(ColorForChessPieces kingColor, Piece[][] board) {
+        ArrayList<Piece> attackers = findAttackers(kingColor, board);
+        if (attackers.isEmpty()) {
+            return false;
+        }
+        if (attackers.size() > 1) {
+            return false;
+        }
+        Piece attacker = attackers.get(0);
+        if (attacker instanceof Knight || attacker instanceof Pawn) {
+            return false;
+        }
+        King king = findKing(kingColor, board);
+        ArrayList<IndexPosition> positions = getSquaresBetween(king.getPosition(), attacker.getPosition());
+        for (IndexPosition position : positions) {
+            for (int row = 0; row < board.length; row++) {
+                for (int col = 0; col < board[row].length; col++) {
+                    Piece piece = board[row][col];
+                    if (piece != null && piece.getColor().equals(kingColor) && !(piece instanceof King)) {
+                        IndexPosition[] moves = piece.getPossibleMoves(board);
+                        ArrayList<IndexPosition> moveList = new ArrayList<>(Arrays.asList(moves));
+                        if (moveList.contains(position)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+
+    }
 
 
 }
