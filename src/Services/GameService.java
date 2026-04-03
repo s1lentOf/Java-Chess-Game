@@ -50,5 +50,9 @@ public class GameService {
         return null;
     }
 
+    public ArrayList<Piece> findAttackers(ColorForChessPieces color, Piece[][] board) {
+        return new ArrayList<>();
+    }
+
 
 }

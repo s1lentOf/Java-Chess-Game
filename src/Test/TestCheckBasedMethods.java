@@ -81,5 +81,19 @@ public class TestCheckBasedMethods {
         assertNull(service.findKing(ColorForChessPieces.WHITE,board));
     }
 
+    @Test
+    @DisplayName("The piece that attacks king is returned if it exists")
+    public void testPieceThatAtacksKingIsReturned() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    @DisplayName("The piece that atacks king is not  returned if does not exist")
+    public void testPieceThatAtacksKingIsNotReturned() {
+        fail("Not yet implemented");
+    }
+
+
+
 
 }
