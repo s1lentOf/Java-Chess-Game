@@ -68,13 +68,17 @@ public class TestCheckBasedMethods {
     @Test
     @DisplayName("White king is found if it exists")
     public void testWhiteKingIsFoundIfItExists() {
-        fail("Not yet implemented");
+        King king = new King(ColorForChessPieces.WHITE,new IndexPosition(3,3));
+        Piece[][] board = new Piece[8][8];
+        board[3][3] = king;
+        assertNotNull(service.findKing(ColorForChessPieces.WHITE,board));
     }
 
     @Test
     @DisplayName("White king is not found if it does not exists")
     public void testWhiteKingIsNotFound() {
-        fail("Not yet implemented");
+        Piece[][] board = new Piece[8][8];
+        assertNull(service.findKing(ColorForChessPieces.WHITE,board));
     }
 
 

@@ -15,15 +15,8 @@ public class GameService {
     }
 
     public boolean isInCheck(ColorForChessPieces color, Piece[][] board) {
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                Piece piece = board[row][col];
-                if (piece instanceof King && piece.getColor().equals(color)) {
-                    return ((King) piece).isInCheck(board, this);
-                }
-            }
-        }
-        return false;
+        King king = findKing(color, board);
+        return king.isInCheck(board,this);
     }
 
     public boolean isSquareAttacked(IndexPosition square, ColorForChessPieces color, Piece[][] board) {
@@ -45,6 +38,15 @@ public class GameService {
 
 
     public King findKing( ColorForChessPieces color, Piece[][] board) {
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                Piece piece = board[row][col];
+                if (piece instanceof King && piece.getColor().equals(color)) {
+                    return (King) piece;
+                }
+            }
+
+        }
         return null;
     }
 
