@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import Services.GameService;
 
+import java.util.ArrayList;
 
 
 public class TestCheckBasedMethods {
@@ -146,19 +147,28 @@ public class TestCheckBasedMethods {
     @Test
     @DisplayName("test all squares between two particular squares horizontally ")
     public void testAllSquaresHorisontally() {
-        fail("Not yet implemented");
+        IndexPosition position = new IndexPosition(0,0);
+        IndexPosition position2 = new IndexPosition(0,7);
+        ArrayList<IndexPosition> positions = service.getSquaresBetween(position,position2);
+        assertEquals(6,positions.size());
     }
 
     @Test
     @DisplayName("test all squares between two particular squares vertically ")
     public void testAllSquaresVertically() {
-        fail("Not yet implemented");
+        IndexPosition position = new IndexPosition(7,0);
+        IndexPosition position2 = new IndexPosition(7,7);
+        ArrayList<IndexPosition> positions = service.getSquaresBetween(position,position2);
+        assertEquals(6,positions.size());
     }
 
     @Test
     @DisplayName("test all squares between two particular squares diagonally ")
     public void testAllSquaresDiagonally() {
-        fail("Not yet implemented");
+        IndexPosition position = new IndexPosition(0,0);
+        IndexPosition position2 = new IndexPosition(7,7);
+        ArrayList<IndexPosition> positions = service.getSquaresBetween(position,position2);
+        assertEquals(6,positions.size());
     }
 
 

@@ -88,7 +88,21 @@ public class GameService {
     }
 
     public ArrayList<IndexPosition> getSquaresBetween(IndexPosition from, IndexPosition to){
-        return new ArrayList<>();
+        ArrayList<IndexPosition> squares = new ArrayList<>();
+
+        int rowDir = Integer.signum(to.getRow() - from.getRow());
+        int colDir = Integer.signum(to.getCol() - from.getCol());
+
+        int currentRow = from.getRow() + rowDir;
+        int currentCol = from.getCol() + colDir;
+
+        while (currentRow != to.getRow() || currentCol != to.getCol()) {
+            squares.add(new IndexPosition(currentRow, currentCol));
+            currentRow += rowDir;
+            currentCol += colDir;
+        }
+
+        return squares;
     }
 
 
