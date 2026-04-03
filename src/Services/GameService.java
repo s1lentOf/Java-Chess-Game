@@ -15,11 +15,18 @@ public class GameService {
     }
 
     public boolean isInCheck(ColorForChessPieces color, Piece[][] board) {
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                Piece piece = board[row][col];
+                if (piece instanceof King && piece.getColor().equals(color)) {
+                    return ((King) piece).isInCheck(board, this);
+                }
+            }
+        }
         return false;
     }
 
-    public boolean isSquareAttacked(IndexPosition square, ColorForChessPieces color, Piece[][] board){
-
+    public boolean isSquareAttacked(IndexPosition square, ColorForChessPieces color, Piece[][] board) {
         for(int row = 0; row < board.length; row++){
             for(int col = 0; col < board[row].length; col++){
                 Piece piece = board[row][col];
