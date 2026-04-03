@@ -65,4 +65,17 @@ public class TestCheckBasedMethods {
     }
 
 
+    @Test
+    @DisplayName("White king is found if it exists")
+    public void testWhiteKingIsFoundIfItExists() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    @DisplayName("White king is not found if it does not exists")
+    public void testWhiteKingIsNotFound() {
+        fail("Not yet implemented");
+    }
+
+
 }

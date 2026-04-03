@@ -44,4 +44,9 @@ public class GameService {
     }
 
 
+    public King findKing( ColorForChessPieces color, Piece[][] board) {
+        return null;
+    }
+
+
 }
