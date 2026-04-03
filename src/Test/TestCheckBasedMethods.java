@@ -143,6 +143,25 @@ public class TestCheckBasedMethods {
     }
 
 
+    @Test
+    @DisplayName("test all squares between two particular squares horizontally ")
+    public void testAllSquaresHorisontally() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    @DisplayName("test all squares between two particular squares vertically ")
+    public void testAllSquaresVertically() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    @DisplayName("test all squares between two particular squares diagonally ")
+    public void testAllSquaresDiagonally() {
+        fail("Not yet implemented");
+    }
+
+
 
 
 }

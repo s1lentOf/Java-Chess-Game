@@ -87,6 +87,10 @@ public class GameService {
         return true;
     }
 
+    public ArrayList<IndexPosition> getSquaresBetween(IndexPosition from, IndexPosition to){
+        return new ArrayList<>();
+    }
+
 
 
 
