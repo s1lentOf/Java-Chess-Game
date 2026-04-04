@@ -11,7 +11,7 @@ import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
-    private ArrayList<MoveRecord> moveStorage;
+    private ArrayList<MoveRecord> moveStorage = new ArrayList<>();
     public GameService() {
         checkService = new CheckService();
     }
@@ -46,8 +46,41 @@ public class GameService {
 
 
     public boolean canCastleKingSide(ColorForChessPieces color, Piece[][] board) {
+        King king = checkService.findKing(color, board);
+        ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
+        int row = color == WHITE ? 0 : 7;
+
+        if (hasPiecedMoved(new IndexPosition(row, 4)) || hasPiecedMoved(new IndexPosition(row, 7))) {
+            return false;
+        }
+        // check if squares between king and rook are empty
+        for (int i = 5; i <= 6; i++) {
+            if (board[row][i] != null) {
+                return false;
+            }
+        }
+        // king cannot castle while in check or through/into attacked squares
+        for (int i = 4; i <= 6; i++) {
+            if (checkService.isSquareAttacked(new IndexPosition(row, i), enemyColor, board)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean hasPiecedMoved(IndexPosition from){
+        if(moveStorage.isEmpty()){
+            return false;
+        }
+        for(MoveRecord moveRecord : moveStorage) {
+            if(moveRecord.getMovedFrom().equals(from)) {
+                return true;
+            }
+        }
         return false;
     }
+
 
 
     public boolean isCheckmate(ColorForChessPieces color,Piece[][] board) {
