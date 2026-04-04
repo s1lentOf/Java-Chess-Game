@@ -15,6 +15,11 @@ public class GameService {
     }
 
 
+    public boolean isCheckmate(ColorForChessPieces color,Piece[][] board) {
+        return  false;
+    }
+
+
 
 
 }

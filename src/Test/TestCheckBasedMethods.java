@@ -203,4 +203,11 @@ public class TestCheckBasedMethods {
     }
 
 
+    @Test
+    @DisplayName("Checkmate is declared if king is under check and it has no legal moves ")
+    public void testCheckmateIsUnderCheck() {
+        fail("Not yet implemented");
+    }
+
+
 }
