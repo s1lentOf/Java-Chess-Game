@@ -97,5 +97,11 @@ public class TestGameService {
         assertFalse(gameService.canCastleKingSide(king.getColor(), board));
     }
 
+    @Test
+    @DisplayName(" Queen side  castle is possible if all requirements are met")
+    public void testQueenSideIsPossible() {
+        fail("Not yet implemented");
+    }
+
 
 }

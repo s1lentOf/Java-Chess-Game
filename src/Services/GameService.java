@@ -69,6 +69,11 @@ public class GameService {
 
         return true;
     }
+
+
+    public boolean canCastleQueenSide(ColorForChessPieces color, Piece[][] board) {
+        return false;
+    }
     // this method checks if moved was performed from a particular square
     private boolean hasPiecedMoved(IndexPosition from){
         if(moveStorage.isEmpty()){
