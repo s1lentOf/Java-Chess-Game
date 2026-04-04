@@ -100,8 +100,63 @@ public class TestGameService {
     @Test
     @DisplayName(" Queen side  castle is possible if all requirements are met")
     public void testQueenSideIsPossible() {
-        fail("Not yet implemented");
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[0][0] = rook;
+        assertTrue(gameService.canCastleQueenSide(king.getColor(), board));
     }
+
+
+    @Test
+    @DisplayName("queen side  castle is not allowed through a piece")
+    public void testQueenSideCastleIsNotAllowedThroughAPiece() {
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Knight knight = new Knight(ColorForChessPieces.WHITE, new IndexPosition(0, 2));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[0][2] = knight;
+        board[0][0] = rook;
+        assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
+
+    }
+
+
+    @Test
+    @DisplayName(" Queen side castle cannot be done under check ")
+    public void testQueenSideCastleIsNotAllowedUnderCheck() {
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Queen queen = new Queen(ColorForChessPieces.BLACK, new IndexPosition(1, 3));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[1][3] = queen;
+        board[0][0] = rook;
+        assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
+    }
+
+
+
+    @Test
+    @DisplayName("Queen side castle cannot be done trough a checked field  ")
+    public void testQueenSideCastleIsNotAllowedTroughCheck() {
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Bishop bishop = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(2, 4));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[2][4] = bishop;
+        board[0][7] = rook;
+        assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
+    }
+
+
+
+
+
+
 
 
 }

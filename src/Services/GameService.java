@@ -11,9 +11,10 @@ import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
-    private ArrayList<MoveRecord> moveStorage = new ArrayList<>();
+    private ArrayList<MoveRecord> moveStorage;
     public GameService() {
         checkService = new CheckService();
+        moveStorage = new ArrayList<>();
     }
     // this method filters king moves removing checked squares
     public ArrayList<IndexPosition> getKingLegalMoves(ColorForChessPieces color, Piece[][] board) {
@@ -54,6 +55,9 @@ public class GameService {
         if (hasPiecedMoved(new IndexPosition(row, 4)) || hasPiecedMoved(new IndexPosition(row, 7))) {
             return false;
         }
+        if(board[row][7]==null){
+            return false;
+        }
         // check if squares between king and rook are empty
         for (int i = 5; i <= 6; i++) {
             if (board[row][i] != null) {
@@ -72,8 +76,35 @@ public class GameService {
 
 
     public boolean canCastleQueenSide(ColorForChessPieces color, Piece[][] board) {
-        return false;
+
+        King king = checkService.findKing(color, board);
+        // set row based on color of the castle desired pieces
+        ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
+        int row = color == WHITE ? 0 : 7;
+        // if rook or king has moved castle is not allowed
+        if (hasPiecedMoved(new IndexPosition(row, 4)) || hasPiecedMoved(new IndexPosition(row, 0))) {
+            return false;
+        }
+        if(board[row][0]==null){
+            return false;
+        }
+        // check if squares between king and rook are empty (columns 1, 2, 3)
+        for (int i = 1; i <= 3; i++) {
+            if (board[row][i] != null) {
+                return false;
+            }
+        }
+        // king cannot castle while in check or through/into attacked squares (columns 2, 3, 4)
+        for (int i = 2; i <= 4; i++) {
+            if (checkService.isSquareAttacked(new IndexPosition(row, i), enemyColor, board)) {
+                return false;
+            }
+        }
+
+        return true;
     }
+
+
     // this method checks if moved was performed from a particular square
     private boolean hasPiecedMoved(IndexPosition from){
         if(moveStorage.isEmpty()){
@@ -92,8 +123,6 @@ public class GameService {
     public boolean isCheckmate(ColorForChessPieces color,Piece[][] board) {
         return false;
     }
-
-
-
-
 }
+
+
