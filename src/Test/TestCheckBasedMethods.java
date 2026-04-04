@@ -3,6 +3,7 @@ package Test;
 
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
+import Services.CheckService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,11 @@ import java.util.ArrayList;
 
 
 public class TestCheckBasedMethods {
-    private static GameService service;
+    private static CheckService service;
 
     @BeforeAll
     static void beforeAll() {
-        service = new GameService();
+        service = new CheckService();
     }
 
     @Test

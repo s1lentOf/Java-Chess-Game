@@ -1,7 +1,8 @@
 package ChessPieces;
 
 import Constants.ColorForChessPieces;
-import Services.GameService;
+import Services.CheckService;
+
 
 public class King extends Piece {
     public King(ColorForChessPieces color, IndexPosition position) {
@@ -43,10 +44,10 @@ public class King extends Piece {
         return moves;
     }
 
-    public boolean isInCheck(Piece[][] board, GameService gameService) {
+    public boolean isInCheck(Piece[][] board, CheckService checkService) {
         ColorForChessPieces enemyColor = this.isWhite()
                 ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
-        return gameService.isSquareAttacked(this.getPosition(), enemyColor, board);
+        return checkService.isSquareAttacked(this.getPosition(), enemyColor, board);
     }
 
     // this method just checks if the king has stayed on the starting squared designed by the rules of chess
