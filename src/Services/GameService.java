@@ -44,12 +44,13 @@ public class GameService {
         return copy;
     }
 
-
+    // thsi method defines the rules of king side castling
     public boolean canCastleKingSide(ColorForChessPieces color, Piece[][] board) {
         King king = checkService.findKing(color, board);
+        // set row based on color of the castle desired pieces
         ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
         int row = color == WHITE ? 0 : 7;
-
+        // if rook or king has moved castle is not allowed
         if (hasPiecedMoved(new IndexPosition(row, 4)) || hasPiecedMoved(new IndexPosition(row, 7))) {
             return false;
         }
@@ -68,7 +69,7 @@ public class GameService {
 
         return true;
     }
-
+    // this method checks if moved was performed from a particular square
     private boolean hasPiecedMoved(IndexPosition from){
         if(moveStorage.isEmpty()){
             return false;
