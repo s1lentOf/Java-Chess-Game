@@ -30,4 +30,11 @@ public class TestGameService {
 
     }
 
+
+    @Test
+    @DisplayName("Test that castle is possible if all requirements are met")
+    public void testCastleIsPossible() {
+        fail("Not yet implemented");
+    }
+
 }

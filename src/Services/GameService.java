@@ -7,11 +7,11 @@ import java.awt.*;
 import java.util.ArrayList;
 
 
-import static Constants.ColorForChessPieces.BLACK;
-import static Constants.ColorForChessPieces.WHITE;
+import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
+    private ArrayList<MoveRecord> moveStorage;
     public GameService() {
         checkService = new CheckService();
     }
@@ -42,6 +42,11 @@ public class GameService {
             }
         }
         return copy;
+    }
+
+
+    public boolean canCastleKingSide(ColorForChessPieces color, Piece[][] board) {
+        return false;
     }
 
 
