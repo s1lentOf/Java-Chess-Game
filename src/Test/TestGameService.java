@@ -138,7 +138,6 @@ public class TestGameService {
     }
 
 
-
     @Test
     @DisplayName("Queen side castle cannot be done trough a checked field  ")
     public void testQueenSideCastleIsNotAllowedTroughCheck() {
@@ -151,12 +150,6 @@ public class TestGameService {
         board[0][7] = rook;
         assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
     }
-
-
-
-
-
-
 
 
 }
