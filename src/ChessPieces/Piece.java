@@ -27,10 +27,6 @@ public abstract class Piece {
     public void setPosition(IndexPosition position) {
         this.position = position;
     }
-    public ColorForChessPieces getColor() {
-        return color;
-    }
-
     public void setColor(ColorForChessPieces color) {
         this.color = color;
     }
