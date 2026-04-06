@@ -51,14 +51,4 @@ public class Rook extends Piece {
         System.arraycopy(temp, 0, moves, 0, count);
         return moves;
     }
-
-
-
-    public boolean hasMoved(){
-        if(this.isWhite()){
-            return true;
-        }else {
-            return false;
-        }
-    }
 }
