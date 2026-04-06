@@ -1,5 +1,6 @@
 package Test;
 
+import ChessBoard.Board;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Services.GameService;
@@ -11,10 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
     private static GameService gameService;
+    private static Board board;
 
     @BeforeAll
     public static void setup() {
-        gameService = new GameService();
+        gameService = new GameService(board);
     }
 
     @Test
