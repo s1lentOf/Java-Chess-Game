@@ -5,6 +5,7 @@ import Constants.ColorForChessPieces;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 import static Constants.ColorForChessPieces.*;
@@ -21,7 +22,16 @@ public class GameService {
 
 
     public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
-        return new ArrayList<>();
+        if(piece instanceof King) {
+            return getKingLegalMoves(piece.getColor(), board);
+        }
+
+        if(piece instanceof Pawn) {
+            // yet to be implemented when enpassant move is done
+        }
+        IndexPosition[] rawMoves = piece.getPossibleMoves(board);
+        ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
+        return checkService.filterMovesForCheck(piece, moves, board);
     }
 
     // this method filters king moves removing checked squares
@@ -32,7 +42,7 @@ public class GameService {
         ArrayList<IndexPosition> legalMoves = new ArrayList<>();
         // simulate a move to a square and check if king is inder check
         for (IndexPosition move : rawMoves) {
-            Piece[][] tempBoard = copyBoard(board);
+            Piece[][] tempBoard = checkService.copyBoard(board);
             tempBoard[king.getPosition().getRow()][king.getPosition().getCol()] = null;
             tempBoard[move.getRow()][move.getCol()] = king;
 
@@ -40,19 +50,16 @@ public class GameService {
                 legalMoves.add(move);
             }
         }
+        if(canCastleKingSide(color, board)) {
+            legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() + 2));
+        }
+
+        if (canCastleQueenSide(color, board)) {
+            legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() - 2));
+        }
         return legalMoves;
     }
 
-    // this method creates a copy of current boar state for move simulation to avoid straight manipulation on the main board
-    private Piece[][] copyBoard(Piece[][] board) {
-        Piece[][] copy = new Piece[board.length][board[0].length];
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                copy[row][col] = board[row][col];
-            }
-        }
-        return copy;
-    }
 
     // thsi method defines the rules of king side castling
     public boolean canCastleKingSide(ColorForChessPieces color, Piece[][] board) {

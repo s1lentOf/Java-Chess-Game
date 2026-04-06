@@ -154,10 +154,59 @@ public class TestGameService {
 
 
     @Test
-    @DisplayName("Retrieve filtered legal moves of the king")
+    @DisplayName("Retrieve filtered legal moves of the king with one possible castle")
     public void testRetrievedLegalKingMoves() {
-
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[0][0] = rook;
+        int size = gameService.getLegalMoves(king,board).size();
+        assertEquals(size,6);
     }
+
+    @Test
+    @DisplayName("Retrieve filtered legal moves of the king with two possible castles")
+    public void testRetrievedLegalKingMovesWithCastles() {
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Rook rook2 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 7));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[0][0] = rook;
+        board[0][7] = rook2;
+        int size = gameService.getLegalMoves(king,board).size();
+        assertEquals(size,7);
+    }
+
+    @Test
+    @DisplayName("pinned piece cannot move")
+    public void testPinnedPieceCannotMove() {
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Bishop bishop = new Bishop(ColorForChessPieces.WHITE, new IndexPosition(1, 4));
+        Rook rook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[1][4] = bishop;
+        board[0][0] = rook;
+        assertEquals(gameService.getLegalMoves(bishop,board).size(),0);
+    }
+
+    @Test
+    @DisplayName("Piined piece can only move on the direction of teh pin and capture enemy piece")
+    public void  testPinnedMovement(){
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(1, 4));
+        Rook rook2 = new Rook(ColorForChessPieces.BLACK, new IndexPosition(2, 4));
+        Piece[][] board = new Piece[8][8];
+        board[0][4] = king;
+        board[1][4] = rook;
+        board[2][4] = rook2;
+        assertEquals(gameService.getLegalMoves(rook,board).size(),1);
+    }
+
+
+
 
 
 }

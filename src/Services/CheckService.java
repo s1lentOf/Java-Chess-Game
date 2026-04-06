@@ -103,6 +103,32 @@ public class CheckService {
         return squares;
     }
 
+    // filters out moves that would leave the king in check (handles pins and must-escape-check)
+    public ArrayList<IndexPosition> filterMovesForCheck(Piece piece, ArrayList<IndexPosition> moves, Piece[][] board) {
+        ArrayList<IndexPosition> legalMoves = new ArrayList<>();
+
+        for (IndexPosition move : moves) {
+            Piece[][] tempBoard = copyBoard(board);
+            tempBoard[piece.getPosition().getRow()][piece.getPosition().getCol()] = null;
+            tempBoard[move.getRow()][move.getCol()] = piece;
+
+            if (!isInCheck(piece.getColor(), tempBoard)) {
+                legalMoves.add(move);
+            }
+        }
+        return legalMoves;
+    }
+
+    public Piece[][] copyBoard(Piece[][] board) {
+        Piece[][] copy = new Piece[board.length][board[0].length];
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                copy[row][col] = board[row][col];
+            }
+        }
+        return copy;
+    }
+
     // this method checks if any of the allied pieces cna block the check
     public boolean canBlockCheck(ColorForChessPieces kingColor, Piece[][] board) {
         ArrayList<Piece> attackers = findAttackers(kingColor, board);
