@@ -50,22 +50,4 @@ public class King extends Piece {
         return checkService.isSquareAttacked(this.getPosition(), enemyColor, board);
     }
 
-    // this method just checks if the king has stayed on the starting squared designed by the rules of chess
-    public boolean hasMoved() {
-        if (this.isWhite()) {
-            if (this.getPosition().getRow() != 0 || this.getPosition().getCol() != 3) {
-                return true;
-            }
-
-        } else {
-            if (this.getPosition().getRow() != 7 || this.getPosition().getCol() != 3) {
-                return true;
-            }
-
-        }
-        return false;
-
-    }
-
-
 }

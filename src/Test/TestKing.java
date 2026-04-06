@@ -123,43 +123,4 @@ public class TestKing {
         assertEquals(8, moves.length);
     }
 
-
-    @Test
-    @DisplayName(" White King hasn't moved from starting square")
-    public void testWhiteKingHasStayedOnThsStartingSquare() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 3));
-
-        assertFalse(king.hasMoved());
-
-
-    }
-
-    @Test
-    @DisplayName(" White King has moved from the starting square")
-    public void testWhiteKingHasMoved() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(5, 2));
-
-        assertTrue(king.hasMoved());
-
-    }
-
-    @Test
-    @DisplayName("Black king  hasn't moved from starting square")
-    public void testBlackKingHasStayedOnThsStartingSquare() {
-        King king = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 3));
-
-        assertFalse(king.hasMoved());
-    }
-
-
-    @Test
-    @DisplayName(" Black King has moved from the starting square")
-    public void testBlackKingHasMoved() {
-        King king = new King(ColorForChessPieces.BLACK, new IndexPosition(5, 2));
-
-        assertTrue(king.hasMoved());
-
-    }
-
-
 }
