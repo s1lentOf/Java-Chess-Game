@@ -18,6 +18,12 @@ public class GameService {
         moveStorage = new ArrayList<>();
     }
 
+
+
+    public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
+        return new ArrayList<>();
+    }
+
     // this method filters king moves removing checked squares
     public ArrayList<IndexPosition> getKingLegalMoves(ColorForChessPieces color, Piece[][] board) {
         King king = checkService.findKing(color, board);

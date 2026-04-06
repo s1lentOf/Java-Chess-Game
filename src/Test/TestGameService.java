@@ -152,4 +152,12 @@ public class TestGameService {
     }
 
 
+
+    @Test
+    @DisplayName("Retrieve filtered legal moves of the king")
+    public void testRetrievedLegalKingMoves() {
+
+    }
+
+
 }
