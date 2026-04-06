@@ -206,6 +206,26 @@ public class TestGameService {
     }
 
 
+    @Test
+    @DisplayName("King cannot capture piece which is defended")
+    public void testKingCannotCapturePiece() {
+        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Rook rook1 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 1));
+        Rook rook2 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
+        Rook rook3 = new Rook(ColorForChessPieces.BLACK, new IndexPosition(1, 1));
+        Rook rook4 = new Rook(ColorForChessPieces.BLACK, new IndexPosition(2, 1));
+        Piece[][] board = new Piece[8][8];
+        board[0][0] = king;
+        board[0][1] = rook1;
+        board[1][0] = rook2;
+        board[1][1] = rook3;
+        board[2][1] = rook4;
+        assertEquals(gameService.getLegalMoves(king,board).size(),0);
+
+
+    }
+
+
 
 
 
