@@ -3,6 +3,8 @@ package ChessBoard;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Constants.Colors;
+import Services.GameService;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -13,7 +15,7 @@ import java.util.Arrays;
 public class Board {
 
     // Stores elements with its x and y coordinates of the square on the chess board.
-    private static final IndexPosition[][] boardPositions = new IndexPosition[8][8];
+    private static IndexPosition[][] boardPositions = new IndexPosition[8][8];
 
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
@@ -22,9 +24,15 @@ public class Board {
 
     private JPanel[][] squares = new JPanel[8][8];
 
+    private GameService service = new GameService(this);
+
     // getters for easier testing
     public Piece getSelected() {
         return selected;
+    }
+
+    public void setSelected(Piece piece) {
+        this.selected = piece;
     }
 
     public Piece getPieceAt(int row, int col) {
@@ -56,7 +64,6 @@ public class Board {
                 window.add(square);
             }
         }
-
         setUpMatrix();
         setUpPiecesOnTheBoard();
         initialDrawOfPieces();
@@ -195,24 +202,11 @@ public class Board {
 
         if (clickedRow != -1 && clickedCol != -1) {
             System.out.println("Handling new click");
-            handleSquareClick(new IndexPosition(clickedRow, clickedCol));
+            service.handleSquareClick(new IndexPosition(clickedRow, clickedCol));
             refreshBoard();
         } else {
             System.out.println("Click outside board");
         }
-    }
-
-
-    /*  a method which checks if the move is possible for the piece
-        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
-     */
-    public boolean isMovePossible(IndexPosition[] possibleMoves, IndexPosition nextMove) {
-        for (IndexPosition move : possibleMoves) {
-            if (move.getRow() == nextMove.getRow() && move.getCol() == nextMove.getCol()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /* what this method does:
@@ -222,58 +216,6 @@ public class Board {
             1.4) if not, check if the move is possible( if yes capture)
         2) if there is no piece - check if the move is possible(if yes move)
     */
-
-    public void handleSquareClick(IndexPosition nextMove) {
-        Piece targetPiece = piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()];
-
-        if (selected == null) {
-            if (targetPiece != null) {
-                selected = targetPiece;
-                System.out.println("Selected new piece");
-            }
-            return;
-        }
-
-        if (targetPiece != null) {
-            if (!selected.isEnemy(targetPiece)) {
-                System.out.println("Reselected piece");
-                selected = targetPiece;
-            } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
-                System.out.println("Captured piece");
-                capturePiece(nextMove);
-            }
-        } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
-            System.out.println("Just moved piece");
-            moveSelectedPiece(nextMove);
-        }
-
-        System.out.println(Arrays.deepToString(piecesOnTheBoard));
-    }
-
-    // helper method for moving a piece
-    private void moveSelectedPiece(IndexPosition nextMove) {
-        IndexPosition oldPos = selected.getPosition();
-
-        piecesOnTheBoard[oldPos.getRow()][oldPos.getCol()] = null;
-
-        selected.setPosition(new IndexPosition(nextMove.getRow(), nextMove.getCol()));
-
-        piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = selected;
-
-        selected = null;
-    }
-
-    //helper method for capturing the piece
-    private void capturePiece(IndexPosition nextMove) {
-        moveSelectedPiece(nextMove);
-    }
-
-    // a method which will select a piece for the detectMouseClickPosition() method
-    public void selectPiece(int row, int col) {
-        if (piecesOnTheBoard[row][col] != null) {
-            selected = piecesOnTheBoard[row][col];
-        }
-    }
 
     public void drawPiece(Piece piece) {
         BufferedImage image = piece.paint();
