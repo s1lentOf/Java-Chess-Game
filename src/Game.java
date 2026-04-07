@@ -28,10 +28,5 @@ public class Game {
         this.window.setLayout(new GridLayout(8, 8));
         this.window.setResizable(false); // make the size fixed, which allows us to track the mouse click
         this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.window.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                board.detectMouseClickPosition(me);
-            }
-        });
     }
 }
