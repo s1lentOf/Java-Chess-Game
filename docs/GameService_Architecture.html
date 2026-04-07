@@ -164,7 +164,7 @@ board mutations. Communication is synchronous via method calls that return a
 <code>MoveResult</code> value object.</p>
 
 <div class="relation-box">
-Game (entry point)
+Game.Game (entry point)
   |
   |--- creates ---> Board (UI layer)
   |--- creates ---> GameService (logic layer)
@@ -246,9 +246,9 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 
 <!-- GAMESERVICE CLASS -->
 <div class="class-box">
-  <div class="class-name">GameService<span class="stereotype">Logic Layer - Game Rules, State & Board Mutation</span></div>
+  <div class="class-name">GameService<span class="stereotype">Logic Layer - Game.Game Rules, State & Board Mutation</span></div>
   <div class="section">
-    <div class="section-title">Fields - Game State</div>
+    <div class="section-title">Fields - Game.Game State</div>
     <code>
 <span class="moved">- selected : Piece                                     // from Board</span>
 <span class="new">- currentTurn : ColorForChessPieces = WHITE</span>
@@ -315,7 +315,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
     </code>
   </div>
   <div class="section">
-    <div class="section-title">Methods - New: Game End Detection</div>
+    <div class="section-title">Methods - New: Game.Game End Detection</div>
     <code>
 <span class="new">+ isCheckmate(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
       // Returns true if 'color' is in check AND has no legal moves
@@ -427,7 +427,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 
 <!-- GAME CLASS -->
 <div class="class-box">
-  <div class="class-name">Game<span class="stereotype">Entry Point - Modified</span></div>
+  <div class="class-name">Game.Game<span class="stereotype">Entry Point - Modified</span></div>
   <div class="section">
     <div class="section-title">Fields</div>
     <code>
@@ -439,7 +439,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   <div class="section">
     <div class="section-title">Constructor Change</div>
     <code>
-// Game creates both Board and GameService, then connects them:
+// Game.Game creates both Board and GameService, then connects them:
 // gameService = new GameService();
 // board = new Board(gameService);    // Board receives GameService via constructor
     </code>
@@ -452,7 +452,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 
 <div class="relation-box">
 +------------------+         +----------------------+
-|      Game        |         |     MoveResult       |
+|      Game.Game        |         |     MoveResult       |
 |  (entry point)   |         |  (value object)      |
 +------------------+         +----------------------+
 | - window: JFrame |         | + moved: boolean     |
@@ -777,10 +777,10 @@ public void handleSquareClick(IndexPosition nextMove) {
     if (result.isCheckmate()) {
         // Show game over dialog
         JOptionPane.showMessageDialog(null,
-            gameService.getCurrentTurn() + " is checkmated! Game over.");
+            gameService.getCurrentTurn() + " is checkmated! Game.Game over.");
     } else if (result.isDraw()) {
         JOptionPane.showMessageDialog(null,
-            "Game is a draw: " + result.getDrawReason());
+            "Game.Game is a draw: " + result.getDrawReason());
     } else if (result.isPromotion()) {
         // Show promotion picker, then call:
         // gameService.promotePawn(result.getPromotionPosition(), chosenPiece, board);

@@ -47,8 +47,6 @@ public class Board {
 
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
-        window.setLayout(new GridLayout(8, 8));
-
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
 

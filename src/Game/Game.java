@@ -1,9 +1,9 @@
+package Game;
+
 import ChessBoard.Board;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 // Main class that starts up the game
 public class Game {
@@ -19,6 +19,11 @@ public class Game {
 
     public static void main(String[] args) {
         Game game = new Game();
+    }
+
+    // Helper getter for testing purposes.
+    public JFrame getWindow() {
+        return window;
     }
 
     // Initial setup of the window
