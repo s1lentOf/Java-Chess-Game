@@ -28,11 +28,6 @@ public class GameService {
         this.board = board;
     }
 
-    public Piece getSelected() {
-        return board.getSelected();
-    }
-
-
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
     */
