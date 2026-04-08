@@ -1,8 +1,14 @@
 package ChessPieces;
 
+import ChessBoard.Board;
 import Constants.ColorForChessPieces;
 
+import java.util.Objects;
+
+import static Constants.ColorForChessPieces.WHITE;
+
 public class Pawn extends Piece {
+    Board board = new Board();
 
     public Pawn(ColorForChessPieces color, IndexPosition position) {
         super(color, position);

@@ -6,6 +6,7 @@ import Constants.ColorForChessPieces;
 import javax.swing.text.Position;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 public abstract class Piece {
     private ColorForChessPieces color;
@@ -71,6 +72,24 @@ public abstract class Piece {
     @Override
     public String toString() {
         return "Position: " + position.getCol() + "," + position.getRow() + ", Color: " + color;
+    }
+
+    // overridden equals method to ensure that different piece types are treated as equal if they are sharing the same position
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Piece other = (Piece) obj;
+
+        return this.getColor() == other.getColor() &&
+                this.getPosition().getRow() == other.getPosition().getRow() &&
+                this.getPosition().getCol() == other.getPosition().getCol();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getColor(), getPosition().getRow(), getPosition().getCol());
     }
 
 
