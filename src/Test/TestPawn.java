@@ -121,6 +121,90 @@ public class TestPawn {
         assertEquals(expectedQueen, pawn.promotion());
     }
 
+    @Test
+    void whitePawnCanCaptureEnPassant() {
+        Piece[][] board = new Piece[8][8];
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4,3));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4,4));
+
+        // positions
+        board[4][3] = whitePawn;
+        board[4][4] = blackPawn;
+
+        IndexPosition[] moves = whitePawn.getPossibleMoves(board, blackPawn);
+
+        // en passant square should be (5,4)
+        boolean found = false;
+        for (IndexPosition move : moves) {
+            if (move.getRow() == 5 && move.getCol() == 4) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "White pawn should be able to capture en passant");
+    }
+
+    @Test
+    void blackPawnCanCaptureEnPassant() {
+        Piece[][] board = new Piece[8][8];
+        Pawn blackPawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3,3));
+        Pawn whitePawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3,4));
+
+        board[3][3] = blackPawn;   // black pawn
+        board[3][4] = whitePawn;   // white pawn just moved two steps
+
+        IndexPosition[] moves = blackPawn.getPossibleMoves(board, whitePawn);
+
+        boolean found = false;
+        for (IndexPosition move : moves) {
+            if (move.getRow() == 2 && move.getCol() == 4) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "Black pawn should be able to capture en passant");
+    }
+
+    @Test
+    void enPassantNotPossibleIfNoDoubleStep() {
+        Piece[][] board = new Piece[8][8];
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4,3));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4,4));
+
+        board[4][3] = whitePawn;
+        board[4][4] = blackPawn;  // black pawn, but assume it didn't just move 2 steps
+
+        IndexPosition[] moves = whitePawn.getPossibleMoves(board, null);
+
+        boolean found = false;
+        for (IndexPosition move : moves) {
+            if (move.getRow() == 5 && move.getCol() == 4) {
+                found = true;
+            }
+        }
+        assertFalse(found, "En passant should not be possible if no pawn moved two squares last turn");
+    }
+
+    @Test
+    void enPassantNotPossibleIfNotAdjacent() {
+        Piece[][] board = new Piece[8][8];
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4,3));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4,5));
+
+        board[4][3] = whitePawn;
+        board[4][5] = blackPawn;  // two squares away, not adjacent
+
+        IndexPosition[] moves = whitePawn.getPossibleMoves(board, blackPawn);
+
+        boolean found = false;
+        for (IndexPosition move : moves) {
+            if (move.getRow() == 5 && move.getCol() == 5) {
+                found = true;
+            }
+        }
+        assertFalse(found, "En passant should not be possible if the pawn is not adjacent");
+    }
+
 
 
 

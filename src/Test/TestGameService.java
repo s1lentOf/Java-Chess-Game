@@ -223,12 +223,151 @@ public class TestGameService {
         board[1][1] = rook3;
         board[2][1] = rook4;
         assertEquals(gameService.getLegalMoves(king,board).size(),0);
-
-
     }
 
+    @Test
+    @DisplayName("White pawn can capture en passant via getLegalMoves")
+    void testWhitePawnEnPassantLegalMove() {
+        Piece[][] testBoard = new Piece[8][8];
 
+        // Add white king so checkService doesn't break
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        testBoard[0][4] = whiteKing;
 
+        // White pawn at (4,4)
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        testBoard[4][4] = whitePawn;
 
+        // Black pawn just moved two squares to (4,5)
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
+        testBoard[4][5] = blackPawn;
+
+        gameService.setLastDoubleStepPawn(blackPawn);
+
+        ArrayList<IndexPosition> moves = gameService.getLegalMoves(whitePawn, testBoard);
+
+        assertTrue(moves.contains(new IndexPosition(5, 5)),
+                "White pawn should be able to capture en passant at (5,5)");
+    }
+
+    @Test
+    @DisplayName("Black pawn can capture en passant via getLegalMoves")
+    void testBlackPawnEnPassantLegalMove() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        // Add black king so checkService doesn't break
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
+        testBoard[7][4] = blackKing;
+
+        // Black pawn at (3,3)
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3, 3));
+        testBoard[3][3] = blackPawn;
+
+        // White pawn just moved two squares to (3,4)
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 4));
+        testBoard[3][4] = whitePawn;
+
+        gameService.setLastDoubleStepPawn(whitePawn);
+
+        ArrayList<IndexPosition> moves = gameService.getLegalMoves(blackPawn, testBoard);
+
+        assertTrue(moves.contains(new IndexPosition(2, 4)),
+                "Black pawn should be able to capture en passant at (2,4)");
+    }
+
+    @Test
+    @DisplayName("Pawn cannot capture en passant if not next to double-step pawn")
+    void testPawnCannotEnPassantLegalMove() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        // Add white king
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        testBoard[0][4] = whiteKing;
+
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        testBoard[4][4] = whitePawn;
+
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 6));
+        testBoard[4][6] = blackPawn;
+
+        gameService.setLastDoubleStepPawn(blackPawn);
+
+        ArrayList<IndexPosition> moves = gameService.getLegalMoves(whitePawn, testBoard);
+
+        assertFalse(moves.contains(new IndexPosition(5, 6)),
+                "White pawn should not be able to capture en passant if not adjacent");
+    }
+
+    @Test
+    @DisplayName("En passant captures black pawn for white")
+    void testWhitePawnEnPassant() {
+        Piece[][] internalBoard = board.getPiecesOnTheBoard();
+
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
+
+        internalBoard[4][4] = whitePawn;
+        internalBoard[4][5] = blackPawn;
+
+        IndexPosition nextMove = new IndexPosition(5, 5);
+        gameService.handleEnPassant(whitePawn, nextMove);
+
+        // Check the internal board, not a local array
+        assertNull(internalBoard[4][5],
+                "Black pawn should be removed after en passant");
+    }
+
+    @Test
+    @DisplayName("En passant captures white pawn for black")
+    void testBlackPawnEnPassant() {
+        Piece[][] internalBoard = board.getPiecesOnTheBoard();
+
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3, 4));
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+
+        internalBoard[3][4] = blackPawn;
+        internalBoard[3][3] = whitePawn;
+
+        IndexPosition nextMove = new IndexPosition(2, 3);
+        gameService.handleEnPassant(blackPawn, nextMove);
+
+        assertNull(internalBoard[3][3],
+                "White pawn should be removed after en passant");
+    }
+
+    @Test
+    @DisplayName("Non-pawn piece does not trigger en passant")
+    void testNonPawnDoesNothing() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        testBoard[4][4] = rook;
+
+        IndexPosition nextMove = new IndexPosition(5, 5);
+        gameService.handleEnPassant(rook, nextMove);
+
+        // rook is still on the board, nothing removed
+        assertNotNull(testBoard[4][4]);
+    }
+
+    @Test
+    @DisplayName("En passant does not happen if target square is not empty")
+    void testEnPassantFailsIfTargetNotEmpty() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
+        Pawn blockingPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(5, 5));
+
+        testBoard[4][4] = whitePawn;
+        testBoard[4][5] = blackPawn;
+        testBoard[5][5] = blockingPawn;
+
+        IndexPosition nextMove = new IndexPosition(5, 5);
+        gameService.handleEnPassant(whitePawn, nextMove);
+
+        // black pawn should still exist because target square is occupied
+        assertNotNull(testBoard[4][5]);
+    }
 
 }

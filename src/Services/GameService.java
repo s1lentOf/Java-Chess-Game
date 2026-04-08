@@ -16,12 +16,20 @@ public class GameService {
     private int moveCounter = 1;
     // a field to keep track of which side is moving next
     private ColorForChessPieces currentColorToMove;
+    private Pawn lastDoubleStepPawn;
     private Board board;
 
     public GameService(Board board) {
         this.board = board;
         checkService = new CheckService();
         moveStorage = new ArrayList<>();
+    }
+
+    public Pawn getLastDoubleStepPawn() {
+        return lastDoubleStepPawn;
+    }
+    public void setLastDoubleStepPawn(Pawn pawn) {
+        this.lastDoubleStepPawn = pawn;
     }
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
@@ -60,18 +68,56 @@ public class GameService {
             if (!board.getSelected().isEnemy(targetPiece)) {
                 System.out.println("Reselected piece");
                 board.setSelected(targetPiece);
-            } else if( isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
+            } else if(isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
             }
         } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
+            Piece selected = board.getSelected();
+
+            // track double-step pawn
+            if (selected instanceof Pawn) {
+                int oldRow = selected.getPosition().getRow();
+                int newRow = nextMove.getRow();
+
+                if (Math.abs(oldRow - newRow) == 2) {
+                    setLastDoubleStepPawn((Pawn) selected);
+                } else {
+                    setLastDoubleStepPawn(null);
+                }
+            } else {
+                setLastDoubleStepPawn(null);
+            }
+
+            handleEnPassant(board.getSelected(), nextMove);
+
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
             moveCounter++;
         }
 
         System.out.println(Arrays.deepToString(board.getPiecesOnTheBoard()));
+    }
+
+    public void handleEnPassant(Piece selected, IndexPosition nextMove){
+        if (!(selected instanceof Pawn)) return;
+
+        int fromCol = selected.getPosition().getCol();
+        int toCol = nextMove.getCol();
+
+        // if pawn moves diagonally to an empty square it's en passant
+        if (Math.abs(fromCol - toCol) == 1 &&
+                board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] == null) {
+
+            int dir = (selected).isWhite() ? 1 : -1;
+
+            // remove pawn directly behind the target square
+            int capturedRow = nextMove.getRow() - dir;
+            int capturedCol = nextMove.getCol();
+
+            board.getPiecesOnTheBoard()[capturedRow][capturedCol] = null;
+        }
     }
 
     // helper method for moving a piece
@@ -130,8 +176,27 @@ public class GameService {
             return getKingLegalMoves(piece.getColor(), board);
         }
 
-        if(piece instanceof Pawn) {
-            // yet to be implemented when enpassant move is done
+        if(piece instanceof Pawn pawn) {
+
+            IndexPosition[] rawMoves = pawn.getPossibleMoves(board);
+            ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
+
+            int row = pawn.getPosition().getRow();
+            int col = pawn.getPosition().getCol();
+            int dir = pawn.isWhite() ? 1 : -1;
+
+            Pawn enemyPawn = getLastDoubleStepPawn();
+
+            if (enemyPawn != null) {
+                int enemyRow = enemyPawn.getPosition().getRow();
+                int enemyCol = enemyPawn.getPosition().getCol();
+
+                if (enemyRow == row && Math.abs(enemyCol - col) == 1) {
+                    moves.add(new IndexPosition(row + dir, enemyCol));
+                }
+            }
+
+            return checkService.filterMovesForCheck(piece, moves, board);
         }
         IndexPosition[] rawMoves = piece.getPossibleMoves(board);
         ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
