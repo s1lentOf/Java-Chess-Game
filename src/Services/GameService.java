@@ -342,8 +342,17 @@ public class GameService {
         pieces[nextMove.getRow()][nextMove.getCol()] = queen;
         moveStorage.add(new MoveRecord("Queen", pawn.getPosition(), nextMove));
     }
-    public boolean isCheckmate(ColorForChessPieces color, Piece[][] board) {
-        return false;
+    public boolean isCheckmate() {
+        if (!checkService.isInCheck(currentColorToMove, board.getPiecesOnTheBoard())) {
+            return false; // Not in check, cannot be checkmate
+        }
+
+        ArrayList<IndexPosition> kingMoves = getKingLegalMoves(currentColorToMove, board.getPiecesOnTheBoard());
+        if (kingMoves != null && !kingMoves.isEmpty()) {
+            return false; // King can escape, not checkmate
+        }
+
+        return !checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard());
     }
 }
 
