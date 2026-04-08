@@ -227,8 +227,77 @@ public class TestGameService {
 
     }
 
+    @Test
+    @DisplayName("En passant captures black pawn for white")
+    void testWhitePawnEnPassant() {
+        Piece[][] testBoard = new Piece[8][8];
 
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
 
+        testBoard[4][4] = whitePawn;
+        testBoard[4][5] = blackPawn;
 
+        // white pawn moves diagonally to empty square
+        IndexPosition nextMove = new IndexPosition(5, 5);
+        gameService.handleEnPassant(whitePawn, nextMove);
+
+        // black pawn should be removed
+        assertNull(testBoard[4][5]);
+    }
+
+    @Test
+    @DisplayName("En passant captures white pawn for black")
+    void testBlackPawnEnPassant() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3, 4));
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+
+        testBoard[3][4] = blackPawn;
+        testBoard[3][3] = whitePawn;
+
+        // black pawn moves diagonally to empty square
+        IndexPosition nextMove = new IndexPosition(2, 3);
+        gameService.handleEnPassant(blackPawn, nextMove);
+
+        // white pawn should be removed
+        assertNull(testBoard[3][3]);
+    }
+
+    @Test
+    @DisplayName("Non-pawn piece does not trigger en passant")
+    void testNonPawnDoesNothing() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        testBoard[4][4] = rook;
+
+        IndexPosition nextMove = new IndexPosition(5, 5);
+        gameService.handleEnPassant(rook, nextMove);
+
+        // rook is still on the board, nothing removed
+        assertNotNull(testBoard[4][4]);
+    }
+
+    @Test
+    @DisplayName("En passant does not happen if target square is not empty")
+    void testEnPassantFailsIfTargetNotEmpty() {
+        Piece[][] testBoard = new Piece[8][8];
+
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
+        Pawn blockingPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(5, 5));
+
+        testBoard[4][4] = whitePawn;
+        testBoard[4][5] = blackPawn;
+        testBoard[5][5] = blockingPawn;
+
+        IndexPosition nextMove = new IndexPosition(5, 5);
+        gameService.handleEnPassant(whitePawn, nextMove);
+
+        // black pawn should still exist because target square is occupied
+        assertNotNull(testBoard[4][5]);
+    }
 
 }
