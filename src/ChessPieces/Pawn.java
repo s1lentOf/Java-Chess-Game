@@ -73,8 +73,17 @@ public class Pawn extends Piece {
         }
 
         //En passant
-        if (false){
-            //implementation
+        if (lastDoubleStepPawn != null && isEnemy(lastDoubleStepPawn)) {
+            int enemyRow = lastDoubleStepPawn.getPosition().getRow();
+            int enemyColumn = lastDoubleStepPawn.getPosition().getCol();
+
+            if (row == enemyRow && (Math.abs(col - enemyColumn) == 1)){
+                int enPassantRow = row + dir;
+
+                if (enPassantRow >= 0 && enPassantRow < board.length){
+                    temp[count++] = new IndexPosition(enPassantRow, enemyColumn);
+                }
+            }
         }
 
         // diagonal captures
