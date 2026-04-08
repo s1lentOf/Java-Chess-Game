@@ -147,8 +147,8 @@ public class TestPawn {
     @Test
     void blackPawnCanCaptureEnPassant() {
         Piece[][] board = new Piece[8][8];
-        Pawn blackPawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3,3));
-        Pawn whitePawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3,4));
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3,3));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3,4));
 
         board[3][3] = blackPawn;   // black pawn
         board[3][4] = whitePawn;   // white pawn just moved two steps
