@@ -301,39 +301,38 @@ public class TestGameService {
     @Test
     @DisplayName("En passant captures black pawn for white")
     void testWhitePawnEnPassant() {
-        Piece[][] testBoard = new Piece[8][8];
+        Piece[][] internalBoard = board.getPiecesOnTheBoard();
 
         Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
         Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
 
-        testBoard[4][4] = whitePawn;
-        testBoard[4][5] = blackPawn;
+        internalBoard[4][4] = whitePawn;
+        internalBoard[4][5] = blackPawn;
 
-        // white pawn moves diagonally to empty square
         IndexPosition nextMove = new IndexPosition(5, 5);
         gameService.handleEnPassant(whitePawn, nextMove);
 
-        // black pawn should be removed
-        assertNull(testBoard[4][5]);
+        // Check the internal board, not a local array
+        assertNull(internalBoard[4][5],
+                "Black pawn should be removed after en passant");
     }
 
     @Test
     @DisplayName("En passant captures white pawn for black")
     void testBlackPawnEnPassant() {
-        Piece[][] testBoard = new Piece[8][8];
+        Piece[][] internalBoard = board.getPiecesOnTheBoard();
 
         Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3, 4));
         Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
 
-        testBoard[3][4] = blackPawn;
-        testBoard[3][3] = whitePawn;
+        internalBoard[3][4] = blackPawn;
+        internalBoard[3][3] = whitePawn;
 
-        // black pawn moves diagonally to empty square
         IndexPosition nextMove = new IndexPosition(2, 3);
         gameService.handleEnPassant(blackPawn, nextMove);
 
-        // white pawn should be removed
-        assertNull(testBoard[3][3]);
+        assertNull(internalBoard[3][3],
+                "White pawn should be removed after en passant");
     }
 
     @Test

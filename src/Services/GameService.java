@@ -101,7 +101,23 @@ public class GameService {
     }
 
     public void handleEnPassant(Piece selected, IndexPosition nextMove){
-        // to be implemented
+        if (!(selected instanceof Pawn)) return;
+
+        int fromCol = selected.getPosition().getCol();
+        int toCol = nextMove.getCol();
+
+        // if pawn moves diagonally to an empty square it's en passant
+        if (Math.abs(fromCol - toCol) == 1 &&
+                board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] == null) {
+
+            int dir = ((Pawn) selected).isWhite() ? 1 : -1;
+
+            // remove pawn directly behind the target square
+            int capturedRow = nextMove.getRow() - dir;
+            int capturedCol = nextMove.getCol();
+
+            board.getPiecesOnTheBoard()[capturedRow][capturedCol] = null;
+        }
     }
 
     // helper method for moving a piece
