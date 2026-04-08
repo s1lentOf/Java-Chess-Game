@@ -112,14 +112,14 @@ public class TestPawn {
         assertTrue(pawn2.hasMoved());
     }
 
-//    @Test
-//    @DisplayName("Pawn promotes to a Queen")
-//    public void testPromotion() {
-//        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-//        Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-//
-//        assertEquals(expectedQueen, pawn.promotion());
-//    }
+    @Test
+    @DisplayName("Pawn promotes to a Queen")
+    public void testPromotion() {
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
+        Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
+
+        assertEquals(expectedQueen, pawn.promotion());
+    }
 
     @Test
     void whitePawnCanCaptureEnPassant() {
