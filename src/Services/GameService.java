@@ -110,7 +110,7 @@ public class GameService {
         if (Math.abs(fromCol - toCol) == 1 &&
                 board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] == null) {
 
-            int dir = selected.isWhite() ? 1 : -1;
+            int dir = (selected).isWhite() ? 1 : -1;
 
             // remove pawn directly behind the target square
             int capturedRow = nextMove.getRow() - dir;
