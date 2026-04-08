@@ -97,6 +97,12 @@ public class GameService {
             moveCounter++;
         }
 
+        if (this.isCheckmate()) {
+            ColorForChessPieces winner = (currentColorToMove == ColorForChessPieces.WHITE) ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
+            String message = "Checkmate! " + winner + " wins!";
+            board.showGameOver(message);
+        }
+
         System.out.println(Arrays.deepToString(board.getPiecesOnTheBoard()));
     }
 
@@ -150,7 +156,6 @@ public class GameService {
         moveStorage.add(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove));
 
         board.setSelected(null);
-
     }
 
     //helper method for capturing the piece

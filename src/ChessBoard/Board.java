@@ -83,21 +83,7 @@ public class Board {
         initialDrawOfPieces();
     }
 
-    public void showGameOver(MoveResult moveResult) {
-        String message = "";
-
-        if (moveResult.getCheckmate()) {
-            if (moveResult.getColorToWin() == ColorForChessPieces.BLACK) {
-                message = "Checkmate! Black wins!";
-            } else {
-                message = "Checkmate! White wins!";
-            }
-        } else if (moveResult.getDraw()) {
-            message = "Draw!";
-        } else {
-            message = "Game Over!";
-        }
-
+    public void showGameOver(String message) {
         JOptionPane.showMessageDialog(
                 this.gameWindow,
                 message,
