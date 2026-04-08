@@ -112,6 +112,14 @@ public class CheckService {
             tempBoard[piece.getPosition().getRow()][piece.getPosition().getCol()] = null;
             tempBoard[move.getRow()][move.getCol()] = piece;
 
+            // en passant: remove the captured pawn which is not on the target square
+            if (piece instanceof Pawn
+                    && Math.abs(move.getCol() - piece.getPosition().getCol()) == 1
+                    && board[move.getRow()][move.getCol()] == null) {
+                int capturedRow = piece.getPosition().getRow();
+                tempBoard[capturedRow][move.getCol()] = null;
+            }
+
             if (!isInCheck(piece.getColor(), tempBoard)) {
                 legalMoves.add(move);
             }
