@@ -26,7 +26,7 @@ public class GameService {
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
     */
-    public boolean isMovePossible(IndexPosition[] possibleMoves, IndexPosition nextMove) {
+    public boolean isMovePossible(ArrayList<IndexPosition> possibleMoves, IndexPosition nextMove) {
         for (IndexPosition move : possibleMoves) {
             if (move.getRow() == nextMove.getRow() && move.getCol() == nextMove.getCol()) {
                 return true;
@@ -60,12 +60,12 @@ public class GameService {
             if (!board.getSelected().isEnemy(targetPiece)) {
                 System.out.println("Reselected piece");
                 board.setSelected(targetPiece);
-            } else if (isMovePossible(board.getSelected().getPossibleMoves(board.getPiecesOnTheBoard()), nextMove)) {
+            } else if( isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
             }
-        } else if (isMovePossible(board.getSelected().getPossibleMoves(board.getPiecesOnTheBoard()), nextMove)) {
+        } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
             moveCounter++;
@@ -146,7 +146,7 @@ public class GameService {
     }
 
 
-    // thsi method defines the rules of king side castling
+    // this method defines the rules of king side castling
     public boolean canCastleKingSide(ColorForChessPieces color, Piece[][] board) {
         King king = checkService.findKing(color, board);
         // set row based on color of the castle desired pieces
