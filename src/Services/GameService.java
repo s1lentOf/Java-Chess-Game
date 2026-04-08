@@ -79,11 +79,20 @@ public class GameService {
         Piece selected = board.getSelected();
         IndexPosition oldPos = selected.getPosition();
 
+        // detect castling
+        if (selected instanceof King
+                && Math.abs(nextMove.getCol() - oldPos.getCol()) == 2) {
+            executeCastle(nextMove);
+            return;
+        }
+
         board.getPiecesOnTheBoard()[oldPos.getRow()][oldPos.getCol()] = null;
 
-        board.getSelected().setPosition(new IndexPosition(nextMove.getRow(), nextMove.getCol()));
+        selected.setPosition(new IndexPosition(nextMove.getRow(), nextMove.getCol()));
 
-        board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] = board.getSelected();
+        board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] = selected;
+
+        moveStorage.add(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove));
 
         board.setSelected(null);
     }
@@ -218,6 +227,35 @@ public class GameService {
             }
         }
         return false;
+    }
+
+    public void executeCastle(IndexPosition kingTarget) {
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+        Piece king = board.getSelected();
+        IndexPosition kingFrom = king.getPosition();
+        int row = kingFrom.getRow();
+
+        boolean isKingSide = kingTarget.getCol() > kingFrom.getCol();
+        int rookFromCol = isKingSide ? 7 : 0;
+        int rookToCol   = isKingSide ? 5 : 3;
+
+        Piece rook = pieces[row][rookFromCol];
+
+        // move king
+        pieces[kingFrom.getRow()][kingFrom.getCol()] = null;
+        king.setPosition(kingTarget);
+        pieces[kingTarget.getRow()][kingTarget.getCol()] = king;
+
+        // move rook
+        pieces[row][rookFromCol] = null;
+        rook.setPosition(new IndexPosition(row, rookToCol));
+        pieces[row][rookToCol] = rook;
+
+        // record moves so hasPiecedMoved blocks future castling
+        moveStorage.add(new MoveRecord("King", kingFrom, kingTarget));
+        moveStorage.add(new MoveRecord("Rook", new IndexPosition(row, rookFromCol), new IndexPosition(row, rookToCol)));
+
+        board.setSelected(null);
     }
 
 
