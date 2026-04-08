@@ -1,8 +1,12 @@
 package ChessPieces;
 
+import ChessBoard.Board;
 import Constants.ColorForChessPieces;
 
+import static Constants.ColorForChessPieces.WHITE;
+
 public class Pawn extends Piece {
+    Board board = new Board();
 
     public Pawn(ColorForChessPieces color, IndexPosition position) {
         super(color, position);
@@ -55,5 +59,15 @@ public class Pawn extends Piece {
         } else {
             return this.getPosition().getRow() != 6;
         }
+    }
+
+    public Piece promotion() {
+        int row = this.getColor() == WHITE ? 0 : 7;
+
+        if (this.getPosition().getRow() == row) {
+            return new Queen(this.getColor(), this.getPosition());
+        }
+
+        return this;
     }
 }
