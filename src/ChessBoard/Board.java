@@ -4,6 +4,7 @@ import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Constants.Colors;
 import Services.GameService;
+import Services.MoveResult;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +23,8 @@ public class Board {
     private JButton[][] squares = new JButton[8][8];
 
     private GameService service = new GameService(this);
+
+    private JFrame gameWindow;
 
     // getters for easier testing
     public Piece getSelected() {
@@ -44,6 +47,8 @@ public class Board {
 
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
+        this.gameWindow = window;
+
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
 
@@ -76,6 +81,29 @@ public class Board {
 
         setUpPiecesOnTheBoard();
         initialDrawOfPieces();
+    }
+
+    public void showGameOver(MoveResult moveResult) {
+        String message = "";
+
+        if (moveResult.getCheckmate()) {
+            if (moveResult.getColorToWin() == ColorForChessPieces.BLACK) {
+                message = "Checkmate! Black wins!";
+            } else {
+                message = "Checkmate! White wins!";
+            }
+        } else if (moveResult.getDraw()) {
+            message = "Draw!";
+        } else {
+            message = "Game Over!";
+        }
+
+        JOptionPane.showMessageDialog(
+                this.gameWindow,
+                message,
+                "Game Over",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     /*
