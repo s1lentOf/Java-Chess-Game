@@ -4,7 +4,9 @@ import ChessBoard.Board;
 import ChessPieces.IndexPosition;
 import ChessPieces.Pawn;
 import ChessPieces.Piece;
+import ChessPieces.Queen;
 import Constants.ColorForChessPieces;
+import Services.GameService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -108,6 +110,15 @@ public class TestPawn {
 
         assertTrue(pawn.hasMoved());
         assertTrue(pawn2.hasMoved());
+    }
+
+    @Test
+    @DisplayName("Pawn promotes to a Queen")
+    public void testPromotion() {
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
+        Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
+
+        assertEquals(expectedQueen, pawn.promotion());
     }
 
 

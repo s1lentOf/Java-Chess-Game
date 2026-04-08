@@ -3,6 +3,8 @@ package ChessPieces;
 import ChessBoard.Board;
 import Constants.ColorForChessPieces;
 
+import java.util.Objects;
+
 import static Constants.ColorForChessPieces.WHITE;
 
 public class Pawn extends Piece {
@@ -62,7 +64,7 @@ public class Pawn extends Piece {
     }
 
     public Piece promotion() {
-        int row = this.getColor() == WHITE ? 0 : 7;
+        int row = this.getColor() == WHITE ? 7 : 0;
 
         if (this.getPosition().getRow() == row) {
             return new Queen(this.getColor(), this.getPosition());
