@@ -4,7 +4,6 @@ import ChessBoard.Board;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -14,11 +13,6 @@ import static Constants.ColorForChessPieces.*;
 public class GameService {
     private CheckService checkService;
     private ArrayList<MoveRecord> moveStorage;
-
-    public GameService() {
-        checkService = new CheckService();
-        moveStorage = new ArrayList<>();
-    }
     private int moveCounter = 1;
     // a field to keep track of which side is moving next
     private ColorForChessPieces currentColorToMove;
@@ -26,8 +20,9 @@ public class GameService {
 
     public GameService(Board board) {
         this.board = board;
+        checkService = new CheckService();
+        moveStorage = new ArrayList<>();
     }
-
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
     */
