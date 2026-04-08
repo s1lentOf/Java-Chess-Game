@@ -62,14 +62,4 @@ public class Pawn extends Piece {
             return this.getPosition().getRow() != 6;
         }
     }
-
-    public Piece promotion() {
-        int row = this.getColor() == WHITE ? 7 : 0;
-
-        if (this.getPosition().getRow() == row) {
-            return new Queen(this.getColor(), this.getPosition());
-        }
-
-        return this;
-    }
 }

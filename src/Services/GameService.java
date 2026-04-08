@@ -86,6 +86,15 @@ public class GameService {
             return;
         }
 
+        if(selected instanceof Pawn){
+            int row = selected.getColor() == WHITE ? 7 : 0;
+            if(nextMove.getRow()==row){
+                executePromotion(nextMove);
+                System.out.println(board.getPieceAt(nextMove.getRow(), nextMove.getCol()).toString());
+                return;
+            }
+
+        }
         board.getPiecesOnTheBoard()[oldPos.getRow()][oldPos.getCol()] = null;
 
         selected.setPosition(new IndexPosition(nextMove.getRow(), nextMove.getCol()));
@@ -95,6 +104,7 @@ public class GameService {
         moveStorage.add(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove));
 
         board.setSelected(null);
+
     }
 
     //helper method for capturing the piece
@@ -258,7 +268,14 @@ public class GameService {
         board.setSelected(null);
     }
 
-
+    public void executePromotion(IndexPosition nextMove){
+        Piece[][] pieces = board.getPiecesOnTheBoard();
+        Pawn pawn = (Pawn) board.getSelected();
+        Queen queen = new Queen(pawn.getColor(),nextMove);
+        pieces[pawn.getPosition().getRow()][pawn.getPosition().getCol()] = null;
+        pieces[nextMove.getRow()][nextMove.getCol()] = queen;
+        moveStorage.add(new MoveRecord("Queen", pawn.getPosition(), nextMove));
+    }
     public boolean isCheckmate(ColorForChessPieces color, Piece[][] board) {
         return false;
     }
