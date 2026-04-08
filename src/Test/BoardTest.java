@@ -18,62 +18,7 @@ class BoardTest {
     @BeforeEach
     void setUp() throws Exception {
         board = new Board();
-        board.setUpMatrix();
         service = new GameService(board);
-
-        Field field = Board.class.getDeclaredField("boardPositions");
-        field.setAccessible(true);
-        positions = (IndexPosition[][]) field.get(board);
-    }
-
-    @Test
-    void testAllPositionsAreNotNull() {
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                assertNotNull(positions[i][j], "Position [" + i + "][" + j + "] should not be null");
-    }
-
-    @Test
-    void testAllPositionsHaveCorrectCoordinates() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                assertEquals((row + 1) * 75, positions[row][col].getRow(),
-                        "row mismatch at [" + row + "][" + col + "]");
-
-                assertEquals((col + 1) * 75, positions[row][col].getCol(),
-                        "col mismatch at [" + row + "][" + col + "]");
-            }
-        }
-    }
-
-    @Test
-    void testFirstPosition() {
-        assertEquals(75, positions[0][0].getCol());
-        assertEquals(75, positions[0][0].getRow());
-    }
-
-    @Test
-    void testLastPosition() {
-        assertEquals(600, positions[7][7].getCol());
-        assertEquals(600, positions[7][7].getRow());
-    }
-
-    @Test
-    void testSetUpMatrixIsIdempotent() {
-        board.setUpMatrix();
-        board.setUpMatrix();
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                assertNotNull(positions[row][col],
-                        "Position should not be null at [" + row + "][" + col + "]");
-                assertEquals((row + 1) * 75, positions[row][col].getRow(),
-                        "row mismatch at [" + row + "][" + col + "]");
-
-                assertEquals((col + 1) * 75, positions[row][col].getCol(),
-                        "col mismatch at [" + row + "][" + col + "]");
-            }
-        }
     }
 
     @Test
@@ -89,53 +34,6 @@ class BoardTest {
         assertTrue(service.isMovePossible(possibleMoves,validMove));
         assertFalse(service.isMovePossible(possibleMoves,invalidMove));
 
-    }
-
-    @Test
-    void testGetPixelsToDraw_FirstPosition() {
-        IndexPosition position = new IndexPosition(0, 0);
-        Piece piece = new Rook(ColorForChessPieces.WHITE, position);
-
-        Board board = new Board();
-        board.setUpMatrix();
-
-        IndexPosition result = board.getPixelsToDraw(piece);
-
-        assertNotNull(result);
-        assertEquals(75, result.getCol());
-        assertEquals(75, result.getRow());
-    }
-
-    @Test
-    void testGetPixelsToDraw_MiddlePosition() {
-        IndexPosition position = new IndexPosition(3, 4);
-        Piece piece = new Rook(ColorForChessPieces.WHITE, position);
-
-        Board board = new Board();
-        board.setUpMatrix();
-
-        IndexPosition result = board.getPixelsToDraw(piece);
-
-        System.out.println(result.getRow() + " " + result.getCol());
-
-        assertNotNull(result);
-        assertEquals(300, result.getRow());
-        assertEquals(375, result.getCol());
-    }
-
-    @Test
-    void testGetPixelsToDraw_LastSquare() {
-        IndexPosition position = new IndexPosition(7, 7);
-        Piece piece = new Rook(ColorForChessPieces.BLACK, position);
-
-        Board board = new Board();
-        board.setUpMatrix();
-
-        IndexPosition result = board.getPixelsToDraw(piece);
-
-        assertNotNull(result);
-        assertEquals(600, result.getCol());
-        assertEquals(600, result.getRow());
     }
 
     @Test

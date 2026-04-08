@@ -4,7 +4,6 @@ import ChessBoard.Board;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -13,23 +12,17 @@ import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
-    private int moveCounter = 1;
     private ArrayList<MoveRecord> moveStorage;
+    private int moveCounter = 1;
     // a field to keep track of which side is moving next
     private ColorForChessPieces currentColorToMove;
     private Board board;
 
     public GameService(Board board) {
         this.board = board;
-        this.checkService = new CheckService();
-        this.moveStorage = new ArrayList<>();
+        checkService = new CheckService();
+        moveStorage = new ArrayList<>();
     }
-
-    public Piece getSelected() {
-        return board.getSelected();
-    }
-
-
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
     */
@@ -45,9 +38,10 @@ public class GameService {
     public void handleSquareClick(IndexPosition nextMove) {
         Piece targetPiece = board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
 
-        if (moveCounter % 2 != 0) {
+        if(moveCounter%2 != 0){
             currentColorToMove = ColorForChessPieces.WHITE;
-        } else {
+        }
+        else{
             currentColorToMove = ColorForChessPieces.BLACK;
         }
 
@@ -55,7 +49,8 @@ public class GameService {
             if (targetPiece != null && targetPiece.getColor() == currentColorToMove) {
                 board.setSelected(targetPiece);
                 System.out.println("Selected new piece");
-            } else {
+            }
+            else{
                 System.out.println("It is not your turn");
             }
             return;
@@ -107,12 +102,16 @@ public class GameService {
     }
 
 
+
+  
+  
+  
     public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
-        if (piece instanceof King) {
+        if(piece instanceof King) {
             return getKingLegalMoves(piece.getColor(), board);
         }
 
-        if (piece instanceof Pawn) {
+        if(piece instanceof Pawn) {
             // yet to be implemented when enpassant move is done
         }
         IndexPosition[] rawMoves = piece.getPossibleMoves(board);
@@ -136,7 +135,7 @@ public class GameService {
                 legalMoves.add(move);
             }
         }
-        if (canCastleKingSide(color, board)) {
+        if(canCastleKingSide(color, board)) {
             legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() + 2));
         }
 
