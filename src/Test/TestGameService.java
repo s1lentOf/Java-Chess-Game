@@ -41,7 +41,7 @@ public class TestGameService {
         Piece[][] board = new Piece[8][8];
         board[0][4] = king;
         board[0][7] = rook;
-        assertTrue(gameService.canCastleKingSide(king.getColor(), board));
+        assertTrue(gameService.canCastleKingSide(board));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TestGameService {
         board[0][4] = king;
         board[0][6] = knight;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide(king.getColor(), board));
+        assertFalse(gameService.canCastleKingSide( board));
 
     }
 
@@ -69,7 +69,7 @@ public class TestGameService {
         board[0][4] = king;
         board[1][3] = queen;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide(king.getColor(), board));
+        assertFalse(gameService.canCastleKingSide( board));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TestGameService {
         board[0][4] = king;
         board[2][4] = queen;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide(king.getColor(), board));
+        assertFalse(gameService.canCastleKingSide( board));
     }
 
 
@@ -96,7 +96,7 @@ public class TestGameService {
         board[0][4] = king;
         board[3][6] = queen;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide(king.getColor(), board));
+        assertFalse(gameService.canCastleKingSide( board));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class TestGameService {
         Piece[][] board = new Piece[8][8];
         board[0][4] = king;
         board[0][0] = rook;
-        assertTrue(gameService.canCastleQueenSide(king.getColor(), board));
+        assertTrue(gameService.canCastleQueenSide( board));
     }
 
 
@@ -121,7 +121,7 @@ public class TestGameService {
         board[0][4] = king;
         board[0][2] = knight;
         board[0][0] = rook;
-        assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
+        assertFalse(gameService.canCastleQueenSide( board));
 
     }
 
@@ -136,7 +136,7 @@ public class TestGameService {
         board[0][4] = king;
         board[1][3] = queen;
         board[0][0] = rook;
-        assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
+        assertFalse(gameService.canCastleQueenSide( board));
     }
 
 
@@ -150,7 +150,7 @@ public class TestGameService {
         board[0][4] = king;
         board[2][4] = bishop;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleQueenSide(king.getColor(), board));
+        assertFalse(gameService.canCastleQueenSide( board));
     }
 
 

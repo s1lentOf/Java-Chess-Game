@@ -219,11 +219,11 @@ public class GameService {
                 legalMoves.add(move);
             }
         }
-        if(canCastleKingSide(color, board)) {
+        if(canCastleKingSide( board)) {
             legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() + 2));
         }
 
-        if (canCastleQueenSide(color, board)) {
+        if (canCastleQueenSide( board)) {
             legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() - 2));
         }
         return legalMoves;
@@ -231,7 +231,8 @@ public class GameService {
 
 
     // this method defines the rules of king side castling
-    public boolean canCastleKingSide(ColorForChessPieces color, Piece[][] board) {
+    public boolean canCastleKingSide( Piece[][] board) {
+        ColorForChessPieces color = currentColorToMove;
         King king = checkService.findKing(color, board);
         // set row based on color of the castle desired pieces
         ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
@@ -261,8 +262,8 @@ public class GameService {
     }
 
     // this method defines teh rules of queen side castling
-    public boolean canCastleQueenSide(ColorForChessPieces color, Piece[][] board) {
-
+    public boolean canCastleQueenSide( Piece[][] board) {
+        ColorForChessPieces color = currentColorToMove;
         King king = checkService.findKing(color, board);
         // set row based on color of the castle desired pieces
         ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
