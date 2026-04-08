@@ -68,7 +68,7 @@ public class GameService {
             if (!board.getSelected().isEnemy(targetPiece)) {
                 System.out.println("Reselected piece");
                 board.setSelected(targetPiece);
-            } else if( isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
+            } else if(isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
@@ -80,6 +80,10 @@ public class GameService {
         }
 
         System.out.println(Arrays.deepToString(board.getPiecesOnTheBoard()));
+    }
+
+    public void handleEnPassant(Piece selected, IndexPosition nextMove){
+        // to be implemented
     }
 
     // helper method for moving a piece
