@@ -74,6 +74,24 @@ public class GameService {
                 moveCounter++;
             }
         } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
+            Piece selected = board.getSelected();
+
+            // track double-step pawn
+            if (selected instanceof Pawn) {
+                int oldRow = selected.getPosition().getRow();
+                int newRow = nextMove.getRow();
+
+                if (Math.abs(oldRow - newRow) == 2) {
+                    setLastDoubleStepPawn((Pawn) selected);
+                } else {
+                    setLastDoubleStepPawn(null);
+                }
+            } else {
+                setLastDoubleStepPawn(null);
+            }
+
+            handleEnPassant(board.getSelected(), nextMove);
+
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
             moveCounter++;
@@ -123,8 +141,27 @@ public class GameService {
             return getKingLegalMoves(piece.getColor(), board);
         }
 
-        if(piece instanceof Pawn) {
-            // yet to be implemented when enpassant move is done
+        if(piece instanceof Pawn pawn) {
+
+            IndexPosition[] rawMoves = pawn.getPossibleMoves(board);
+            ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
+
+            int row = pawn.getPosition().getRow();
+            int col = pawn.getPosition().getCol();
+            int dir = pawn.isWhite() ? 1 : -1;
+
+            Pawn enemyPawn = getLastDoubleStepPawn();
+
+            if (enemyPawn != null) {
+                int enemyRow = enemyPawn.getPosition().getRow();
+                int enemyCol = enemyPawn.getPosition().getCol();
+
+                if (enemyRow == row && Math.abs(enemyCol - col) == 1) {
+                    moves.add(new IndexPosition(row + dir, enemyCol));
+                }
+            }
+
+            return checkService.filterMovesForCheck(piece, moves, board);
         }
         IndexPosition[] rawMoves = piece.getPossibleMoves(board);
         ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
