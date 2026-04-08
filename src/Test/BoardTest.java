@@ -7,6 +7,8 @@ import Services.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardTest {
@@ -22,18 +24,17 @@ class BoardTest {
     }
 
     @Test
-    void testisMovePossible(){
-        IndexPosition[] possibleMoves = {
-                new IndexPosition(2, 3),
-                new IndexPosition(3, 3)
-        };
+    void testIsMovePossible() {
+        ArrayList<IndexPosition> possibleMoves = new ArrayList<>();
+
+        possibleMoves.add(new IndexPosition(2, 3));
+        possibleMoves.add(new IndexPosition(3, 3));
 
         IndexPosition validMove = new IndexPosition(2, 3);
         IndexPosition invalidMove = new IndexPosition(4, 4);
 
-        assertTrue(service.isMovePossible(possibleMoves,validMove));
-        assertFalse(service.isMovePossible(possibleMoves,invalidMove));
-
+        assertTrue(service.isMovePossible(possibleMoves, validMove));
+        assertFalse(service.isMovePossible(possibleMoves, invalidMove));
     }
 
     @Test
