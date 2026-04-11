@@ -72,11 +72,6 @@ public class GameService {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
-
-                currentColorToMove = (moveCounter % 2 != 0) ? WHITE : BLACK;
-                if (isCheckmate()) {
-                    System.out.println("Checkmate! " + currentColorToMove + " loses.");
-                }
             }
         } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
             Piece selected = board.getSelected();
@@ -100,11 +95,14 @@ public class GameService {
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
             moveCounter++;
+        }
 
-            currentColorToMove = (moveCounter % 2 != 0) ? WHITE : BLACK;
-            if (isCheckmate()) {
-                System.out.println("Checkmate! " + currentColorToMove + " loses.");
-            }
+        // We have to check the checkmate for the opposite color to which has just made a move.
+        currentColorToMove = currentColorToMove == WHITE ? BLACK : WHITE;
+        if (this.isCheckmate()) {
+            ColorForChessPieces winner = (currentColorToMove == ColorForChessPieces.WHITE) ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
+            String message = "Checkmate! " + winner + " wins!";
+            board.showGameOver(message);
         }
 
         System.out.println(Arrays.deepToString(board.getPiecesOnTheBoard()));
@@ -160,7 +158,6 @@ public class GameService {
         moveStorage.add(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove));
 
         board.setSelected(null);
-
     }
 
     //helper method for capturing the piece
