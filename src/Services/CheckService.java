@@ -77,12 +77,40 @@ public class CheckService {
         }
 
         Piece attacker = attackers.get(0);
-        // check if any allied  piece can attack attacking piece
-        if (!isSquareAttacked(attacker.getPosition(), kingColor, board)) {
-            return false;
+        IndexPosition attackerPos = attacker.getPosition();
+
+        // check if any non-king allied piece can capture the attacker
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                Piece piece = board[row][col];
+                if (piece != null && piece.getColor().equals(kingColor) && !(piece instanceof King)) {
+                    IndexPosition[] moves = piece.getPossibleMoves(board);
+                    ArrayList<IndexPosition> moveList = new ArrayList<>(Arrays.asList(moves));
+                    if (moveList.contains(attackerPos)) {
+                        return true;
+                    }
+                }
+            }
         }
 
-        return true;
+        // if only the king can reach the attacker, make sure the attacker is not defended — otherwise the king would still be in check after the capture
+        King king = findKing(kingColor, board);
+        IndexPosition[] kingMoves = king.getPossibleMoves(board);
+        ArrayList<IndexPosition> kingMoveList = new ArrayList<>(Arrays.asList(kingMoves));
+        if (kingMoveList.contains(attackerPos)) {
+            ColorForChessPieces enemyColor = kingColor == ColorForChessPieces.WHITE
+                    ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
+            // simulate the king capturing the attacker
+            Piece[][] tempBoard = copyBoard(board);
+            tempBoard[king.getPosition().getRow()][king.getPosition().getCol()] = null;
+            tempBoard[attackerPos.getRow()][attackerPos.getCol()] = king;
+            // if no enemy piece still attacks that square, the king can legally capture
+            if (!isSquareAttacked(attackerPos, enemyColor, tempBoard)) {
+                return true;
+            }
+        }
+
+        return false;
     }
     // this method retrieves all squares (IndexPositions) between two particular squares(it is used to retrieve squares between attacker and a king)
     public ArrayList<IndexPosition> getSquaresBetween(IndexPosition from, IndexPosition to) {
