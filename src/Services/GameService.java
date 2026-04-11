@@ -15,7 +15,7 @@ public class GameService {
     private ArrayList<MoveRecord> moveStorage;
     private int moveCounter = 1;
     // a field to keep track of which side is moving next
-    private ColorForChessPieces currentColorToMove;
+    private ColorForChessPieces currentColorToMove = WHITE;
     private Pawn lastDoubleStepPawn;
     private Board board;
 
@@ -31,6 +31,11 @@ public class GameService {
     public void setLastDoubleStepPawn(Pawn pawn) {
         this.lastDoubleStepPawn = pawn;
     }
+
+    public ColorForChessPieces getCurrentColorToMove() {
+        return this.currentColorToMove;
+    }
+
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
     */
@@ -45,13 +50,6 @@ public class GameService {
 
     public void handleSquareClick(IndexPosition nextMove) {
         Piece targetPiece = board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
-
-        if(moveCounter%2 != 0){
-            currentColorToMove = ColorForChessPieces.WHITE;
-        }
-        else{
-            currentColorToMove = ColorForChessPieces.BLACK;
-        }
 
         if (board.getSelected() == null) {
             if (targetPiece != null && targetPiece.getColor() == currentColorToMove) {
@@ -97,12 +95,11 @@ public class GameService {
             moveCounter++;
         }
 
-        // We have to check the checkmate for the opposite color to which has just made a move.
-        currentColorToMove = currentColorToMove == WHITE ? BLACK : WHITE;
-        if (this.isCheckmate()) {
-            ColorForChessPieces winner = (currentColorToMove == ColorForChessPieces.WHITE) ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
-            String message = "Checkmate! " + winner + " wins!";
-            board.showGameOver(message);
+        if(moveCounter%2 != 0){
+            currentColorToMove = ColorForChessPieces.WHITE;
+        }
+        else{
+            currentColorToMove = ColorForChessPieces.BLACK;
         }
 
         System.out.println(Arrays.deepToString(board.getPiecesOnTheBoard()));
