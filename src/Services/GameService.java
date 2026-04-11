@@ -97,6 +97,8 @@ public class GameService {
             moveCounter++;
         }
 
+        // We have to check the checkmate for the opposite color to which has just made a move.
+        currentColorToMove = currentColorToMove == WHITE ? BLACK : WHITE;
         if (this.isCheckmate()) {
             ColorForChessPieces winner = (currentColorToMove == ColorForChessPieces.WHITE) ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
             String message = "Checkmate! " + winner + " wins!";
@@ -356,6 +358,9 @@ public class GameService {
         if (kingMoves != null && !kingMoves.isEmpty()) {
             return false; // King can escape, not checkmate
         }
+
+        System.out.println(checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()));
+        System.out.println(checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard()));
 
         return !checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard());
     }

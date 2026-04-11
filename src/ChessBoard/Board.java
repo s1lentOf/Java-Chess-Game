@@ -180,7 +180,7 @@ public class Board {
 
         // Then, draw elements for squares in possible moves of the selected piece.
         if (selected != null) {
-            IndexPosition[] allPossibleMoves = selected.getPossibleMoves(piecesOnTheBoard);
+            ArrayList<IndexPosition> allPossibleMoves = service.getLegalMoves(selected, piecesOnTheBoard);
 
             if (allPossibleMoves != null) {
                 for (IndexPosition move : allPossibleMoves) {
