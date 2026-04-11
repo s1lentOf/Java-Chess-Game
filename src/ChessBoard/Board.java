@@ -222,5 +222,11 @@ public class Board {
                 }
             }
         }
+
+        if (service.isCheckmate()) {
+            ColorForChessPieces winner = (service.getCurrentColorToMove() == ColorForChessPieces.WHITE) ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
+            String message = "Checkmate! " + winner + " wins!";
+            showGameOver(message);
+        }
     }
 }
