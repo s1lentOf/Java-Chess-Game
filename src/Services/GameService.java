@@ -72,11 +72,6 @@ public class GameService {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
-
-                currentColorToMove = (moveCounter % 2 != 0) ? WHITE : BLACK;
-                if (isCheckmate()) {
-                    System.out.println("Checkmate! " + currentColorToMove + " loses.");
-                }
             }
         } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
             Piece selected = board.getSelected();
@@ -100,11 +95,6 @@ public class GameService {
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
             moveCounter++;
-
-            currentColorToMove = (moveCounter % 2 != 0) ? WHITE : BLACK;
-            if (isCheckmate()) {
-                System.out.println("Checkmate! " + currentColorToMove + " loses.");
-            }
         }
 
         // We have to check the checkmate for the opposite color to which has just made a move.
@@ -368,9 +358,6 @@ public class GameService {
         if (kingMoves != null && !kingMoves.isEmpty()) {
             return false; // King can escape, not checkmate
         }
-
-        System.out.println(checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()));
-        System.out.println(checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard()));
 
         return !checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard());
     }
