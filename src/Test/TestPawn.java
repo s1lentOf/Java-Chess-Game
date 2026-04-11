@@ -115,10 +115,10 @@ public class TestPawn {
     @Test
     @DisplayName("Pawn promotes to a Queen")
     public void testPromotion() {
-        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-        Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
+       Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
+       Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
 
-        assertEquals(expectedQueen, pawn.promotion());
+       assertEquals(expectedQueen, pawn.promotion());
     }
 
     @Test

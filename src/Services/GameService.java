@@ -355,7 +355,6 @@ public class GameService {
         if (kingMoves != null && !kingMoves.isEmpty()) {
             return false; // King can escape, not checkmate
         }
-
         return !checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard());
     }
 }
