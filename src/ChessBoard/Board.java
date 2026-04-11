@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 // This class is responsible for the chess board logic
@@ -159,6 +160,7 @@ public class Board {
     }
 
     public void refreshBoard() {
+        // Redraw pieces first.
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
 
@@ -168,9 +170,55 @@ public class Board {
                 square.setIcon(null);
 
                 Piece piece = piecesOnTheBoard[row][col];
+
                 if (piece != null) {
-                    BufferedImage img = piece.paint();
-                    square.setIcon(new ImageIcon(img));
+                    BufferedImage pieceImage = piece.paint();
+                    square.setIcon(new ImageIcon(pieceImage));
+                }
+            }
+        }
+
+        // Then, draw elements for squares in possible moves of the selected piece.
+        if (selected != null) {
+            IndexPosition[] allPossibleMoves = selected.getPossibleMoves(piecesOnTheBoard);
+
+            if (allPossibleMoves != null) {
+                for (IndexPosition move : allPossibleMoves) {
+
+                    int moveRow = move.getRow();
+                    int moveCol = move.getCol();
+
+                    JButton targetSquare = squares[moveRow][moveCol];
+                    Piece targetPiece = piecesOnTheBoard[moveRow][moveCol];
+
+                    int size = 75; // A size of a square.
+
+                    BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g = image.createGraphics();
+
+                    // Draw a dot for an empty square.
+                    if (targetPiece == null) {
+                        g.setColor(Colors.GRAY.getColor());
+                        int dotSize = 12;
+                        int x = (size - dotSize) / 2;
+                        int y = (size - dotSize) / 2;
+
+                        g.fillOval(x, y, dotSize, dotSize);
+
+                    }
+                    // Draw a piece with a circle around it if the square is not empty.
+                    else {
+                        BufferedImage pieceImg = targetPiece.paint();
+                        g.drawImage(pieceImg, 0, 0, null);
+
+                        g.setColor(Colors.GRAY.getColor());
+                        g.setStroke(new BasicStroke(3));
+                        g.drawOval(2, 4, size - 7, size - 7);
+                    }
+
+                    g.dispose();
+
+                    targetSquare.setIcon(new ImageIcon(image));
                 }
             }
         }
