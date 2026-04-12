@@ -112,22 +112,18 @@ public class TestPawn {
         assertTrue(pawn2.hasMoved());
     }
 
-//    @Test
-//    @DisplayName("Pawn promotes to a Queen")
-//    public void testPromotion() {
-//        Board board = new Board();
-//        GameService service = new GameService(board);
-//        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(6, 3));
-//        board.getPiecesOnTheBoard()[6][3] = pawn;
-//        service.selectPiece(6,3);
-//        service.moveSelectedPiece(new IndexPosition(7,3));
-//
-//        assertTrue(board.getPiecesOnTheBoard()[7][3] instanceof  Queen);
-//       Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-//       Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-//
-//       assertEquals(expectedQueen, pawn.promotion());
-//    }
+    @Test
+    @DisplayName("Pawn promotes to a Queen")
+    public void testPromotion() {
+        Board board = new Board();
+        GameService service = new GameService(board);
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(6, 3));
+        board.getPiecesOnTheBoard()[6][3] = pawn;
+        service.selectPiece(6,3);
+        service.moveSelectedPiece(new IndexPosition(7,3));
+
+        assertTrue(board.getPiecesOnTheBoard()[7][3] instanceof  Queen);
+    }
 
     @Test
     void whitePawnCanCaptureEnPassant() {
