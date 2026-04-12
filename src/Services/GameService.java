@@ -25,8 +25,13 @@ public class GameService {
         moveStorage = new ArrayList<>();
     }
     // setter for the move counter
-    public void setMoveCounter(int moveCounter) {
-        this.moveCounter = moveCounter;
+    public void setMoveCounter(int count) {
+        this.moveCounter = count;
+        if (count % 2 != 0) {
+            currentColorToMove = ColorForChessPieces.WHITE;
+        } else {
+            currentColorToMove = ColorForChessPieces.BLACK;
+        }
     }
 
     public Pawn getLastDoubleStepPawn() {
@@ -64,6 +69,11 @@ public class GameService {
     public void handleSquareClick(IndexPosition nextMove) {
         Piece targetPiece = board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
 
+        // an addition to set the selected to null anytime the wrong colored piece is clicked
+        if (targetPiece != null && targetPiece.getColor() != currentColorToMove && board.getSelected() == null) {
+            return;
+        }
+
         if (board.getSelected() == null) {
             if (targetPiece != null && targetPiece.getColor() == currentColorToMove) {
                 board.setSelected(targetPiece);
@@ -76,15 +86,15 @@ public class GameService {
         }
 
         if (targetPiece != null) {
-            if (!board.getSelected().isEnemy(targetPiece)) {
+            if (targetPiece.getColor() == currentColorToMove) {
                 System.out.println("Reselected piece");
                 board.setSelected(targetPiece);
-            } else if(isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
+            } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()), nextMove)) {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
             }
-        } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()),nextMove)) {
+        } else if (isMovePossible(getLegalMoves(board.getSelected(), board.getPiecesOnTheBoard()), nextMove)) {
             Piece selected = board.getSelected();
 
             // track double-step pawn
@@ -108,7 +118,7 @@ public class GameService {
             moveCounter++;
         }
 
-        if(moveCounter%2 != 0){
+        if (moveCounter % 2 != 0) {
             currentColorToMove = ColorForChessPieces.WHITE;
         }
         else{

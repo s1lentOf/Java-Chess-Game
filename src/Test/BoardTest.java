@@ -55,11 +55,13 @@ class BoardTest {
     @Test
     void testHandleSquareClick_MoveToEmptySquare() throws Exception {
         Piece piece = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
+        Piece king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
 
         Piece[][] boardArray = new Piece[8][8];
         boardArray[1][0] = piece;
 
         board.setPieceAt(1, 0, piece);
+        board.setPieceAt(0, 4, king);
 
         board.setSelected(piece);
 
@@ -74,39 +76,43 @@ class BoardTest {
     }
 
     @Test
-    void testHandleSquareClick_CaptureEnemy() throws Exception {
+    void testHandleSquareClick_CaptureEnemy() {
         Piece white = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
         Piece black = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(2, 1));
+        Piece whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        Piece blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
 
-        Piece[][] boardArray = new Piece[8][8];
-        boardArray[1][0] = white;
-        boardArray[2][1] = black;
+        board.setPieceAt(0, 4, whiteKing);
+        board.setPieceAt(7, 4, blackKing);
+        board.setPieceAt(1, 0, white);
+        board.setPieceAt(2, 1, black);
 
-        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
-        boardField.setAccessible(true);
-        boardField.set(board, boardArray);
+        service.setMoveCounter(1); // WHITE's turn
 
-        Field selectedField = Board.class.getDeclaredField("selected");
-        selectedField.setAccessible(true);
-        selectedField.set(board, white);
+        // select white pawn
+        service.handleSquareClick(new IndexPosition(1, 0));
+        assertEquals(white, board.getSelected(), "white pawn should be selected");
 
-        IndexPosition move = new IndexPosition(2, 1);
+        // debug
+        System.out.println("Legal moves: " + service.getLegalMoves(white, board.getPiecesOnTheBoard()));
 
-        service.handleSquareClick(move);
+        // capture black pawn
+        service.handleSquareClick(new IndexPosition(2, 1));
 
-        Piece[][] result = (Piece[][]) boardField.get(board);
-
-        assertNull(result[1][0]);
-        assertEquals(white, result[2][1]);
+        Piece[][] result = board.getPiecesOnTheBoard();
+        assertNull(result[1][0], "original square should be empty");
+        assertEquals(white, result[2][1], "white pawn should be on captured square");
     }
 
     @Test
-    void testHandleSquareClick_ReselectSameColor() throws Exception {
+    void testHandleSquareClick_ReselectSameColor() {
         Piece white1 = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
         Piece white2 = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(2, 1));
+        Piece king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
 
         board.setPieceAt(1, 0, white1);
         board.setPieceAt(2, 1, white2);
+        board.setPieceAt(0, 4, king);
 
         board.setSelected(white1);
 
@@ -121,10 +127,12 @@ class BoardTest {
     }
 
     @Test
-    void testHandleSquareClick_InvalidMove() throws Exception {
+    void testHandleSquareClick_InvalidMove() {
         Piece piece = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        Piece king = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
 
         board.setPieceAt(0, 0, piece);
+        board.setPieceAt(0, 4, king);
         board.setSelected(piece);
 
         IndexPosition invalidMove = new IndexPosition(5, 5);
@@ -226,7 +234,11 @@ class BoardTest {
     void testPiecesTurn() {
         Piece white = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
         Piece black = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(6, 0));
+        Piece blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
+        Piece whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
 
+        board.setPieceAt(7, 4, blackKing);
+        board.setPieceAt(0, 4, whiteKing);
         board.setPieceAt(1, 0, white);
         board.setPieceAt(6, 0, black);
 
@@ -240,7 +252,6 @@ class BoardTest {
 
         service.handleSquareClick(new IndexPosition(5, 0));
 
-        board.setSelected(null);
 
         service.handleSquareClick(new IndexPosition(1, 0));
         assertEquals(white, board.getSelected(), "white should be selectable");
