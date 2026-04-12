@@ -42,6 +42,8 @@ public class TestDrawService {
         f.set(gs, color);
     }
 
+    // Stalemate
+
     @Test
     @DisplayName("Stalemate: player not in check but has no legal moves")
     void testStalemate() {
@@ -83,6 +85,108 @@ public class TestDrawService {
         pieces[0][4] = whiteKing;
 
         assertFalse(drawService.isStalemate(WHITE, pieces));
+    }
+
+    //Insufficient Material
+
+    @Test
+    @DisplayName("Insufficient material: King vs King")
+    void testKingVsKing(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+
+        pieces[0][4] = whiteKing;
+        pieces[7][4] = blackKing;
+
+        assertTrue(drawService.isInsufficientMaterial(pieces));
+    }
+
+    @Test
+    @DisplayName("Insufficient material: King + Bishop vs King")
+    void testKingBishopVsKing(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Bishop whiteBishop = new Bishop(WHITE, new IndexPosition(0,3));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+
+        pieces[0][4] = whiteKing;
+        pieces[0][3] = whiteBishop;
+        pieces[7][4] = blackKing;
+
+        assertTrue(drawService.isInsufficientMaterial(pieces));
+    }
+
+    @Test
+    @DisplayName("Insufficient material: King + Knight vs King")
+    void testKingKnightVsKing(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Knight whiteKnight = new Knight(WHITE, new IndexPosition(0,3));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+
+        pieces[0][4] = whiteKing;
+        pieces[0][3] = whiteKnight;
+        pieces[7][4] = blackKing;
+
+        assertTrue(drawService.isInsufficientMaterial(pieces));
+    }
+
+    @Test
+    @DisplayName("Insufficient material: King + Bishop vs King + Bishop same color squares")
+    void testKingBishopVsKingBishopSameColor(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Bishop whiteBishop = new Bishop(WHITE, new IndexPosition(0,2));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+        Bishop blackBishop = new Bishop(BLACK, new IndexPosition(2,2));
+
+        pieces[0][4] = whiteKing;
+        pieces[0][2] = whiteBishop;
+        pieces[7][4] = blackKing;
+        pieces[2][2] = blackBishop;
+
+        assertTrue(drawService.isInsufficientMaterial(pieces));
+    }
+
+    @Test
+    @DisplayName("Insufficient material: King + Bishop vs King + Bishop different color squares")
+    void testKingBishopVsKingBishopDifferentColor(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Bishop whiteBishop = new Bishop(WHITE, new IndexPosition(0,2));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+        Bishop blackBishop = new Bishop(BLACK, new IndexPosition(2,3));
+
+        pieces[0][4] = whiteKing;
+        pieces[0][2] = whiteBishop;
+        pieces[7][4] = blackKing;
+        pieces[2][3] = blackBishop;
+
+        assertFalse(drawService.isInsufficientMaterial(pieces));
+    }
+
+    @Test
+    @DisplayName("Insufficient material: King + Rook vs King")
+    void testKingRookVsKing(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Rook whiteRook = new Rook(WHITE, new IndexPosition(0,0));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+
+        pieces[0][4] = whiteKing;
+        pieces[0][0] = whiteRook;
+        pieces[7][4] = blackKing;
+
+        assertFalse(drawService.isInsufficientMaterial(pieces));
+    }
+
+    @Test
+    @DisplayName("Insufficient material: King + Queen vs King")
+    void testKingQueenVsKing(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Queen whiteQueen = new Queen(WHITE, new IndexPosition(3,3));
+        King blackKing = new King(BLACK, new IndexPosition(7,4));
+
+        pieces[0][4] = whiteKing;
+        pieces[3][3] = whiteQueen;
+        pieces[7][4] = blackKing;
+
+        assertFalse(drawService.isInsufficientMaterial(pieces));
     }
 
 }
