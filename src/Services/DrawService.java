@@ -10,6 +10,9 @@ public class DrawService {
     private final CheckService checkService;
     private final GameService gameService;
 
+    // for 50-move rule: counts half-moves since last pawn move or capture
+    private int halfMoveClock = 0;
+
     public DrawService(CheckService checkService, GameService gameService) {
         this.checkService = checkService;
         this.gameService = gameService;
@@ -109,9 +112,14 @@ public class DrawService {
     //50 move rule
     //50 full moves (100 half-moves) with no pawn move or capture
     public void updateHalfMoveClock(Piece movedPiece, Piece capturedPiece){
+        if (movedPiece instanceof Pawn || capturedPiece != null) {
+            halfMoveClock = 0; // reset on pawn move or capture
+        } else {
+            halfMoveClock++;
+        }
     }
 
     public boolean isFiftyMoveRule(){
-        return false;
+        return halfMoveClock >= 100;
     }
 }
