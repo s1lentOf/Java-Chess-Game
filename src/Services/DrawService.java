@@ -105,4 +105,13 @@ public class DrawService {
         int bSquareColor = (blackBishop.getPosition().getRow() + blackBishop.getPosition().getCol()) % 2;
         return wSquareColor == bSquareColor;
     }
+
+    //50 move rule
+    //50 full moves (100 half-moves) with no pawn move or capture
+    public void updateHalfMoveClock(){
+    }
+
+    public boolean isFiftyMoveRule(){
+        return false;
+    }
 }
