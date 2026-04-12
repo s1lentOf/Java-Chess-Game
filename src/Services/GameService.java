@@ -23,6 +23,10 @@ public class GameService {
         checkService = new CheckService();
         moveStorage = new ArrayList<>();
     }
+    // setter for the move counter
+    public void setMoveCounter(int moveCounter) {
+        this.moveCounter = moveCounter;
+    }
     /*  a method which checks if the move is possible for the piece
        by taking the array of all possible moves and checking if the move that the user wants to do is in that array
     */
@@ -34,6 +38,15 @@ public class GameService {
         }
         return false;
     }
+
+    /* what this method does:
+    //  1) check if there is a piece on the square
+            1.2) if yes check if any piece was selected.
+            1.3) if the piece is the same color, then reassign piece.
+            1.4) if not, check if the move is possible( if yes capture)
+        2) if there is no piece - check if the move is possible(if yes move)
+    */
+
 
     public void handleSquareClick(IndexPosition nextMove) {
         Piece targetPiece = board.getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
@@ -268,6 +281,7 @@ public class GameService {
         board.setSelected(null);
     }
 
+    // a method for the promotion logic of the pawn( hard coded to auto promotion to the queen just for this iteration)
     public void executePromotion(IndexPosition nextMove){
         Piece[][] pieces = board.getPiecesOnTheBoard();
         Pawn pawn = (Pawn) board.getSelected();
@@ -276,6 +290,7 @@ public class GameService {
         pieces[nextMove.getRow()][nextMove.getCol()] = queen;
         moveStorage.add(new MoveRecord("Queen", pawn.getPosition(), nextMove));
     }
+
     public boolean isCheckmate(ColorForChessPieces color, Piece[][] board) {
         return false;
     }
