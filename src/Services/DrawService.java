@@ -124,7 +124,7 @@ public class DrawService {
     }
 
     //Threefold Repetition
-    public void recordBoardState(){
+    public void recordBoardState(Piece[][] board, ColorForChessPieces colorToMove){
 
     }
 

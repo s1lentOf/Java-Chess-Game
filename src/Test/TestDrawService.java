@@ -245,4 +245,63 @@ public class TestDrawService {
         assertFalse(drawService.isFiftyMoveRule());
     }
 
+    //Threefold repetition
+
+    @Test
+    @DisplayName("Threefold repetition: not triggered before 3 occurrences")
+    void testThreefoldRepetitionNotTriggered() {
+        King whiteKing = new King(WHITE, new IndexPosition(0, 4));
+        pieces[0][4] = whiteKing;
+
+        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState(pieces, WHITE);
+
+        assertFalse(drawService.isThreefoldRepetition());
+    }
+
+    @Test
+    @DisplayName("Threefold repetition: triggered after 3 identical positions")
+    void testThreefoldRepetitionTriggered() {
+        King whiteKing = new King(WHITE, new IndexPosition(0, 4));
+        pieces[0][4] = whiteKing;
+
+        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState(pieces, WHITE);
+
+        assertTrue(drawService.isThreefoldRepetition());
+    }
+
+    @Test
+    @DisplayName("Threefold repetition: different turn color counts as different position")
+    void testThreefoldRepetitionDifferentColorNotSame() {
+        King whiteKing = new King(WHITE, new IndexPosition(0, 4));
+        pieces[0][4] = whiteKing;
+
+        // same board but alternating whose turn it is = different states
+        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState(pieces, BLACK);
+        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState(pieces, BLACK);
+
+        assertFalse(drawService.isThreefoldRepetition());
+    }
+
+    @Test
+    @DisplayName("Threefold repetition: different board positions not counted together")
+    void testThreefoldRepetitionDifferentPositions() {
+        King whiteKing = new King(WHITE, new IndexPosition(0, 4));
+        pieces[0][4] = whiteKing;
+        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState(pieces, WHITE);
+
+        // move the king to a different square
+        pieces[0][4] = null;
+        whiteKing.setPosition(new IndexPosition(0, 5));
+        pieces[0][5] = whiteKing;
+        drawService.recordBoardState(pieces, WHITE);
+
+        assertFalse(drawService.isThreefoldRepetition());
+    }
+
 }
