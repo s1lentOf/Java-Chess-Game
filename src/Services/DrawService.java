@@ -3,6 +3,8 @@ package Services;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 
+import java.util.ArrayList;
+
 public class DrawService {
 
     private final CheckService checkService;
@@ -14,6 +16,22 @@ public class DrawService {
     }
 
     public boolean isStalemate(ColorForChessPieces colorToMove, Piece[][] board) {
-        return false;
+        if (checkService.isInCheck(colorToMove, board)){
+            return false; // In check, not stalemate
+        }
+
+        for (int row = 0; row < board.length; row++){
+            for (int col = 0; col < board[row].length; col++){
+                Piece piece = board[row][col];
+                if (piece != null && piece.getColor().equals(colorToMove)){
+                    ArrayList<IndexPosition> moves = gameService.getLegalMoves(piece, board);
+                    if (!moves.isEmpty()){
+                        return false; //at least one legal move was found
+                    }
+                }
+            }
+        }
+
+        return true; //stalemate
     }
 }
