@@ -122,4 +122,17 @@ public class DrawService {
     public boolean isFiftyMoveRule(){
         return halfMoveClock >= 100;
     }
+
+    //Threefold Repetition
+    public void recordBoardState(){
+
+    }
+
+    public boolean isThreefoldRepetition(){
+        return false;
+    }
+
+    public String serializeBoard(){
+        return "";
+    }
 }
