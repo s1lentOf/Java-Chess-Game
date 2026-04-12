@@ -223,38 +223,26 @@ class BoardTest {
     }
 
     @Test
-    void testPiecesTurn() throws Exception {
+    void testPiecesTurn() {
         Piece white = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 0));
         Piece black = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(6, 0));
 
-        Piece[][] boardArray = new Piece[8][8];
-        boardArray[1][0] = white;
-        boardArray[6][0] = black;
+        board.setPieceAt(1, 0, white);
+        board.setPieceAt(6, 0, black);
 
-        Field boardField = Board.class.getDeclaredField("piecesOnTheBoard");
-        boardField.setAccessible(true);
-        boardField.set(board, boardArray);
-
-        Field selectedField = Board.class.getDeclaredField("selected");
-        selectedField.setAccessible(true);
-
-        Field moveCounterField = GameService.class.getDeclaredField("moveCounter");
-        moveCounterField.setAccessible(true);
-
-        moveCounterField.set(service, 0);
+        service.setMoveCounter(0);
 
         service.handleSquareClick(new IndexPosition(1, 0));
-        assertNull(selectedField.get(board), "cannot select white on blacks turn");
+        assertNull(board.getSelected(), "cannot select white on black's turn");
 
         service.handleSquareClick(new IndexPosition(6, 0));
-        assertEquals(black, selectedField.get(board), "black should be selectable");
+        assertEquals(black, board.getSelected(), "black should be selectable");
 
-        IndexPosition blackMove = new IndexPosition(5, 0);
-        service.handleSquareClick(blackMove);
+        service.handleSquareClick(new IndexPosition(5, 0));
 
-        selectedField.set(board, null);
+        board.setSelected(null);
 
         service.handleSquareClick(new IndexPosition(1, 0));
-        assertEquals(white, selectedField.get(board), "white should be selectable");
+        assertEquals(white, board.getSelected(), "white should be selectable");
     }
 }

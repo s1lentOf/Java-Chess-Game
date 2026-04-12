@@ -46,6 +46,8 @@ public class Board {
         piecesOnTheBoard[row][col] = piece;
     }
 
+
+
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
         this.gameWindow = window;
