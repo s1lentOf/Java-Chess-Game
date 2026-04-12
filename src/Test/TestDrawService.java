@@ -189,4 +189,60 @@ public class TestDrawService {
         assertFalse(drawService.isInsufficientMaterial(pieces));
     }
 
+    //50 move rule
+    @Test
+    @DisplayName("50 move rule: not triggered before 100 half moves")
+    void testFiftyMoveRuleNotTriggered(){
+        King whiteKing = new King(WHITE, new IndexPosition(0,4));
+        Rook whiteRook = new Rook(WHITE, new IndexPosition(3,3));
+
+        for (int i = 0; i < 99; i++) {
+            drawService.updateHalfMoveClock(whiteRook, null);
+        }
+
+        assertFalse(drawService.isFiftyMoveRule());
+    }
+
+    @Test
+    @DisplayName("50 move rule: triggered after 100 half moves with no pawn move or capture")
+    void testFiftyMoveRuleTriggered(){
+        Rook whiteRook = new Rook(WHITE, new IndexPosition(3,3));
+
+        for (int i = 0; i < 100; i++) {
+            drawService.updateHalfMoveClock(whiteRook, null);
+        }
+
+        assertTrue(drawService.isFiftyMoveRule());
+    }
+
+    @Test
+    @DisplayName("50-move rule: resets on pawn move")
+    void testFiftyMoveRuleResetsOnPawnMove() {
+        Rook whiteRook = new Rook(WHITE, new IndexPosition(3, 3));
+        Pawn whitePawn = new Pawn(WHITE, new IndexPosition(4, 4));
+
+        for (int i = 0; i < 99; i++) {
+            drawService.updateHalfMoveClock(whiteRook, null);
+        }
+        // pawn move resets the clock
+        drawService.updateHalfMoveClock(whitePawn, null);
+
+        assertFalse(drawService.isFiftyMoveRule());
+    }
+
+    @Test
+    @DisplayName("50-move rule: resets on capture")
+    void testFiftyMoveRuleResetsOnCapture() {
+        Rook whiteRook = new Rook(WHITE, new IndexPosition(3, 3));
+        Rook blackRook = new Rook(BLACK, new IndexPosition(3, 4));
+
+        for (int i = 0; i < 99; i++) {
+            drawService.updateHalfMoveClock(whiteRook, null);
+        }
+        // capture resets the clock
+        drawService.updateHalfMoveClock(whiteRook, blackRook);
+
+        assertFalse(drawService.isFiftyMoveRule());
+    }
+
 }
