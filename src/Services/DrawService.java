@@ -4,6 +4,8 @@ import ChessPieces.*;
 import Constants.ColorForChessPieces;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DrawService {
 
@@ -12,6 +14,9 @@ public class DrawService {
 
     // for 50-move rule: counts half-moves since last pawn move or capture
     private int halfMoveClock = 0;
+
+    // for threefold repetition: stores board state strings and how many times seen
+    private final Map<String, Integer> boardStateHistory = new HashMap<>();
 
     public DrawService(CheckService checkService, GameService gameService) {
         this.checkService = checkService;
@@ -125,14 +130,28 @@ public class DrawService {
 
     //Threefold Repetition
     public void recordBoardState(Piece[][] board, ColorForChessPieces colorToMove){
-
+        String state = serializeBoard(board, colorToMove);
+        boardStateHistory.merge(state, 1, Integer::sum);
     }
 
     public boolean isThreefoldRepetition(){
-        return false;
+        return boardStateHistory.values().stream().anyMatch(count -> count >= 3);
     }
 
-    public String serializeBoard(){
-        return "";
+    public String serializeBoard(Piece[][] board, ColorForChessPieces colorToMove){
+        StringBuilder sb = new StringBuilder();
+        for (Piece[] row : board){
+            for (Piece piece : row){
+                if (piece == null){
+                    sb.append("--");
+                }else{
+                    sb.append(piece.getColor() == ColorForChessPieces.WHITE ? "W" : "B");
+                    sb.append(piece.getClass().getSimpleName().charAt(0));
+                }
+                sb.append(",");
+            }
+        }
+        sb.append(colorToMove);
+        return sb.toString();
     }
 }
