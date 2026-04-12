@@ -18,7 +18,7 @@ class BoardTest {
     private GameService service;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         board = new Board();
         service = new GameService(board);
     }

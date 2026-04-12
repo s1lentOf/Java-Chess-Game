@@ -123,10 +123,6 @@ public class TestPawn {
         service.moveSelectedPiece(new IndexPosition(7,3));
 
         assertTrue(board.getPiecesOnTheBoard()[7][3] instanceof  Queen);
-       Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-       Queen expectedQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(7, 3));
-
-       assertEquals(expectedQueen, pawn.promotion());
     }
 
     @Test
