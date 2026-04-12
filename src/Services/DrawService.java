@@ -34,4 +34,8 @@ public class DrawService {
 
         return true; //stalemate
     }
+
+    public boolean isInsufficientMaterial(Piece[][] board){
+        return false;
+    }
 }
