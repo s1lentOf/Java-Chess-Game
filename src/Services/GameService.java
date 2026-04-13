@@ -12,6 +12,7 @@ import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
+    private DrawService drawService;
     private ArrayList<MoveRecord> moveStorage;
     private int moveCounter = 1;
     // a field to keep track of which side is moving next
@@ -23,6 +24,7 @@ public class GameService {
         this.board = board;
         checkService = new CheckService();
         moveStorage = new ArrayList<>();
+        drawService = new DrawService(this.checkService, this);
     }
     // setter for the move counter
     public void setMoveCounter(int count) {
@@ -380,6 +382,16 @@ public class GameService {
             return false; // King can escape, not checkmate
         }
         return !checkService.canBlockCheck(currentColorToMove, board.getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, board.getPiecesOnTheBoard());
+    }
+
+    public boolean isDraw() {
+        if (drawService.isStalemate(currentColorToMove, board.getPiecesOnTheBoard())) {
+            return true;
+        } else if (drawService.isInsufficientMaterial(board.getPiecesOnTheBoard())) {
+            return true;
+        }
+
+        return false;
     }
 }
 
