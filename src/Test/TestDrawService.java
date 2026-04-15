@@ -58,7 +58,7 @@ public class TestDrawService {
         pieces[5][1] = whiteQueen;
         pieces[5][3] = whiteKing;
 
-        assertTrue(drawService.isStalemate(BLACK, pieces));
+        assertTrue(drawService.isStalemate());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class TestDrawService {
         pieces[7][7] = whiteRook1;
         pieces[6][7] = whiteRook2;
 
-        assertFalse(drawService.isStalemate(BLACK, pieces));
+        assertFalse(drawService.isStalemate());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TestDrawService {
         King whiteKing = new King(WHITE, new IndexPosition(0, 4));
         pieces[0][4] = whiteKing;
 
-        assertFalse(drawService.isStalemate(WHITE, pieces));
+        assertFalse(drawService.isStalemate());
     }
 
     //Insufficient Material
@@ -98,7 +98,7 @@ public class TestDrawService {
         pieces[0][4] = whiteKing;
         pieces[7][4] = blackKing;
 
-        assertTrue(drawService.isInsufficientMaterial(pieces));
+        assertTrue(drawService.isInsufficientMaterial());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class TestDrawService {
         pieces[0][3] = whiteBishop;
         pieces[7][4] = blackKing;
 
-        assertTrue(drawService.isInsufficientMaterial(pieces));
+        assertTrue(drawService.isInsufficientMaterial());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class TestDrawService {
         pieces[0][3] = whiteKnight;
         pieces[7][4] = blackKing;
 
-        assertTrue(drawService.isInsufficientMaterial(pieces));
+        assertTrue(drawService.isInsufficientMaterial());
     }
 
     @Test
@@ -142,7 +142,7 @@ public class TestDrawService {
         pieces[7][4] = blackKing;
         pieces[2][2] = blackBishop;
 
-        assertTrue(drawService.isInsufficientMaterial(pieces));
+        assertTrue(drawService.isInsufficientMaterial());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class TestDrawService {
         pieces[7][4] = blackKing;
         pieces[2][3] = blackBishop;
 
-        assertFalse(drawService.isInsufficientMaterial(pieces));
+        assertFalse(drawService.isInsufficientMaterial());
     }
 
     @Test
@@ -172,7 +172,7 @@ public class TestDrawService {
         pieces[0][0] = whiteRook;
         pieces[7][4] = blackKing;
 
-        assertFalse(drawService.isInsufficientMaterial(pieces));
+        assertFalse(drawService.isInsufficientMaterial());
     }
 
     @Test
@@ -186,7 +186,7 @@ public class TestDrawService {
         pieces[3][3] = whiteQueen;
         pieces[7][4] = blackKing;
 
-        assertFalse(drawService.isInsufficientMaterial(pieces));
+        assertFalse(drawService.isInsufficientMaterial());
     }
 
     //50 move rule
@@ -253,8 +253,8 @@ public class TestDrawService {
         King whiteKing = new King(WHITE, new IndexPosition(0, 4));
         pieces[0][4] = whiteKing;
 
-        drawService.recordBoardState(pieces, WHITE);
-        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState();
+        drawService.recordBoardState();
 
         assertFalse(drawService.isThreefoldRepetition());
     }
@@ -265,9 +265,9 @@ public class TestDrawService {
         King whiteKing = new King(WHITE, new IndexPosition(0, 4));
         pieces[0][4] = whiteKing;
 
-        drawService.recordBoardState(pieces, WHITE);
-        drawService.recordBoardState(pieces, WHITE);
-        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState();
+        drawService.recordBoardState();
+        drawService.recordBoardState();
 
         assertTrue(drawService.isThreefoldRepetition());
     }
@@ -279,10 +279,10 @@ public class TestDrawService {
         pieces[0][4] = whiteKing;
 
         // same board but alternating whose turn it is = different states
-        drawService.recordBoardState(pieces, WHITE);
-        drawService.recordBoardState(pieces, BLACK);
-        drawService.recordBoardState(pieces, WHITE);
-        drawService.recordBoardState(pieces, BLACK);
+        drawService.recordBoardState();
+        drawService.recordBoardState();
+        drawService.recordBoardState();
+        drawService.recordBoardState();
 
         assertFalse(drawService.isThreefoldRepetition());
     }
@@ -292,14 +292,14 @@ public class TestDrawService {
     void testThreefoldRepetitionDifferentPositions() {
         King whiteKing = new King(WHITE, new IndexPosition(0, 4));
         pieces[0][4] = whiteKing;
-        drawService.recordBoardState(pieces, WHITE);
-        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState();
+        drawService.recordBoardState();
 
         // move the king to a different square
         pieces[0][4] = null;
         whiteKing.setPosition(new IndexPosition(0, 5));
         pieces[0][5] = whiteKing;
-        drawService.recordBoardState(pieces, WHITE);
+        drawService.recordBoardState();
 
         assertFalse(drawService.isThreefoldRepetition());
     }
