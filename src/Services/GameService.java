@@ -124,24 +124,47 @@ public class GameService {
 
 
     public void handleSquareClick(IndexPosition nextMove) {
-        Piece targetPiece = getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
+        Piece targetSquare = getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
+        if(targetSquare == null){
+            handleEmptySquareClick(nextMove);
+        }
+        else{
+            handleOccupiedSquareClick(targetSquare,nextMove);
+        }
+        System.out.println(Arrays.deepToString(getPiecesOnTheBoard()));
+    }
 
+
+    private void handleEmptySquareClick(IndexPosition nextMove){
+
+        // checks for moving a piece to a new square( no capture)
+        if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
+            Piece selected = boardUI.getSelected();
+
+            handleEnPassant(boardUI.getSelected(), nextMove);
+
+            System.out.println("Just moved piece");
+            moveSelectedPiece(nextMove);
+            moveCounter++;
+            changeColorToMove();
+        }
+    }
+
+    private void handleOccupiedSquareClick(Piece targetPiece, IndexPosition nextMove){
         // an addition to set the selected to null anytime the wrong colored piece is clicked
         if (targetPiece != null && targetPiece.getColor() != currentColorToMove && boardUI.getSelected() == null) {
-            return;
+            boardUI.setSelected(null);
         }
-
         if (boardUI.getSelected() == null) {
-            if (targetPiece != null && targetPiece.getColor() == currentColorToMove) {
+            if (targetPiece.getColor() == currentColorToMove) {
                 boardUI.setSelected(targetPiece);
                 System.out.println("Selected new piece");
             }
             else{
                 System.out.println("It is not your turn");
             }
-            return;
         }
-
+        // checks for capturing a piece
         if (targetPiece != null) {
             if (targetPiece.getColor() == currentColorToMove) {
                 System.out.println("Reselected piece");
@@ -150,39 +173,20 @@ public class GameService {
                 System.out.println("Captured piece");
                 capturePiece(nextMove);
                 moveCounter++;
+                changeColorToMove();
             }
-        } else if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
-            Piece selected = boardUI.getSelected();
-
-            // track double-step pawn
-            if (selected instanceof Pawn) {
-                int oldRow = selected.getPosition().getRow();
-                int newRow = nextMove.getRow();
-
-                if (Math.abs(oldRow - newRow) == 2) {
-                    setLastDoubleStepPawn((Pawn) selected);
-                } else {
-                    setLastDoubleStepPawn(null);
-                }
-            } else {
-                setLastDoubleStepPawn(null);
-            }
-
-            handleEnPassant(boardUI.getSelected(), nextMove);
-
-            System.out.println("Just moved piece");
-            moveSelectedPiece(nextMove);
-            moveCounter++;
         }
 
+    }
+
+    // helper method for the change of the color to move
+    private void changeColorToMove(){
         if (moveCounter % 2 != 0) {
             currentColorToMove = ColorForChessPieces.WHITE;
         }
         else{
             currentColorToMove = ColorForChessPieces.BLACK;
         }
-
-        System.out.println(Arrays.deepToString(getPiecesOnTheBoard()));
     }
 
     public void handleEnPassant(Piece selected, IndexPosition nextMove){
