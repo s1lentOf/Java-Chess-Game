@@ -168,5 +168,10 @@ public class BoardUI {
             String message = "Checkmate! " + winner + " wins!";
             showGameOver(message);
         }
+
+        if (service.isDraw()) {
+            String message = "It is a draw!";
+            showGameOver(message);
+        }
     }
 }
