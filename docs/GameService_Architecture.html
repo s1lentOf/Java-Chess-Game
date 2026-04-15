@@ -160,7 +160,7 @@
 
 <p>The architecture follows a <strong>delegation pattern</strong> where <code>Board</code> handles only
 UI rendering and input detection, while <code>GameService</code> owns all game logic, state, and
-board mutations. Communication is synchronous via method calls that return a
+boardUI mutations. Communication is synchronous via method calls that return a
 <code>MoveResult</code> value object.</p>
 
 <div class="relation-box">
@@ -183,7 +183,7 @@ Game.Game (entry point)
 
 <p><strong>Key principle:</strong> Board never mutates <code>piecesOnTheBoard[][]</code> for game moves.
 Every move goes through <code>GameService.handleAction()</code>, which internally updates the
-board array, game state, and returns a <code>MoveResult</code> describing what happened.</p>
+boardUI array, game state, and returns a <code>MoveResult</code> describing what happened.</p>
 
 <!-- ============================================================ -->
 <h2>2. Class Diagram</h2>
@@ -268,7 +268,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   <div class="section">
     <div class="section-title">Methods - Core (Entry Point)</div>
     <code>
-<span class="new">+ handleAction(clicked: IndexPosition, board: Piece[][]) : MoveResult</span>
+<span class="new">+ handleAction(clicked: IndexPosition, boardUI: Piece[][]) : MoveResult</span>
       // THE single entry point. Board calls ONLY this method for game actions.
       // Internally handles: selection, validation, move execution,
       // state updates, check/checkmate/draw detection.
@@ -278,22 +278,22 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
     <div class="section-title">Methods - Moved from Board</div>
     <code>
 <span class="moved">- isMovePossible(possibleMoves: IndexPosition[], target: IndexPosition) : boolean</span>
-<span class="moved">- executeMove(piece: Piece, target: IndexPosition, board: Piece[][]) : void</span>
-      // renamed from moveSelectedPiece - mutates the board array
+<span class="moved">- executeMove(piece: Piece, target: IndexPosition, boardUI: Piece[][]) : void</span>
+      // renamed from moveSelectedPiece - mutates the boardUI array
 <span class="moved">+ getSelected() : Piece</span>
     </code>
   </div>
   <div class="section">
     <div class="section-title">Methods - New: Legal Move Filtering</div>
     <code>
-<span class="new">+ getLegalMoves(piece: Piece, board: Piece[][]) : IndexPosition[]</span>
-      // Gets raw moves via piece.getPossibleMoves(board),
+<span class="new">+ getLegalMoves(piece: Piece, boardUI: Piece[][]) : IndexPosition[]</span>
+      // Gets raw moves via piece.getPossibleMoves(boardUI),
       // then FILTERS OUT moves that would leave own king in check.
       // Also appends castling moves (for King) and en passant moves (for Pawn).
       // This single method handles pin logic implicitly:
       // a pinned piece's moves that expose the king are filtered out.
 
-<span class="new">- filterMovesForCheck(piece: Piece, rawMoves: IndexPosition[], board: Piece[][]) : IndexPosition[]</span>
+<span class="new">- filterMovesForCheck(piece: Piece, rawMoves: IndexPosition[], boardUI: Piece[][]) : IndexPosition[]</span>
       // For each candidate move, simulates it and checks if own king
       // is still in check. Removes illegal moves. This is the core
       // mechanism that enforces pin rules automatically.
@@ -302,54 +302,54 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   <div class="section">
     <div class="section-title">Methods - New: Check & Attack Detection</div>
     <code>
-<span class="new">+ isInCheck(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">+ isInCheck(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Finds the king of given color, checks if any enemy piece
       // attacks that square.
 
-<span class="new">+ isSquareAttacked(square: IndexPosition, byColor: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">+ isSquareAttacked(square: IndexPosition, byColor: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Checks if ANY piece of 'byColor' can reach the given square.
       // Used by: isInCheck, castling validation, king move filtering.
 
-<span class="new">+ findKing(color: ColorForChessPieces, board: Piece[][]) : IndexPosition</span>
-      // Scans board for king of given color. Returns its position.
+<span class="new">+ findKing(color: ColorForChessPieces, boardUI: Piece[][]) : IndexPosition</span>
+      // Scans boardUI for king of given color. Returns its position.
     </code>
   </div>
   <div class="section">
     <div class="section-title">Methods - New: Game.Game End Detection</div>
     <code>
-<span class="new">+ isCheckmate(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">+ isCheckmate(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Returns true if 'color' is in check AND has no legal moves
       // for ANY of their pieces. Iterates all pieces of that color,
       // calls getLegalMoves() for each - if all return empty, it's checkmate.
 
-<span class="new">+ isStalemate(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">+ isStalemate(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Returns true if 'color' is NOT in check but has no legal moves.
 
-<span class="new">+ isDraw(board: Piece[][]) : boolean</span>
+<span class="new">+ isDraw(boardUI: Piece[][]) : boolean</span>
       // Checks all draw conditions:
       //   - Stalemate (no legal moves, not in check)
       //   - Insufficient material
       //   - Threefold repetition (same position 3 times)
       //   - 50-move rule (50 moves without pawn move or capture)
 
-<span class="new">- hasNoLegalMoves(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">- hasNoLegalMoves(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Helper: returns true if no piece of given color has any legal move.
 
-<span class="new">- hasInsufficientMaterial(board: Piece[][]) : boolean</span>
+<span class="new">- hasInsufficientMaterial(boardUI: Piece[][]) : boolean</span>
       // K vs K, K+B vs K, K+N vs K, K+B vs K+B (same color bishops)
     </code>
   </div>
   <div class="section">
     <div class="section-title">Methods - New: Special Moves</div>
     <code>
-<span class="new">+ canCastleKingside(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">+ canCastleKingside(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Checks: king not moved, rook not moved, squares between empty,
       // king not in check, king doesn't pass through attacked square.
 
-<span class="new">+ canCastleQueenside(color: ColorForChessPieces, board: Piece[][]) : boolean</span>
+<span class="new">+ canCastleQueenside(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
       // Same as kingside but for queenside rook.
 
-<span class="new">- executeCastle(king: Piece, target: IndexPosition, board: Piece[][]) : void</span>
+<span class="new">- executeCastle(king: Piece, target: IndexPosition, boardUI: Piece[][]) : void</span>
       // Moves both king and rook. Called from executeMove when castling detected.
 
 <span class="new">+ isEnPassantMove(pawn: Piece, target: IndexPosition) : boolean</span>
@@ -361,7 +361,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
       // pawn moves TO), or null if en passant is not available.
       // Calculated from lastMoveFrom, lastMoveTo, lastMovedPiece.
 
-<span class="new">- executeEnPassant(pawn: Piece, target: IndexPosition, board: Piece[][]) : IndexPosition</span>
+<span class="new">- executeEnPassant(pawn: Piece, target: IndexPosition, boardUI: Piece[][]) : IndexPosition</span>
       // Moves capturing pawn, removes captured pawn from its actual square.
       // Returns the position of the captured pawn (for UI update).
     </code>
@@ -383,13 +383,13 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 <span class="new">- updateMoveHistory(piece: Piece, isCapture: boolean) : void</span>
       // Updates halfMoveClock and positionHistory for draw detection.
 
-<span class="new">- simulateMove(piece: Piece, target: IndexPosition, board: Piece[][]) : Piece[][]</span>
-      // Creates a COPY of the board, applies the move on the copy,
+<span class="new">- simulateMove(piece: Piece, target: IndexPosition, boardUI: Piece[][]) : Piece[][]</span>
+      // Creates a COPY of the boardUI, applies the move on the copy,
       // and returns it. Used by filterMovesForCheck to test if a move
-      // would leave the king in check without mutating the real board.
+      // would leave the king in check without mutating the real boardUI.
 
-<span class="new">- boardToString(board: Piece[][]) : String</span>
-      // Serializes board state to a string for threefold repetition tracking.
+<span class="new">- boardToString(boardUI: Piece[][]) : String</span>
+      // Serializes boardUI state to a string for threefold repetition tracking.
     </code>
   </div>
 </div>
@@ -432,7 +432,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
     <div class="section-title">Fields</div>
     <code>
 <span class="kept">- window : JFrame</span>
-<span class="kept">- board : Board</span>
+<span class="kept">- boardUI : Board</span>
 <span class="new">- gameService : GameService              // NEW - created here, passed to Board</span>
     </code>
   </div>
@@ -441,7 +441,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
     <code>
 // Game.Game creates both Board and GameService, then connects them:
 // gameService = new GameService();
-// board = new Board(gameService);    // Board receives GameService via constructor
+// boardUI = new Board(gameService);    // Board receives GameService via constructor
     </code>
   </div>
 </div>
@@ -456,7 +456,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 |  (entry point)   |         |  (value object)      |
 +------------------+         +----------------------+
 | - window: JFrame |         | + moved: boolean     |
-| - board: Board   |         | + isCheck: boolean   |
+| - boardUI: Board   |         | + isCheck: boolean   |
 | - gameService    |------+  | + isCheckmate: bool  |
 +------------------+      |  | + isDraw: boolean    |
         |                 |  | + isCastle: boolean  |
@@ -515,8 +515,8 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   <div class="step-num">3</div>
   <div class="step-content"><strong>GameService</strong> internally:
     <br>a) Checks if it's a selection, reselection, or move attempt.
-    <br>b) Calls <code>getLegalMoves(selected, board)</code> which internally calls <code>piece.getPossibleMoves(board)</code> then filters via <code>filterMovesForCheck()</code>.
-    <br>c) If valid, calls <code>executeMove()</code> to mutate the board array.
+    <br>b) Calls <code>getLegalMoves(selected, boardUI)</code> which internally calls <code>piece.getPossibleMoves(boardUI)</code> then filters via <code>filterMovesForCheck()</code>.
+    <br>c) If valid, calls <code>executeMove()</code> to mutate the boardUI array.
     <br>d) Calls <code>switchTurn()</code>, <code>updateCastlingRights()</code>, <code>updateMoveHistory()</code>.
     <br>e) Checks <code>isInCheck()</code>, <code>isCheckmate()</code>, <code>isDraw()</code> for the opponent.
     <br>f) Builds and returns <code>MoveResult</code>.
@@ -540,11 +540,11 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 </div>
 <div class="flow-step">
   <div class="step-num">2</div>
-  <div class="step-content"><code>Board</code> calls <code>gameService.handleAction(g1, board)</code>.</div>
+  <div class="step-content"><code>Board</code> calls <code>gameService.handleAction(g1, boardUI)</code>.</div>
 </div>
 <div class="flow-step">
   <div class="step-num">3</div>
-  <div class="step-content"><code>GameService.getLegalMoves(king, board)</code> already includes g1 as a legal move (because <code>canCastleKingside()</code> returned true). <code>executeMove()</code> detects it's a castle and calls <code>executeCastle()</code> which moves <strong>both</strong> King (e1&rarr;g1) and Rook (h1&rarr;f1) in the board array.</div>
+  <div class="step-content"><code>GameService.getLegalMoves(king, boardUI)</code> already includes g1 as a legal move (because <code>canCastleKingside()</code> returned true). <code>executeMove()</code> detects it's a castle and calls <code>executeCastle()</code> which moves <strong>both</strong> King (e1&rarr;g1) and Rook (h1&rarr;f1) in the boardUI array.</div>
 </div>
 <div class="flow-step">
   <div class="step-num">4</div>
@@ -576,11 +576,11 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
 </div>
 <div class="flow-step">
   <div class="step-num">2</div>
-  <div class="step-content"><code>isInCheck(BLACK, board)</code> returns <strong>true</strong>.</div>
+  <div class="step-content"><code>isInCheck(BLACK, boardUI)</code> returns <strong>true</strong>.</div>
 </div>
 <div class="flow-step">
   <div class="step-num">3</div>
-  <div class="step-content"><code>hasNoLegalMoves(BLACK, board)</code> iterates ALL black pieces, calls <code>getLegalMoves()</code> for each. Every move is filtered by <code>filterMovesForCheck()</code> &mdash; no move can get Black out of check.</div>
+  <div class="step-content"><code>hasNoLegalMoves(BLACK, boardUI)</code> iterates ALL black pieces, calls <code>getLegalMoves()</code> for each. Every move is filtered by <code>filterMovesForCheck()</code> &mdash; no move can get Black out of check.</div>
 </div>
 <div class="flow-step">
   <div class="step-num">4</div>
@@ -654,7 +654,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   </tr>
   <tr>
     <td><code>simulateMove()</code></td>
-    <td>Creates board copy with move applied (non-destructive test)</td>
+    <td>Creates boardUI copy with move applied (non-destructive test)</td>
     <td>filterMovesForCheck()</td>
   </tr>
   <tr>
@@ -669,7 +669,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   </tr>
   <tr>
     <td><code>findKing()</code></td>
-    <td>Locates king position on board</td>
+    <td>Locates king position on boardUI</td>
     <td>isInCheck()</td>
   </tr>
   <tr>
@@ -734,7 +734,7 @@ board array, game state, and returns a <code>MoveResult</code> describing what h
   </tr>
   <tr>
     <td><code>boardToString()</code></td>
-    <td>Serializes board for repetition detection</td>
+    <td>Serializes boardUI for repetition detection</td>
     <td>updateMoveHistory()</td>
   </tr>
 </table>
@@ -783,7 +783,7 @@ public void handleSquareClick(IndexPosition nextMove) {
             "Game.Game is a draw: " + result.getDrawReason());
     } else if (result.isPromotion()) {
         // Show promotion picker, then call:
-        // gameService.promotePawn(result.getPromotionPosition(), chosenPiece, board);
+        // gameService.promotePawn(result.getPromotionPosition(), chosenPiece, boardUI);
         // refreshBoard();
     }
 }
@@ -796,12 +796,12 @@ public void handleSquareClick(IndexPosition nextMove) {
 <code>filterMovesForCheck()</code> approach, pins are handled <strong>automatically</strong>:</p>
 
 <pre>
-getLegalMoves(piece, board):
-    rawMoves = piece.getPossibleMoves(board)      // piece doesn't know about pins
+getLegalMoves(piece, boardUI):
+    rawMoves = piece.getPossibleMoves(boardUI)      // piece doesn't know about pins
     legalMoves = []
 
     for each move in rawMoves:
-        simulatedBoard = simulateMove(piece, move, board)  // copy board, apply move
+        simulatedBoard = simulateMove(piece, move, boardUI)  // copy boardUI, apply move
         if NOT isInCheck(piece.color, simulatedBoard):     // does this expose my king?
             legalMoves.add(move)                           // no -> legal move
                                                            // yes -> filtered out (pinned!)

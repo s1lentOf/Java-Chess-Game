@@ -1,6 +1,6 @@
 package Game;
 
-import ChessBoard.Board;
+import ChessBoard.BoardUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +9,11 @@ import java.awt.*;
 public class Game {
 
     private JFrame window;
-    private Board board = new Board();
+    private BoardUI boardUI = new BoardUI();
 
     public Game() {
         setupWindow();
-        board.setupBoard(window);
+        boardUI.setupBoard(window);
         this.window.setVisible(true); // we make the window visible after all setup is made
     }
 

@@ -1,6 +1,6 @@
 package Test;
 
-import ChessBoard.Board;
+import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Services.GameService;
@@ -15,22 +15,22 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CheckmateTest {
 
     private GameService gameService;
-    private Board board;
+    private BoardUI boardUI;
     private Piece[][] pieces;
 
     @BeforeEach
     void setUp() throws Exception {
-        board = new Board();
+        boardUI = new BoardUI();
         pieces = new Piece[8][8]; // empty board
-        setBoard(board, pieces);
-        gameService = new GameService(board);
+        setBoard(boardUI, pieces);
+        gameService = new GameService(boardUI);
         setCurrentColor(gameService, WHITE); // default: WHITE to move
     }
 
-    private void setBoard(Board board, Piece[][] pieces) throws Exception {
-        Field f = Board.class.getDeclaredField("piecesOnTheBoard");
+    private void setBoard(BoardUI boardUI, Piece[][] pieces) throws Exception {
+        Field f = BoardUI.class.getDeclaredField("piecesOnTheBoard");
         f.setAccessible(true);
-        f.set(board, pieces);
+        f.set(boardUI, pieces);
     }
 
     private void setCurrentColor(GameService gs, ColorForChessPieces color) throws Exception {

@@ -1,6 +1,6 @@
 package Test;
 
-import ChessBoard.Board;
+import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Services.GameService;
@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
     private static GameService gameService;
-    private static Board board = new Board();
+    private static BoardUI boardUI = new BoardUI();
 
     @BeforeAll
     public static void setup() {
-        gameService = new GameService(board);
+        gameService = new GameService(boardUI);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class TestGameService {
     @Test
     @DisplayName("En passant captures black pawn for white")
     void testWhitePawnEnPassant() {
-        Piece[][] internalBoard = board.getPiecesOnTheBoard();
+        Piece[][] internalBoard = gameService.getPiecesOnTheBoard();
 
         Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
         Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
@@ -320,7 +320,7 @@ public class TestGameService {
     @Test
     @DisplayName("En passant captures white pawn for black")
     void testBlackPawnEnPassant() {
-        Piece[][] internalBoard = board.getPiecesOnTheBoard();
+        Piece[][] internalBoard = gameService.getPiecesOnTheBoard();
 
         Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(3, 4));
         Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 3));

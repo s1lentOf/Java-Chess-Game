@@ -1,14 +1,10 @@
 package ChessPieces;
 
-import ChessBoard.Board;
+import ChessBoard.BoardUI;
 import Constants.ColorForChessPieces;
 
-import java.util.Objects;
-
-import static Constants.ColorForChessPieces.WHITE;
-
 public class Pawn extends Piece {
-    Board board = new Board();
+    BoardUI boardUI = new BoardUI();
 
     public Pawn(ColorForChessPieces color, IndexPosition position) {
         super(color, position);

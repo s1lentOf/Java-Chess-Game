@@ -4,20 +4,14 @@ import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Constants.Colors;
 import Services.GameService;
-import Services.MoveResult;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 // This class is responsible for the chess board logic
-public class Board {
-
-    // Stores elements that implement the Piece abstract class.
-    private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
+public class BoardUI {
 
     private Piece selected = null;
 
@@ -35,18 +29,6 @@ public class Board {
     public void setSelected(Piece piece) {
         this.selected = piece;
     }
-
-    public Piece getPieceAt(int row, int col) {
-        return piecesOnTheBoard[row][col];
-    }
-
-    public Piece[][] getPiecesOnTheBoard() { return this.piecesOnTheBoard; }
-
-    public void setPieceAt(int row, int col, Piece piece) {
-        piecesOnTheBoard[row][col] = piece;
-    }
-
-
 
     // Initial Setup of the chess board: coloring.
     public void setupBoard(JFrame window) {
@@ -82,7 +64,7 @@ public class Board {
             }
         }
 
-        setUpPiecesOnTheBoard();
+        service.setUpPiecesOnTheBoard();
         initialDrawOfPieces();
     }
 
@@ -95,54 +77,10 @@ public class Board {
         );
     }
 
-    /*
-    Initial setup of the pieces on the board
-     */
-    public void setUpPiecesOnTheBoard() {
-
-        // Pawns
-        for (int i = 0; i < 8; i++) {
-            Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, i));
-            Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(6, i));
-
-            piecesOnTheBoard[1][i] = whitePawn;
-            piecesOnTheBoard[6][i] = blackPawn;
-        }
-
-        // Rooks
-        piecesOnTheBoard[7][0] = new Rook(ColorForChessPieces.BLACK, new IndexPosition(7, 0));
-        piecesOnTheBoard[7][7] = new Rook(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
-
-        piecesOnTheBoard[0][0] = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
-        piecesOnTheBoard[0][7] = new Rook(ColorForChessPieces.WHITE, new IndexPosition(0, 7));
-
-        // Knights
-        piecesOnTheBoard[7][1] = new Knight(ColorForChessPieces.BLACK, new IndexPosition(7, 1));
-        piecesOnTheBoard[7][6] = new Knight(ColorForChessPieces.BLACK, new IndexPosition(7, 6));
-
-        piecesOnTheBoard[0][1] = new Knight(ColorForChessPieces.WHITE, new IndexPosition(0, 1));
-        piecesOnTheBoard[0][6] = new Knight(ColorForChessPieces.WHITE, new IndexPosition(0, 6));
-
-        // Bishops
-        piecesOnTheBoard[7][2] = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(7, 2));
-        piecesOnTheBoard[7][5] = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(7, 5));
-
-        piecesOnTheBoard[0][2] = new Bishop(ColorForChessPieces.WHITE, new IndexPosition(0, 2));
-        piecesOnTheBoard[0][5] = new Bishop(ColorForChessPieces.WHITE, new IndexPosition(0, 5));
-
-        // Queens
-        piecesOnTheBoard[7][3] = new Queen(ColorForChessPieces.BLACK, new IndexPosition(7, 3));
-        piecesOnTheBoard[0][3] = new Queen(ColorForChessPieces.WHITE, new IndexPosition(0, 3));
-
-        // Kings
-        piecesOnTheBoard[7][4] = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
-        piecesOnTheBoard[0][4] = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
-    }
-
     private void initialDrawOfPieces() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                Piece piece = piecesOnTheBoard[row][col];
+                Piece piece = service.getPiecesOnTheBoard()[row][col];
                 if (piece != null) {
                     drawPiece(piece);
                 }
@@ -171,7 +109,7 @@ public class Board {
 
                 square.setIcon(null);
 
-                Piece piece = piecesOnTheBoard[row][col];
+                Piece piece = service.getPiecesOnTheBoard()[row][col];
 
                 if (piece != null) {
                     BufferedImage pieceImage = piece.paint();
@@ -182,7 +120,7 @@ public class Board {
 
         // Then, draw elements for squares in possible moves of the selected piece.
         if (selected != null) {
-            ArrayList<IndexPosition> allPossibleMoves = service.getLegalMoves(selected, piecesOnTheBoard);
+            ArrayList<IndexPosition> allPossibleMoves = service.getLegalMoves(selected, service.getPiecesOnTheBoard());
 
             if (allPossibleMoves != null) {
                 for (IndexPosition move : allPossibleMoves) {
@@ -191,7 +129,7 @@ public class Board {
                     int moveCol = move.getCol();
 
                     JButton targetSquare = squares[moveRow][moveCol];
-                    Piece targetPiece = piecesOnTheBoard[moveRow][moveCol];
+                    Piece targetPiece = service.getPiecesOnTheBoard()[moveRow][moveCol];
 
                     int size = 75; // A size of a square.
 
