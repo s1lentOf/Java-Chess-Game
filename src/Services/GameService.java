@@ -20,11 +20,14 @@ public class GameService {
     private BoardUI boardUI;
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
+    private DrawService drawService;
 
     public GameService(BoardUI boardUI) {
         this.boardUI = boardUI;
         checkService = new CheckService();
         moveStorage = new ArrayList<>();
+        drawService = new DrawService(this.checkService, this);
+
     }
     // setter for the move counter
     public void setMoveCounter(int count) {
@@ -434,6 +437,16 @@ public class GameService {
             return false; // King can escape, not checkmate
         }
         return !checkService.canBlockCheck(currentColorToMove, getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, getPiecesOnTheBoard());
+    }
+
+    public boolean isDraw() {
+        if (drawService.isStalemate(currentColorToMove, getPiecesOnTheBoard())) {
+            return true;
+        } else if (drawService.isInsufficientMaterial(getPiecesOnTheBoard())) {
+            return true;
+        }
+
+        return false;
     }
 
 
