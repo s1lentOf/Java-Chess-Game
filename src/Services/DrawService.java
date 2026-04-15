@@ -12,10 +12,7 @@ public class DrawService {
     private final CheckService checkService;
     private final GameService gameService;
 
-    // for 50-move rule: counts half-moves since last pawn move or capture
     private int halfMoveClock = 0;
-
-    // for threefold repetition: stores board state strings and how many times seen
     private final Map<String, Integer> boardStateHistory = new HashMap<>();
 
     public DrawService(CheckService checkService, GameService gameService) {
@@ -23,128 +20,108 @@ public class DrawService {
         this.gameService = gameService;
     }
 
-    public boolean isStalemate(ColorForChessPieces colorToMove, Piece[][] board) {
-        if (checkService.isInCheck(colorToMove, board)){
-            return false; // In check, not stalemate
-        }
+    public boolean isStalemate() {
+        ColorForChessPieces color = gameService.getCurrentColorToMove();
+        Piece[][] board = gameService.getPiecesOnTheBoard();
 
-        for (int row = 0; row < board.length; row++){
-            for (int col = 0; col < board[row].length; col++){
+        if (checkService.isInCheck(color, board)) {
+            return false;
+        }
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
-                if (piece != null && piece.getColor().equals(colorToMove)){
-                    ArrayList<IndexPosition> moves = gameService.getLegalMoves(piece, board);
-                    if (!moves.isEmpty()){
-                        return false; //at least one legal move was found
+                if (piece != null && piece.getColor().equals(color)) {
+                    if (!gameService.getLegalMoves(piece, board).isEmpty()) {
+                        return false;
                     }
                 }
             }
         }
-
-        return true; //stalemate
+        return true;
     }
 
-    public boolean isInsufficientMaterial(Piece[][] board){
+    public boolean isInsufficientMaterial() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
         ArrayList<Piece> whitePieces = new ArrayList<>();
         ArrayList<Piece> blackPieces = new ArrayList<>();
 
-        for (int row = 0; row < board.length; row++){
-            for (int col = 0; col < board[row].length; col++){
-                Piece piece = board[row][col];
+        for (Piece[] row : board) {
+            for (Piece piece : row) {
                 if (piece == null) continue;
-                if (piece.getColor() == ColorForChessPieces.WHITE){
-                    whitePieces.add(piece);
-                }else {
-                    blackPieces.add(piece);
-                }
+                if (piece.getColor() == ColorForChessPieces.WHITE) whitePieces.add(piece);
+                else blackPieces.add(piece);
             }
         }
 
-        //King vs King
-        if (whitePieces.size() == 1 && blackPieces.size() == 1){
-            return true;
-        }
+        if (whitePieces.size() == 1 && blackPieces.size() == 1) return true;
 
-        // King + Bishop vs King or King + Knight vs King
-        if (whitePieces.size() == 1 && blackPieces.size() == 2){
-            return hasOnlyKingAndMinor(blackPieces);
-        }
+        if (whitePieces.size() == 1 && blackPieces.size() == 2) return hasOnlyKingAndMinor(blackPieces);
+        if (blackPieces.size() == 1 && whitePieces.size() == 2) return hasOnlyKingAndMinor(whitePieces);
 
-        if (blackPieces.size() == 1 && whitePieces.size() == 2){
-            return hasOnlyKingAndMinor(whitePieces);
-        }
-
-        // King + Bishop vs King + Bishop (same colored squares)
-        if (whitePieces.size() == 2 && blackPieces.size() == 2){
-            return bothSidesOnlyKingAndBishopSameColor(whitePieces, blackPieces, board);
-        }
+        if (whitePieces.size() == 2 && blackPieces.size() == 2) return bothSidesOnlyKingAndBishopSameColor(whitePieces, blackPieces);
 
         return false;
     }
 
-    public boolean hasOnlyKingAndMinor(ArrayList<Piece> pieces){
-        int bishops = 0, knights = 0;
-        
-        for(Piece piece : pieces){
-            if (piece instanceof Bishop) bishops++;
-            else if (piece instanceof Knight) knights++;
-            else if (!(piece instanceof King)) return false;
-        }
-
-        return (bishops == 1 && knights == 0) || (knights == 1 && bishops == 0);
+    public boolean isFiftyMoveRule() {
+        return halfMoveClock >= 100;
     }
 
-    public boolean bothSidesOnlyKingAndBishopSameColor(ArrayList<Piece> whitePieces, ArrayList<Piece> blackPieces, Piece[][] board){
-        Bishop whiteBishop = null, blackBishop = null;
-
-        for (Piece p : whitePieces){
-            if (p instanceof Bishop) whiteBishop = (Bishop) p;
-            else if (!(p instanceof King)) return false;
-        }
-
-        for (Piece p : blackPieces){
-            if (p instanceof Bishop) blackBishop = (Bishop) p;
-            else if(!(p instanceof King)) return false;
-        }
-
-        if (whiteBishop == null || blackBishop == null) return false;
-
-        // bishop on same color squares
-        int wSquareColor = (whiteBishop.getPosition().getRow() + whiteBishop.getPosition().getCol()) % 2;
-        int bSquareColor = (blackBishop.getPosition().getRow() + blackBishop.getPosition().getCol()) % 2;
-        return wSquareColor == bSquareColor;
+    public boolean isThreefoldRepetition() {
+        return boardStateHistory.values().stream().anyMatch(count -> count >= 3);
     }
 
-    //50 move rule
-    //50 full moves (100 half-moves) with no pawn move or capture
-    public void updateHalfMoveClock(Piece movedPiece, Piece capturedPiece){
+    public void updateHalfMoveClock(Piece movedPiece, Piece capturedPiece) {
         if (movedPiece instanceof Pawn || capturedPiece != null) {
-            halfMoveClock = 0; // reset on pawn move or capture
+            halfMoveClock = 0;
         } else {
             halfMoveClock++;
         }
     }
 
-    public boolean isFiftyMoveRule(){
-        return halfMoveClock >= 100;
-    }
-
-    //Threefold Repetition
-    public void recordBoardState(Piece[][] board, ColorForChessPieces colorToMove){
-        String state = serializeBoard(board, colorToMove);
+    public void recordBoardState() {
+        String state = serializeBoard(gameService.getPiecesOnTheBoard(), gameService.getCurrentColorToMove());
         boardStateHistory.merge(state, 1, Integer::sum);
     }
 
-    public boolean isThreefoldRepetition(){
-        return boardStateHistory.values().stream().anyMatch(count -> count >= 3);
+    // Private helpers
+
+    private boolean hasOnlyKingAndMinor(ArrayList<Piece> pieces) {
+        int bishops = 0, knights = 0;
+        for (Piece piece : pieces) {
+            if (piece instanceof Bishop) bishops++;
+            else if (piece instanceof Knight) knights++;
+            else if (!(piece instanceof King)) return false;
+        }
+        return (bishops == 1 && knights == 0) || (knights == 1 && bishops == 0);
     }
 
-    public String serializeBoard(Piece[][] board, ColorForChessPieces colorToMove){
+    private boolean bothSidesOnlyKingAndBishopSameColor(ArrayList<Piece> whitePieces, ArrayList<Piece> blackPieces) {
+        Bishop whiteBishop = null, blackBishop = null;
+
+        for (Piece p : whitePieces) {
+            if (p instanceof Bishop) whiteBishop = (Bishop) p;
+            else if (!(p instanceof King)) return false;
+        }
+        for (Piece p : blackPieces) {
+            if (p instanceof Bishop) blackBishop = (Bishop) p;
+            else if (!(p instanceof King)) return false;
+        }
+
+        if (whiteBishop == null || blackBishop == null) return false;
+
+        int wSquareColor = (whiteBishop.getPosition().getRow() + whiteBishop.getPosition().getCol()) % 2;
+        int bSquareColor = (blackBishop.getPosition().getRow() + blackBishop.getPosition().getCol()) % 2;
+        return wSquareColor == bSquareColor;
+    }
+
+    private String serializeBoard(Piece[][] board, ColorForChessPieces colorToMove) {
         StringBuilder sb = new StringBuilder();
-        for (Piece[] row : board){
-            for (Piece piece : row){
-                if (piece == null){
+        for (Piece[] row : board) {
+            for (Piece piece : row) {
+                if (piece == null) {
                     sb.append("--");
-                }else{
+                } else {
                     sb.append(piece.getColor() == ColorForChessPieces.WHITE ? "W" : "B");
                     sb.append(piece.getClass().getSimpleName().charAt(0));
                 }

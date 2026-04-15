@@ -46,8 +46,32 @@ public class GameService {
         this.lastDoubleStepPawn = pawn;
     }
 
+    public CheckService getCheckService() {
+        return checkService;
+    }
+
+    public void setCheckService(CheckService checkService) {
+        this.checkService = checkService;
+    }
+
+    public int getMoveCounter() {
+        return moveCounter;
+    }
+
+    public BoardUI getBoardUI() {
+        return boardUI;
+    }
+
+    public void setBoardUI(BoardUI boardUI) {
+        this.boardUI = boardUI;
+    }
+
     public ColorForChessPieces getCurrentColorToMove() {
-        return this.currentColorToMove;
+        return currentColorToMove;
+    }
+
+    public void setCurrentColorToMove(ColorForChessPieces currentColorToMove) {
+        this.currentColorToMove = currentColorToMove;
     }
 
     public Piece getPieceAt(int row, int col) {
@@ -153,20 +177,7 @@ public class GameService {
             }
         } else if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
             Piece selected = boardUI.getSelected();
-
-            // track double-step pawn
-            if (selected instanceof Pawn) {
-                int oldRow = selected.getPosition().getRow();
-                int newRow = nextMove.getRow();
-
-                if (Math.abs(oldRow - newRow) == 2) {
-                    setLastDoubleStepPawn((Pawn) selected);
-                } else {
-                    setLastDoubleStepPawn(null);
-                }
-            } else {
-                setLastDoubleStepPawn(null);
-            }
+            updateLastDoubleStepPawn(selected, nextMove);
 
             handleEnPassant(boardUI.getSelected(), nextMove);
 
@@ -183,6 +194,19 @@ public class GameService {
         }
 
         System.out.println(Arrays.deepToString(getPiecesOnTheBoard()));
+    }
+
+    private void updateLastDoubleStepPawn(Piece selected, IndexPosition nextMove) {
+        if (selected instanceof Pawn pawn) {
+            int oldRow = pawn.getPosition().getRow();
+            int newRow = nextMove.getRow();
+
+            if (Math.abs(oldRow - newRow) == 2) {
+                setLastDoubleStepPawn(pawn);
+                return;
+            }
+        }
+        setLastDoubleStepPawn(null);
     }
 
     public void handleEnPassant(Piece selected, IndexPosition nextMove){
