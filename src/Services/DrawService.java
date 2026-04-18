@@ -24,7 +24,7 @@ public class DrawService {
         ColorForChessPieces color = gameService.getCurrentColorToMove();
         Piece[][] board = gameService.getPiecesOnTheBoard();
 
-        if (checkService.isInCheck(color, board)) {
+        if (checkService.isInCheck(board, color)) {
             return false;
         }
         for (int row = 0; row < board.length; row++) {
