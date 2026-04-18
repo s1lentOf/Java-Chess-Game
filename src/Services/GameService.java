@@ -24,11 +24,12 @@ public class GameService {
 
     public GameService(BoardUI boardUI) {
         this.boardUI = boardUI;
-        checkService = new CheckService();
+        checkService = new CheckService(piecesOnTheBoard);
         moveStorage = new ArrayList<>();
         drawService = new DrawService(this.checkService, this);
 
     }
+
     // setter for the move counter
     public void setMoveCounter(int count) {
         this.moveCounter = count;
@@ -42,6 +43,7 @@ public class GameService {
     public Pawn getLastDoubleStepPawn() {
         return lastDoubleStepPawn;
     }
+
     public void setLastDoubleStepPawn(Pawn pawn) {
         this.lastDoubleStepPawn = pawn;
     }
@@ -78,7 +80,9 @@ public class GameService {
         return piecesOnTheBoard[row][col];
     }
 
-    public Piece[][] getPiecesOnTheBoard() { return this.piecesOnTheBoard; }
+    public Piece[][] getPiecesOnTheBoard() {
+        return this.piecesOnTheBoard;
+    }
 
     public void setPieceAt(int row, int col, Piece piece) {
         piecesOnTheBoard[row][col] = piece;
@@ -145,21 +149,18 @@ public class GameService {
             1.4) if not, check if the move is possible( if yes capture)
         2) if there is no piece - check if the move is possible(if yes move)
     */
-
-
     public void handleSquareClick(IndexPosition nextMove) {
         Piece targetSquare = getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
-        if(targetSquare == null){
+        if (targetSquare == null) {
             handleEmptySquareClick(nextMove);
-        }
-        else{
-            handleOccupiedSquareClick(targetSquare,nextMove);
+        } else {
+            handleOccupiedSquareClick(targetSquare, nextMove);
         }
         System.out.println(Arrays.deepToString(getPiecesOnTheBoard()));
     }
 
 
-    private void handleEmptySquareClick(IndexPosition nextMove){
+    private void handleEmptySquareClick(IndexPosition nextMove) {
 
         // checks for moving a piece to a new square( no capture)
         if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
@@ -174,7 +175,7 @@ public class GameService {
         }
     }
 
-    private void handleOccupiedSquareClick(Piece targetPiece, IndexPosition nextMove){
+    private void handleOccupiedSquareClick(Piece targetPiece, IndexPosition nextMove) {
         // an addition to set the selected to null anytime the wrong colored piece is clicked
         if (targetPiece != null && targetPiece.getColor() != currentColorToMove && boardUI.getSelected() == null) {
             boardUI.setSelected(null);
@@ -183,8 +184,7 @@ public class GameService {
             if (targetPiece.getColor() == currentColorToMove) {
                 boardUI.setSelected(targetPiece);
                 System.out.println("Selected new piece");
-            }
-            else{
+            } else {
                 System.out.println("It is not your turn");
             }
             return;
@@ -205,11 +205,10 @@ public class GameService {
     }
 
     // helper method for the change of the color to move
-    private void changeColorToMove(){
+    private void changeColorToMove() {
         if (moveCounter % 2 != 0) {
             currentColorToMove = ColorForChessPieces.WHITE;
-        }
-        else{
+        } else {
             currentColorToMove = ColorForChessPieces.BLACK;
         }
 
@@ -229,7 +228,7 @@ public class GameService {
         setLastDoubleStepPawn(null);
     }
 
-    public void handleEnPassant(Piece selected, IndexPosition nextMove){
+    public void handleEnPassant(Piece selected, IndexPosition nextMove) {
         if (!(selected instanceof Pawn)) return;
 
         int fromCol = selected.getPosition().getCol();
@@ -261,9 +260,9 @@ public class GameService {
             return;
         }
 
-        if(selected instanceof Pawn){
+        if (selected instanceof Pawn) {
             int row = selected.getColor() == WHITE ? 7 : 0;
-            if(nextMove.getRow()==row){
+            if (nextMove.getRow() == row) {
                 executePromotion(nextMove);
                 System.out.println(getPieceAt(nextMove.getRow(), nextMove.getCol()).toString());
                 return;
@@ -295,16 +294,12 @@ public class GameService {
     }
 
 
-
-  
-  
-  
-    public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
-        if(piece instanceof King) {
-            return getKingLegalMoves(piece.getColor(), board);
+    public ArrayList<IndexPosition> getLegalMoves(Piece piece,Piece[][] board) {
+        if (piece instanceof King) {
+            return getKingLegalMoves();
         }
 
-        if(piece instanceof Pawn pawn) {
+        if (piece instanceof Pawn pawn) {
 
             IndexPosition[] rawMoves = pawn.getPossibleMoves(board);
             ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
@@ -324,22 +319,22 @@ public class GameService {
                 }
             }
 
-            return checkService.filterMovesForCheck(piece, moves, board);
+            return checkService.filterMovesForCheck(piece, moves, currentColorToMove);
         }
         IndexPosition[] rawMoves = piece.getPossibleMoves(board);
         ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
-        return checkService.filterMovesForCheck(piece, moves, board);
+        return checkService.filterMovesForCheck(piece, moves, currentColorToMove);
     }
 
     // this method filters king moves removing checked squares
-    public ArrayList<IndexPosition> getKingLegalMoves(ColorForChessPieces color, Piece[][] board) {
-        King king = checkService.findKing(color, board);
-        IndexPosition[] rawMoves = king.getPossibleMoves(board);
-        ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
+    public ArrayList<IndexPosition> getKingLegalMoves() {
+        King king = checkService.findKing(piecesOnTheBoard, currentColorToMove);
+        IndexPosition[] rawMoves = king.getPossibleMoves(piecesOnTheBoard);
+        ColorForChessPieces enemyColor = currentColorToMove == WHITE ? BLACK : WHITE;
         ArrayList<IndexPosition> legalMoves = new ArrayList<>();
         // simulate a move to a square and check if king is inder check
         for (IndexPosition move : rawMoves) {
-            Piece[][] tempBoard = checkService.copyBoard(board);
+            Piece[][] tempBoard = checkService.copyBoard();
             tempBoard[king.getPosition().getRow()][king.getPosition().getCol()] = null;
             tempBoard[move.getRow()][move.getCol()] = king;
 
@@ -347,11 +342,11 @@ public class GameService {
                 legalMoves.add(move);
             }
         }
-        if(canCastleKingSide( board)) {
+        if (canCastleKingSide()) {
             legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() + 2));
         }
 
-        if (canCastleQueenSide( board)) {
+        if (canCastleQueenSide()) {
             legalMoves.add(new IndexPosition(king.getPosition().getRow(), king.getPosition().getCol() - 2));
         }
         return legalMoves;
@@ -359,9 +354,8 @@ public class GameService {
 
 
     // this method defines the rules of king side castling
-    public boolean canCastleKingSide( Piece[][] board) {
+    public boolean canCastleKingSide() {
         ColorForChessPieces color = currentColorToMove;
-        King king = checkService.findKing(color, board);
         // set row based on color of the castle desired pieces
         ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
         int row = color == WHITE ? 0 : 7;
@@ -370,18 +364,18 @@ public class GameService {
             return false;
         }
         // castle is only possible is rook on the required field exists
-        if (board[row][7] == null) {
+        if (piecesOnTheBoard[row][7] == null) {
             return false;
         }
         // check if squares between king and rook are empty
         for (int i = 5; i <= 6; i++) {
-            if (board[row][i] != null) {
+            if (piecesOnTheBoard[row][i] != null) {
                 return false;
             }
         }
         // king cannot castle while in check or through/into attacked squares
         for (int i = 4; i <= 6; i++) {
-            if (checkService.isSquareAttacked(new IndexPosition(row, i), enemyColor, board)) {
+            if (checkService.isSquareAttacked(new IndexPosition(row, i), enemyColor, piecesOnTheBoard)) {
                 return false;
             }
         }
@@ -390,9 +384,8 @@ public class GameService {
     }
 
     // this method defines teh rules of queen side castling
-    public boolean canCastleQueenSide( Piece[][] board) {
+    public boolean canCastleQueenSide() {
         ColorForChessPieces color = currentColorToMove;
-        King king = checkService.findKing(color, board);
         // set row based on color of the castle desired pieces
         ColorForChessPieces enemyColor = color == WHITE ? BLACK : WHITE;
         int row = color == WHITE ? 0 : 7;
@@ -400,18 +393,18 @@ public class GameService {
         if (hasPiecedMoved(new IndexPosition(row, 4)) || hasPiecedMoved(new IndexPosition(row, 0))) {
             return false;
         }
-        if (board[row][0] == null) {
+        if (piecesOnTheBoard[row][0] == null) {
             return false;
         }
         // check if squares between king and rook are empty (columns 1, 2, 3)
         for (int i = 1; i <= 3; i++) {
-            if (board[row][i] != null) {
+            if (piecesOnTheBoard[row][i] != null) {
                 return false;
             }
         }
         // king cannot castle while in check or through/into attacked squares (columns 2, 3, 4)
         for (int i = 2; i <= 4; i++) {
-            if (checkService.isSquareAttacked(new IndexPosition(row, i), enemyColor, board)) {
+            if (checkService.isSquareAttacked(new IndexPosition(row, i), enemyColor, piecesOnTheBoard)) {
                 return false;
             }
         }
@@ -434,26 +427,25 @@ public class GameService {
     }
 
     public void executeCastle(IndexPosition kingTarget) {
-        Piece[][] pieces = getPiecesOnTheBoard();
         Piece king = boardUI.getSelected();
         IndexPosition kingFrom = king.getPosition();
         int row = kingFrom.getRow();
 
         boolean isKingSide = kingTarget.getCol() > kingFrom.getCol();
         int rookFromCol = isKingSide ? 7 : 0;
-        int rookToCol   = isKingSide ? 5 : 3;
+        int rookToCol = isKingSide ? 5 : 3;
 
-        Piece rook = pieces[row][rookFromCol];
+        Piece rook = piecesOnTheBoard[row][rookFromCol];
 
         // move king
-        pieces[kingFrom.getRow()][kingFrom.getCol()] = null;
+        piecesOnTheBoard[kingFrom.getRow()][kingFrom.getCol()] = null;
         king.setPosition(kingTarget);
-        pieces[kingTarget.getRow()][kingTarget.getCol()] = king;
+        piecesOnTheBoard[kingTarget.getRow()][kingTarget.getCol()] = king;
 
         // move rook
-        pieces[row][rookFromCol] = null;
+        piecesOnTheBoard[row][rookFromCol] = null;
         rook.setPosition(new IndexPosition(row, rookToCol));
-        pieces[row][rookToCol] = rook;
+        piecesOnTheBoard[row][rookToCol] = rook;
 
         // record moves so hasPiecedMoved blocks future castling
         moveStorage.add(new MoveRecord("King", kingFrom, kingTarget));
@@ -463,30 +455,31 @@ public class GameService {
     }
 
     // a method for the promotion logic of the pawn( hard coded to auto promotion to the queen just for this iteration)
-    public void executePromotion(IndexPosition nextMove){
-        Piece[][] pieces = getPiecesOnTheBoard();
+    public void executePromotion(IndexPosition nextMove) {
         Pawn pawn = (Pawn) boardUI.getSelected();
-        Queen queen = new Queen(pawn.getColor(),nextMove);
-        pieces[pawn.getPosition().getRow()][pawn.getPosition().getCol()] = null;
-        pieces[nextMove.getRow()][nextMove.getCol()] = queen;
+        Queen queen = new Queen(pawn.getColor(), nextMove);
+        piecesOnTheBoard[pawn.getPosition().getRow()][pawn.getPosition().getCol()] = null;
+        piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = queen;
         moveStorage.add(new MoveRecord("Queen", pawn.getPosition(), nextMove));
     }
+
     public boolean isCheckmate() {
-        if (!checkService.isInCheck(currentColorToMove, getPiecesOnTheBoard())) {
+        if (!checkService.isInCheck(piecesOnTheBoard, currentColorToMove)) {
             return false; // Not in check, cannot be checkmate
+
         }
 
-        ArrayList<IndexPosition> kingMoves = getKingLegalMoves(currentColorToMove, getPiecesOnTheBoard());
+        ArrayList<IndexPosition> kingMoves = getKingLegalMoves();
         if (kingMoves != null && !kingMoves.isEmpty()) {
             return false; // King can escape, not checkmate
         }
-        return !checkService.canBlockCheck(currentColorToMove, getPiecesOnTheBoard()) && !checkService.canCaptureAttacker(currentColorToMove, getPiecesOnTheBoard());
+        return !checkService.canBlockCheck(currentColorToMove) && !checkService.canCaptureAttacker(currentColorToMove);
     }
 
     public boolean isDraw() {
-        if (drawService.isStalemate(currentColorToMove, getPiecesOnTheBoard())) {
+        if (drawService.isStalemate()) {
             return true;
-        } else if (drawService.isInsufficientMaterial(getPiecesOnTheBoard())) {
+        } else if (drawService.isInsufficientMaterial()) {
             return true;
         }
 

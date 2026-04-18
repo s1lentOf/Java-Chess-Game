@@ -169,9 +169,9 @@ public class BoardUI {
             showGameOver(message);
         }
 
-        if (service.isDraw()) {
-            String message = "It is a draw!";
-            showGameOver(message);
-        }
+//        if (service.isDraw()) {
+//            String message = "It is a draw!";
+//            showGameOver(message);
+//        }
     }
 }

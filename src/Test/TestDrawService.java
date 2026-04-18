@@ -26,7 +26,7 @@ public class TestDrawService {
         pieces = new Piece[8][8];
         setBoard(boardUI, pieces);
         gameService = new GameService(boardUI);
-        drawService = new DrawService(new CheckService(), gameService);
+        drawService = new DrawService(new CheckService(pieces), gameService);
         setCurrentColor(gameService, WHITE);
     }
 

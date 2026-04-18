@@ -27,7 +27,7 @@ public class TestGameService {
         Piece[][] board = new Piece[8][8];
         board[3][3] = king;
         board[6][6] = bishop;
-        ArrayList<IndexPosition> moves = gameService.getKingLegalMoves(ColorForChessPieces.WHITE, board);
+        ArrayList<IndexPosition> moves = gameService.getKingLegalMoves();
         assertEquals(6, moves.size());
 
     }
@@ -41,7 +41,7 @@ public class TestGameService {
         Piece[][] board = new Piece[8][8];
         board[0][4] = king;
         board[0][7] = rook;
-        assertTrue(gameService.canCastleKingSide(board));
+        assertTrue(gameService.canCastleKingSide());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TestGameService {
         board[0][4] = king;
         board[0][6] = knight;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide( board));
+        assertFalse(gameService.canCastleKingSide());
 
     }
 
@@ -69,7 +69,7 @@ public class TestGameService {
         board[0][4] = king;
         board[1][3] = queen;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide( board));
+        assertFalse(gameService.canCastleKingSide());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TestGameService {
         board[0][4] = king;
         board[2][4] = queen;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide( board));
+        assertFalse(gameService.canCastleKingSide());
     }
 
 
@@ -96,7 +96,7 @@ public class TestGameService {
         board[0][4] = king;
         board[3][6] = queen;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleKingSide( board));
+        assertFalse(gameService.canCastleKingSide());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class TestGameService {
         Piece[][] board = new Piece[8][8];
         board[0][4] = king;
         board[0][0] = rook;
-        assertTrue(gameService.canCastleQueenSide( board));
+        assertTrue(gameService.canCastleQueenSide());
     }
 
 
@@ -121,7 +121,7 @@ public class TestGameService {
         board[0][4] = king;
         board[0][2] = knight;
         board[0][0] = rook;
-        assertFalse(gameService.canCastleQueenSide( board));
+        assertFalse(gameService.canCastleQueenSide());
 
     }
 
@@ -136,7 +136,7 @@ public class TestGameService {
         board[0][4] = king;
         board[1][3] = queen;
         board[0][0] = rook;
-        assertFalse(gameService.canCastleQueenSide( board));
+        assertFalse(gameService.canCastleQueenSide());
     }
 
 
@@ -150,7 +150,7 @@ public class TestGameService {
         board[0][4] = king;
         board[2][4] = bishop;
         board[0][7] = rook;
-        assertFalse(gameService.canCastleQueenSide( board));
+        assertFalse(gameService.canCastleQueenSide());
     }
 
 
