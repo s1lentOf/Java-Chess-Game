@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CheckService {
-    private Piece[][] piecesOnTheBoard;
+    private final Piece[][] piecesOnTheBoard;
     public CheckService(Piece[][] piecesOnTheBoard) {
         this.piecesOnTheBoard = piecesOnTheBoard;
     }
@@ -109,9 +109,7 @@ public class CheckService {
             tempBoard[king.getPosition().getRow()][king.getPosition().getCol()] = null;
             tempBoard[attackerPos.getRow()][attackerPos.getCol()] = king;
             // if no enemy piece still attacks that square, the king can legally capture
-            if (!isSquareAttacked(attackerPos, enemyColor,tempBoard)) {
-                return true;
-            }
+            return !isSquareAttacked(attackerPos, enemyColor, tempBoard);
         }
 
         return false;
@@ -162,9 +160,7 @@ public class CheckService {
     public Piece[][] copyBoard() {
         Piece[][] copy = new Piece[piecesOnTheBoard.length][piecesOnTheBoard[0].length];
         for (int row = 0; row < piecesOnTheBoard.length; row++) {
-            for (int col = 0; col < piecesOnTheBoard[row].length; col++) {
-                copy[row][col] = piecesOnTheBoard[row][col];
-            }
+            System.arraycopy(piecesOnTheBoard[row], 0, copy[row], 0, piecesOnTheBoard[row].length);
         }
         return copy;
     }

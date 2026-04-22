@@ -12,15 +12,15 @@ import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
-    private ArrayList<MoveRecord> moveStorage;
+    private final ArrayList<MoveRecord> moveStorage;
     private int moveCounter = 1;
     // a field to keep track of which side is moving next
     private ColorForChessPieces currentColorToMove = WHITE;
     private Pawn lastDoubleStepPawn;
     private BoardUI boardUI;
     // Stores elements that implement the Piece abstract class.
-    private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
-    private DrawService drawService;
+    private final Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
+    private final DrawService drawService;
 
     public GameService(BoardUI boardUI) {
         this.boardUI = boardUI;
@@ -150,13 +150,16 @@ public class GameService {
         2) if there is no piece - check if the move is possible(if yes move)
     */
     public void handleSquareClick(IndexPosition nextMove) {
+        if (boardUI.isPromoting()) {
+            handlePromotionClick(nextMove);
+            return;
+        }
         Piece targetSquare = getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()];
         if (targetSquare == null) {
             handleEmptySquareClick(nextMove);
         } else {
             handleOccupiedSquareClick(targetSquare, nextMove);
         }
-        System.out.println(Arrays.deepToString(getPiecesOnTheBoard()));
     }
 
 
@@ -202,7 +205,21 @@ public class GameService {
                 changeColorToMove();
             }
         }
+    }
 
+    // a method for handling click which results in promotion of the pawn
+    private void handlePromotionClick(IndexPosition nextMove) {
+        int clickedCol = nextMove.getCol();
+        int clickedRow = nextMove.getRow();
+
+        if (clickedCol != boardUI.getPromotionCol()) return;
+
+        int index = (boardUI.getPromotionRow() == 0) ? clickedRow : 7 - clickedRow;
+
+        if (index >= 0 && index < 4) {
+            Piece selected = boardUI.getPromotionOptions()[index];
+            boardUI.finishPromotion(selected);
+        }
     }
 
     // helper method for the change of the color to move
@@ -230,7 +247,8 @@ public class GameService {
     }
 
     public void handleEnPassant(Piece selected, IndexPosition nextMove) {
-        if (!(selected instanceof Pawn)) return;
+        if (!(selected instanceof Pawn))
+            return;
 
         int fromCol = selected.getPosition().getCol();
         int toCol = nextMove.getCol();
@@ -263,12 +281,11 @@ public class GameService {
 
         if (selected instanceof Pawn) {
             int row = selected.getColor() == WHITE ? 7 : 0;
+
             if (nextMove.getRow() == row) {
-                executePromotion(nextMove);
-                System.out.println(getPieceAt(nextMove.getRow(), nextMove.getCol()).toString());
+                boardUI.startPromotion((Pawn) selected, nextMove);
                 return;
             }
-
         }
         getPiecesOnTheBoard()[oldPos.getRow()][oldPos.getCol()] = null;
 
@@ -295,7 +312,7 @@ public class GameService {
     }
 
 
-    public ArrayList<IndexPosition> getLegalMoves(Piece piece,Piece[][] board) {
+    public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
         if (piece instanceof King) {
             return getKingLegalMoves();
         }
@@ -439,15 +456,6 @@ public class GameService {
         boardUI.setSelected(null);
     }
 
-    // a method for the promotion logic of the pawn( hard coded to auto promotion to the queen just for this iteration)
-    public void executePromotion(IndexPosition nextMove) {
-        Pawn pawn = (Pawn) boardUI.getSelected();
-        Queen queen = new Queen(pawn.getColor(), nextMove);
-        piecesOnTheBoard[pawn.getPosition().getRow()][pawn.getPosition().getCol()] = null;
-        piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = queen;
-        moveStorage.add(new MoveRecord("Queen", pawn.getPosition(), nextMove));
-    }
-
     public boolean isCheckmate() {
         if (!checkService.isInCheck(piecesOnTheBoard, currentColorToMove)) {
             return false; // Not in check, cannot be checkmate
@@ -464,14 +472,9 @@ public class GameService {
     public boolean isDraw() {
         if (drawService.isStalemate()) {
             return true;
-        } else if (drawService.isInsufficientMaterial()) {
-            return true;
-        }
-
-        return false;
+        } else
+            return drawService.isInsufficientMaterial();
     }
-
-
 }
 
 

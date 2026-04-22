@@ -9,7 +9,7 @@ import java.awt.*;
 public class Game {
 
     private JFrame window;
-    private BoardUI boardUI = new BoardUI();
+    private final BoardUI boardUI = new BoardUI();
 
     public Game() {
         setupWindow();

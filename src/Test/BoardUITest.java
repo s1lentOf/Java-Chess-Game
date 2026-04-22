@@ -156,10 +156,10 @@ class BoardUITest {
 
         // --- Pawns ---
         for (int i = 0; i < 8; i++) {
-            assertTrue(pieces[1][i] instanceof Pawn);
+            assertInstanceOf(Pawn.class, pieces[1][i]);
             assertTrue(pieces[1][i].isWhite());
 
-            assertTrue(pieces[6][i] instanceof Pawn);
+            assertInstanceOf(Pawn.class, pieces[6][i]);
             assertFalse(pieces[6][i].isWhite());
         }
     }
@@ -172,10 +172,10 @@ class BoardUITest {
 
         Piece[][] pieces = service.getPiecesOnTheBoard();
 
-        assertTrue(pieces[0][0] instanceof Rook);
-        assertTrue(pieces[0][7] instanceof Rook);
-        assertTrue(pieces[7][0] instanceof Rook);
-        assertTrue(pieces[7][7] instanceof Rook);
+        assertInstanceOf(Rook.class, pieces[0][0]);
+        assertInstanceOf(Rook.class, pieces[0][7]);
+        assertInstanceOf(Rook.class, pieces[7][0]);
+        assertInstanceOf(Rook.class, pieces[7][7]);
     }
 
     @Test
@@ -186,10 +186,10 @@ class BoardUITest {
 
         Piece[][] pieces = service.getPiecesOnTheBoard();
 
-        assertTrue(pieces[0][1] instanceof Knight);
-        assertTrue(pieces[0][6] instanceof Knight);
-        assertTrue(pieces[7][1] instanceof Knight);
-        assertTrue(pieces[7][6] instanceof Knight);
+        assertInstanceOf(Knight.class, pieces[0][1]);
+        assertInstanceOf(Knight.class, pieces[0][6]);
+        assertInstanceOf(Knight.class, pieces[7][1]);
+        assertInstanceOf(Knight.class, pieces[7][6]);
     }
 
     @Test
@@ -200,10 +200,10 @@ class BoardUITest {
 
         Piece[][] pieces = service.getPiecesOnTheBoard();
 
-        assertTrue(pieces[0][2] instanceof Bishop);
-        assertTrue(pieces[0][5] instanceof Bishop);
-        assertTrue(pieces[7][2] instanceof Bishop);
-        assertTrue(pieces[7][5] instanceof Bishop);
+        assertInstanceOf(Bishop.class, pieces[0][2]);
+        assertInstanceOf(Bishop.class, pieces[0][5]);
+        assertInstanceOf(Bishop.class, pieces[7][2]);
+        assertInstanceOf(Bishop.class, pieces[7][5]);
     }
 
     @Test
@@ -214,8 +214,8 @@ class BoardUITest {
 
         Piece[][] pieces = service.getPiecesOnTheBoard();
 
-        assertTrue(pieces[0][3] instanceof Queen);
-        assertTrue(pieces[7][3] instanceof Queen);
+        assertInstanceOf(Queen.class, pieces[0][3]);
+        assertInstanceOf(Queen.class, pieces[7][3]);
     }
 
     @Test
@@ -226,8 +226,8 @@ class BoardUITest {
 
         Piece[][] pieces = service.getPiecesOnTheBoard();
 
-        assertTrue(pieces[0][4] instanceof King);
-        assertTrue(pieces[7][4] instanceof King);
+        assertInstanceOf(King.class, pieces[0][4]);
+        assertInstanceOf(King.class, pieces[7][4]);
     }
 
     @Test
