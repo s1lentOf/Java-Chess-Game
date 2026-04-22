@@ -3,9 +3,10 @@ package Services;
 import Constants.ColorForChessPieces;
 
 public class MoveResult {
-    private Boolean isCheckmate;
-    private Boolean isDraw;
+    private Boolean isCheckmate = false;
+    private Boolean isDraw = false;
     private ColorForChessPieces colorToWin;
+    private String drawReason;
 
     public ColorForChessPieces getColorToWin() {
         return colorToWin;
@@ -24,7 +25,19 @@ public class MoveResult {
         return isDraw;
     }
 
-    public void setDraw() {
+    public String getDrawReason() {
+        return drawReason;
+    }
+
+    public void setDraw(String reason) {
         isDraw = true;
+        drawReason = reason;
+    }
+
+    public void reset(){
+        isCheckmate = false;
+        isDraw = false;
+        colorToWin = null;
+        drawReason = null;
     }
 }
