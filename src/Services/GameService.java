@@ -3,6 +3,7 @@ package Services;
 import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
+import Constants.Sound;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -23,12 +24,14 @@ public class GameService {
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
     private DrawService drawService;
     private MoveResult moveResult = new MoveResult();
+    private SoundService soundService;
 
     public GameService(BoardUI boardUI) {
         this.boardUI = boardUI;
         checkService = new CheckService(piecesOnTheBoard);
         moveStorage = new ArrayList<>();
         drawService = new DrawService(this.checkService, this);
+        soundService = new SoundService();
 
     }
 
@@ -176,6 +179,10 @@ public class GameService {
         if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
             Piece selected = boardUI.getSelected();
 
+            // a pawn moving diagonally to an empty square is an en passant capture
+            boolean isEnPassant = selected instanceof Pawn
+                    && selected.getPosition().getCol() != nextMove.getCol();
+
             updateLastDoubleStepPawn(selected, nextMove);
             handleEnPassant(boardUI.getSelected(), nextMove);
 
@@ -183,6 +190,7 @@ public class GameService {
             moveSelectedPiece(nextMove);
             moveCounter++;
             changeColorToMove();
+            playPostMoveSound(isEnPassant);
             drawService.recordBoardState();
             drawService.updateHalfMoveClock(selected, null);
             updateMoveResult();
@@ -214,6 +222,7 @@ public class GameService {
                 capturePiece(nextMove);
                 moveCounter++;
                 changeColorToMove();
+                playPostMoveSound(true);
                 drawService.recordBoardState();
                 drawService.updateHalfMoveClock(selected, targetPiece);
             }
@@ -232,6 +241,17 @@ public class GameService {
         if (index >= 0 && index < 4) {
             Piece selected = boardUI.getPromotionOptions()[index];
             boardUI.finishPromotion(selected);
+        }
+    }
+
+    // check overrides move/capture — play the right sound after the move has been applied and the turn flipped
+    private void playPostMoveSound(boolean wasCapture) {
+        if (checkService.isInCheck(piecesOnTheBoard, currentColorToMove)) {
+            soundService.play(Sound.CHECK);
+        } else if (wasCapture) {
+            soundService.play(Sound.CAPTURE);
+        } else {
+            soundService.play(Sound.MOVE);
         }
     }
 
