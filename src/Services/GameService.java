@@ -166,6 +166,7 @@ public class GameService {
         if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
             Piece selected = boardUI.getSelected();
 
+            updateLastDoubleStepPawn(selected, nextMove);
             handleEnPassant(boardUI.getSelected(), nextMove);
 
             System.out.println("Just moved piece");
@@ -302,7 +303,7 @@ public class GameService {
         if (piece instanceof Pawn pawn) {
             IndexPosition[] rawMoves = pawn.getPossibleMoves(board, getLastDoubleStepPawn());
             ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
-            return checkService.filterMovesForCheck(piece, moves, board);
+            return checkService.filterMovesForCheck(piece, moves, getCurrentColorToMove());
         }
 
         IndexPosition[] rawMoves = piece.getPossibleMoves(board);
