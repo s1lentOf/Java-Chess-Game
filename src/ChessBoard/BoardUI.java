@@ -63,13 +63,11 @@ public class BoardUI {
     public void setupBoard(JFrame window) {
         this.gameWindow = window;
 
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
+        for (int row = 7; row >= 0; row--) {
+            for (int col = 7; col >= 0; col--) {
 
                 JButton square = new JButton();
                 square.setLayout(new BorderLayout());
-
-                // Style
                 square.setFocusPainted(false);
                 square.setBorderPainted(false);
                 square.setOpaque(true);
