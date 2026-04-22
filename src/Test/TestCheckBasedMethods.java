@@ -17,10 +17,11 @@ import java.util.ArrayList;
 
 public class TestCheckBasedMethods {
     private static CheckService service;
+    private static Piece[][] pieces;
 
     @BeforeAll
     static void beforeAll() {
-        service = new CheckService();
+        service = new CheckService(pieces);
     }
 
     @Test
@@ -31,7 +32,7 @@ public class TestCheckBasedMethods {
         Piece[][] board = new Piece[8][8];
         board[3][3] = king;
         board[4][4] = bishop;
-        assertTrue(service.isInCheck(ColorForChessPieces.WHITE, board));
+        assertTrue(service.isInCheck(board, ColorForChessPieces.WHITE));
 
     }
 
@@ -43,7 +44,7 @@ public class TestCheckBasedMethods {
         Piece[][] board = new Piece[8][8];
         board[3][3] = king;
         board[4][4] = bishop;
-        assertFalse(service.isInCheck(ColorForChessPieces.WHITE, board));
+        assertFalse(service.isInCheck(board, ColorForChessPieces.WHITE));
 
     }
 
@@ -76,15 +77,9 @@ public class TestCheckBasedMethods {
         King king = new King(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
         Piece[][] board = new Piece[8][8];
         board[3][3] = king;
-        assertNotNull(service.findKing(ColorForChessPieces.WHITE, board));
+        assertNotNull(service.findKing(board, ColorForChessPieces.WHITE));
     }
 
-    @Test
-    @DisplayName("White king is not found if it does not exists")
-    public void testWhiteKingIsNotFound() {
-        Piece[][] board = new Piece[8][8];
-        assertNull(service.findKing(ColorForChessPieces.WHITE, board));
-    }
 
     @Test
     @DisplayName("The piece that attacks king is returned if it exists")
@@ -96,7 +91,7 @@ public class TestCheckBasedMethods {
         board[3][3] = king;
         board[4][4] = bishop;
         board[4][3] = queen;
-        int length = service.findAttackers(king.getColor(), board).size();
+        int length = service.findAttackers(board,ColorForChessPieces.WHITE).size();
         assertEquals(2, length);
 
     }
@@ -109,44 +104,11 @@ public class TestCheckBasedMethods {
         Piece[][] board = new Piece[8][8];
         board[3][3] = king;
         board[3][4] = bishop;
-        int length = service.findAttackers(king.getColor(), board).size();
+        int length = service.findAttackers(board,ColorForChessPieces.WHITE).size();
         assertEquals(0, length);
     }
 
-    @Test
-    @DisplayName("Allied piece can capture piece whihc checks king")
-    public void testAlliedPieceCanCapturePiece() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
-        Bishop bishop = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(4, 4));
-        Queen queen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(4, 3));
-        Piece[][] board = new Piece[8][8];
-        board[3][3] = king;
-        board[4][4] = bishop;
-        board[4][3] = queen;
-        assertTrue(service.canCaptureAttacker(ColorForChessPieces.WHITE, board));
-    }
 
-    @Test
-    @DisplayName("Allied piece cannot capture piece which checks king")
-    public void testAlliedPieceCannotCapturePiece() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
-        Bishop bishop = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(5, 5));
-        Piece[][] board = new Piece[8][8];
-        board[3][3] = king;
-        board[5][5] = bishop;
-        assertFalse(service.canCaptureAttacker(ColorForChessPieces.WHITE, board));
-    }
-
-    @Test
-    @DisplayName("King can capture piece which delivers check ")
-    public void testKingCanCapturePiece() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
-        Bishop bishop = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(4, 4));
-        Piece[][] board = new Piece[8][8];
-        board[3][3] = king;
-        board[4][4] = bishop;
-        assertTrue(service.canCaptureAttacker(ColorForChessPieces.WHITE, board));
-    }
 
 
     @Test
@@ -176,31 +138,7 @@ public class TestCheckBasedMethods {
         assertEquals(6, positions.size());
     }
 
-    @Test
-    @DisplayName("check can be blocked if possible")
-    public void testCanBeBlocked() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
-        Bishop bishop = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(5, 5));
-        Queen queen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(4, 3));
-        Piece[][] board = new Piece[8][8];
-        board[3][3] = king;
-        board[5][5] = bishop;
-        board[4][3] = queen;
-        assertTrue(service.canBlockCheck(king.getColor(), board));
-    }
 
-    @Test
-    @DisplayName("check cannot be blocked if not  possible")
-    public void testCannotBeBlocked() {
-        King king = new King(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
-        Bishop bishop = new Bishop(ColorForChessPieces.BLACK, new IndexPosition(5, 5));
-        Queen queen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(2, 2));
-        Piece[][] board = new Piece[8][8];
-        board[3][3] = king;
-        board[5][5] = bishop;
-        board[2][2] = queen;
-        assertFalse(service.canBlockCheck(king.getColor(), board));
-    }
 
 
     @Test

@@ -1,5 +1,6 @@
 package Services;
 
+import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 
@@ -7,15 +8,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CheckService {
-    public CheckService() {
+    private Piece[][] piecesOnTheBoard;
+    public CheckService(Piece[][] piecesOnTheBoard) {
+        this.piecesOnTheBoard = piecesOnTheBoard;
     }
     // toggle state on the check form a king
-    public boolean isInCheck(ColorForChessPieces color, Piece[][] board) {
-        King king = findKing(color, board);
+    public boolean isInCheck(Piece[][] board,ColorForChessPieces color) {
+        King king = findKing(board, color);
         return king.isInCheck(board, this);
     }
     // this method checks if square is attacked by any of the enemy pieces
-    public boolean isSquareAttacked(IndexPosition square, ColorForChessPieces color, Piece[][] board) {
+    public boolean isSquareAttacked(IndexPosition square,ColorForChessPieces color,Piece[][] board) {
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
@@ -33,7 +36,7 @@ public class CheckService {
     }
 
     // this method finds the king of given color
-    public King findKing(ColorForChessPieces color, Piece[][] board) {
+    public King findKing(Piece[][] board, ColorForChessPieces color) {
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
@@ -46,10 +49,10 @@ public class CheckService {
         return null;
     }
     // this method retrieves all pieces which attack king (check the king)
-    public ArrayList<Piece> findAttackers(ColorForChessPieces kingColor, Piece[][] board) {
-        King king = findKing(kingColor, board);
+    public ArrayList<Piece> findAttackers(Piece[][] board, ColorForChessPieces color) {
+        King king = findKing(board, color);
         ArrayList<Piece> attackers = new ArrayList<>();
-        ColorForChessPieces enemyColor = kingColor == ColorForChessPieces.WHITE ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
+        ColorForChessPieces enemyColor = color == ColorForChessPieces.WHITE ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
                 Piece piece = board[row][col];
@@ -66,8 +69,8 @@ public class CheckService {
     }
 
     // this method checks if the checking piece can eb captured
-    public boolean canCaptureAttacker(ColorForChessPieces kingColor, Piece[][] board) {
-        ArrayList<Piece> attackers = findAttackers(kingColor, board);
+    public boolean canCaptureAttacker(ColorForChessPieces color) {
+        ArrayList<Piece> attackers = findAttackers(piecesOnTheBoard, color);
         if (attackers.isEmpty()) {
             return false;
         }
@@ -80,13 +83,14 @@ public class CheckService {
         IndexPosition attackerPos = attacker.getPosition();
 
         // check if any non-king allied piece can capture the attacker
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                Piece piece = board[row][col];
-                if (piece != null && piece.getColor().equals(kingColor) && !(piece instanceof King)) {
-                    IndexPosition[] moves = piece.getPossibleMoves(board);
+        for (int row = 0; row < piecesOnTheBoard.length; row++) {
+            for (int col = 0; col < piecesOnTheBoard[row].length; col++) {
+                Piece piece = piecesOnTheBoard[row][col];
+                if (piece != null && piece.getColor().equals(color) && !(piece instanceof King)) {
+                    IndexPosition[] moves = piece.getPossibleMoves(piecesOnTheBoard);
                     ArrayList<IndexPosition> moveList = new ArrayList<>(Arrays.asList(moves));
-                    if (moveList.contains(attackerPos)) {
+                    ArrayList<IndexPosition> filtered = filterMovesForCheck(piece,moveList,color);
+                    if (filtered.contains(attackerPos)) {
                         return true;
                     }
                 }
@@ -94,18 +98,18 @@ public class CheckService {
         }
 
         // if only the king can reach the attacker, make sure the attacker is not defended — otherwise the king would still be in check after the capture
-        King king = findKing(kingColor, board);
-        IndexPosition[] kingMoves = king.getPossibleMoves(board);
+        King king = findKing(piecesOnTheBoard, color);
+        IndexPosition[] kingMoves = king.getPossibleMoves(piecesOnTheBoard);
         ArrayList<IndexPosition> kingMoveList = new ArrayList<>(Arrays.asList(kingMoves));
         if (kingMoveList.contains(attackerPos)) {
-            ColorForChessPieces enemyColor = kingColor == ColorForChessPieces.WHITE
+            ColorForChessPieces enemyColor = color == ColorForChessPieces.WHITE
                     ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
             // simulate the king capturing the attacker
-            Piece[][] tempBoard = copyBoard(board);
+            Piece[][] tempBoard = copyBoard();
             tempBoard[king.getPosition().getRow()][king.getPosition().getCol()] = null;
             tempBoard[attackerPos.getRow()][attackerPos.getCol()] = king;
             // if no enemy piece still attacks that square, the king can legally capture
-            if (!isSquareAttacked(attackerPos, enemyColor, tempBoard)) {
+            if (!isSquareAttacked(attackerPos, enemyColor,tempBoard)) {
                 return true;
             }
         }
@@ -132,42 +136,42 @@ public class CheckService {
     }
 
     // filters out moves that would leave the king in check (handles pins and must-escape-check)
-    public ArrayList<IndexPosition> filterMovesForCheck(Piece piece, ArrayList<IndexPosition> moves, Piece[][] board) {
+    public ArrayList<IndexPosition> filterMovesForCheck(Piece piece, ArrayList<IndexPosition> moves,ColorForChessPieces color) {
         ArrayList<IndexPosition> legalMoves = new ArrayList<>();
 
         for (IndexPosition move : moves) {
-            Piece[][] tempBoard = copyBoard(board);
+            Piece[][] tempBoard = copyBoard();
             tempBoard[piece.getPosition().getRow()][piece.getPosition().getCol()] = null;
             tempBoard[move.getRow()][move.getCol()] = piece;
 
             // en passant: remove the captured pawn which is not on the target square
             if (piece instanceof Pawn
                     && Math.abs(move.getCol() - piece.getPosition().getCol()) == 1
-                    && board[move.getRow()][move.getCol()] == null) {
+                    && piecesOnTheBoard[move.getRow()][move.getCol()] == null) {
                 int capturedRow = piece.getPosition().getRow();
                 tempBoard[capturedRow][move.getCol()] = null;
             }
 
-            if (!isInCheck(piece.getColor(), tempBoard)) {
+            if (!isInCheck(tempBoard,color)) {
                 legalMoves.add(move);
             }
         }
         return legalMoves;
     }
 
-    public Piece[][] copyBoard(Piece[][] board) {
-        Piece[][] copy = new Piece[board.length][board[0].length];
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                copy[row][col] = board[row][col];
+    public Piece[][] copyBoard() {
+        Piece[][] copy = new Piece[piecesOnTheBoard.length][piecesOnTheBoard[0].length];
+        for (int row = 0; row < piecesOnTheBoard.length; row++) {
+            for (int col = 0; col < piecesOnTheBoard[row].length; col++) {
+                copy[row][col] = piecesOnTheBoard[row][col];
             }
         }
         return copy;
     }
 
     // this method checks if any of the allied pieces cna block the check
-    public boolean canBlockCheck(ColorForChessPieces kingColor, Piece[][] board) {
-        ArrayList<Piece> attackers = findAttackers(kingColor, board);
+    public boolean canBlockCheck(ColorForChessPieces color) {
+        ArrayList<Piece> attackers = findAttackers(piecesOnTheBoard,color);
         if (attackers.isEmpty()) {
             return false;
         }
@@ -181,14 +185,14 @@ public class CheckService {
             return false;
         }
         // sudo check for each piece to block the check line
-        King king = findKing(kingColor, board);
+        King king = findKing(piecesOnTheBoard,color);
         ArrayList<IndexPosition> positions = getSquaresBetween(king.getPosition(), attacker.getPosition());
         for (IndexPosition position : positions) {
-            for (int row = 0; row < board.length; row++) {
-                for (int col = 0; col < board[row].length; col++) {
-                    Piece piece = board[row][col];
-                    if (piece != null && piece.getColor().equals(kingColor) && !(piece instanceof King)) {
-                        IndexPosition[] moves = piece.getPossibleMoves(board);
+            for (int row = 0; row < piecesOnTheBoard.length; row++) {
+                for (int col = 0; col < piecesOnTheBoard[row].length; col++) {
+                    Piece piece = piecesOnTheBoard[row][col];
+                    if (piece != null && piece.getColor().equals(color) && !(piece instanceof King)) {
+                        IndexPosition[] moves = piece.getPossibleMoves(piecesOnTheBoard);
                         ArrayList<IndexPosition> moveList = new ArrayList<>(Arrays.asList(moves));
                         if (moveList.contains(position)) {
                             return true;
