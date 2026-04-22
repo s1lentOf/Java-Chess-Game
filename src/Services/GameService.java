@@ -21,6 +21,7 @@ public class GameService {
     // Stores elements that implement the Piece abstract class.
     private Piece[][] piecesOnTheBoard = new Piece[8][8]; // Store
     private DrawService drawService;
+    private MoveResult moveResult = new MoveResult();
 
     public GameService(BoardUI boardUI) {
         this.boardUI = boardUI;
@@ -82,6 +83,10 @@ public class GameService {
 
     public Piece[][] getPiecesOnTheBoard() {
         return this.piecesOnTheBoard;
+    }
+
+    public MoveResult getMoveResult() {
+        return moveResult;
     }
 
     public void setPieceAt(int row, int col, Piece piece) {
@@ -279,6 +284,26 @@ public class GameService {
         moveStorage.add(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove));
 
         boardUI.setSelected(null);
+    }
+
+    public void updateMoveResult() {
+        moveResult.reset();
+
+        if(isCheckmate()){
+            ColorForChessPieces winner = currentColorToMove == WHITE ? BLACK : WHITE;
+            moveResult.setCheckmate(winner);
+            return;
+        }
+
+        if(drawService.isStalemate()){
+            moveResult.setDraw("Stalemate");
+        } else if(drawService.isInsufficientMaterial()){
+            moveResult.setDraw("Insufficient material");
+        } else if(drawService.isFiftyMoveRule()){
+            moveResult.setDraw("50-Move Rule");
+        } else if(drawService.isThreefoldRepetition()){
+            moveResult.setDraw("Threefold repetition");
+        }
     }
 
     //helper method for capturing the piece
