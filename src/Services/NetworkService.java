@@ -8,14 +8,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import Constants.Environment;
 import org.json.JSONObject;
 
 public class NetworkService {
-    // TODO: Enter the correct base url after we get one from cloudflare.
-    private static final String baseURL = "baseURL/";
 
     // STUB: A method that handles sending POST requests to the server.
-    public static JSONObject POST(JSONObject data, Endpoint endpoint) {
+    public static JSONObject POST(JSONObject data, Endpoint endpoint, Environment environment) {
         return null;
     }
 }

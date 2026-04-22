@@ -1,15 +1,19 @@
 package Constants;
 
 public enum Endpoint {
-    STARTGAME ("/start"),
-    STOPGAME ("/stop"),
-    REQUESTMOSE ("/request");
+    STARTGAME ("/posts", "/start"),
+    STOPGAME ("/posts","/stop"),
+    REQUESTMOVE ( "/posts","/request");
 
-    private final String url;
+    private final String testPath;
+    private final String prodPath;
 
-    Endpoint(String url) {
-        this.url = url;
+    Endpoint(String testPath, String prodPath) {
+        this.testPath = testPath;
+        this.prodPath = prodPath;
     }
 
-    public String getEndpointURL() { return url; }
+    public String getPath(Environment env) {
+        return env == Environment.TEST ? testPath : prodPath;
+    }
 }
