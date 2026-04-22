@@ -5,6 +5,7 @@ import Constants.ColorForChessPieces;
 import Constants.Colors;
 import Services.GameService;
 import Services.MoveRecord;
+import Services.MoveResult;
 
 import javax.swing.*;
 import java.awt.*;
@@ -216,16 +217,15 @@ public class BoardUI {
             }
         }
 
-        if (service.isCheckmate()) {
-            ColorForChessPieces winner = (service.getCurrentColorToMove() == ColorForChessPieces.WHITE) ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE;
-            String message = "Checkmate! " + winner + " wins!";
+        MoveResult result = service.getMoveResult();
+
+        if (result.getCheckmate()) {
+            String message = "Checkmate! " + result.getColorToWin() + " wins!";
+            showGameOver(message);
+        } else if (result.getDraw()) {
+            String message = "Draw by " + result.getDrawReason() + "!";
             showGameOver(message);
         }
-
-//        if (service.isDraw()) {
-//            String message = "It is a draw!";
-//            showGameOver(message);
-//        }
     }
 
     // a method to start the promotion of the pawn when it reaches the back rank
