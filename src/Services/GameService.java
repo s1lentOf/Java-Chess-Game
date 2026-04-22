@@ -300,27 +300,11 @@ public class GameService {
         }
 
         if (piece instanceof Pawn pawn) {
-
-            IndexPosition[] rawMoves = pawn.getPossibleMoves(board);
+            IndexPosition[] rawMoves = pawn.getPossibleMoves(board, getLastDoubleStepPawn());
             ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
-
-            int row = pawn.getPosition().getRow();
-            int col = pawn.getPosition().getCol();
-            int dir = pawn.isWhite() ? 1 : -1;
-
-            Pawn enemyPawn = getLastDoubleStepPawn();
-
-            if (enemyPawn != null) {
-                int enemyRow = enemyPawn.getPosition().getRow();
-                int enemyCol = enemyPawn.getPosition().getCol();
-
-                if (enemyRow == row && Math.abs(enemyCol - col) == 1) {
-                    moves.add(new IndexPosition(row + dir, enemyCol));
-                }
-            }
-
-            return checkService.filterMovesForCheck(piece, moves, currentColorToMove);
+            return checkService.filterMovesForCheck(piece, moves, board);
         }
+
         IndexPosition[] rawMoves = piece.getPossibleMoves(board);
         ArrayList<IndexPosition> moves = new ArrayList<>(Arrays.asList(rawMoves));
         return checkService.filterMovesForCheck(piece, moves, currentColorToMove);
