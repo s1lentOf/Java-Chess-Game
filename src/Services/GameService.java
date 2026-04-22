@@ -178,6 +178,9 @@ public class GameService {
             moveSelectedPiece(nextMove);
             moveCounter++;
             changeColorToMove();
+            drawService.recordBoardState();
+            drawService.updateHalfMoveClock(selected, null);
+            updateMoveResult();
         }
     }
 
@@ -202,9 +205,12 @@ public class GameService {
                 boardUI.setSelected(targetPiece);
             } else if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
                 System.out.println("Captured piece");
+                Piece selected = boardUI.getSelected();
                 capturePiece(nextMove);
                 moveCounter++;
                 changeColorToMove();
+                drawService.recordBoardState();
+                drawService.updateHalfMoveClock(selected, targetPiece);
             }
         }
 

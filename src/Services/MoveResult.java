@@ -3,8 +3,8 @@ package Services;
 import Constants.ColorForChessPieces;
 
 public class MoveResult {
-    private Boolean isCheckmate;
-    private Boolean isDraw;
+    private Boolean isCheckmate = false;
+    private Boolean isDraw = false;
     private ColorForChessPieces colorToWin;
     private String drawReason;
 
