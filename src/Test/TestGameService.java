@@ -4,6 +4,7 @@ import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Services.GameService;
+import Services.MoveRecord;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -368,6 +369,15 @@ public class TestGameService {
 
         // black pawn should still exist because target square is occupied
         assertNotNull(testBoard[4][5]);
+    }
+
+    @Test
+    @DisplayName("Move is parsed from MoveRecord to input data")
+    void testMoveIsParsedFromMoveRecordToInputData() {
+        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5));
+
+        String parsedMove = gameService.parseInputData(move);
+        assertEquals(parsedMove,"e5f6");
     }
 
 }

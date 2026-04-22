@@ -3,6 +3,7 @@ package Services;
 import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ import static Constants.ColorForChessPieces.*;
 
 public class GameService {
     private CheckService checkService;
-    private final ArrayList<MoveRecord> moveStorage;
+    private ArrayList<String> moveStorage;
     private int moveCounter = 1;
     // a field to keep track of which side is moving next
     private ColorForChessPieces currentColorToMove = WHITE;
@@ -165,6 +166,7 @@ public class GameService {
         } else {
             handleOccupiedSquareClick(targetSquare, nextMove);
         }
+        System.out.println(Arrays.deepToString(getPiecesOnTheBoard()));
     }
 
 
@@ -292,11 +294,11 @@ public class GameService {
 
         if (selected instanceof Pawn) {
             int row = selected.getColor() == WHITE ? 7 : 0;
-
             if (nextMove.getRow() == row) {
                 boardUI.startPromotion((Pawn) selected, nextMove);
                 return;
             }
+
         }
         getPiecesOnTheBoard()[oldPos.getRow()][oldPos.getCol()] = null;
 
@@ -304,7 +306,7 @@ public class GameService {
 
         getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] = selected;
 
-        moveStorage.add(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove));
+        moveStorage.add(parseInputData(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove)) );
 
         boardUI.setSelected(null);
     }
@@ -343,7 +345,7 @@ public class GameService {
     }
 
 
-    public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
+    public ArrayList<IndexPosition> getLegalMoves(Piece piece,Piece[][] board) {
         if (piece instanceof King) {
             return getKingLegalMoves();
         }
@@ -451,15 +453,17 @@ public class GameService {
         if (moveStorage.isEmpty()) {
             return false;
         }
-        for (MoveRecord moveRecord : moveStorage) {
-            if (moveRecord.getMovedFrom().equals(from)) {
+        char expectedFile = (char) ('a' + from.getCol());
+        char expectedRank = (char) ('1' + from.getRow());
+        for (String move : moveStorage) {
+            if (move.charAt(0) == expectedFile && move.charAt(1) == expectedRank) {
                 return true;
             }
         }
         return false;
     }
 
-    public void executeCastle(IndexPosition kingTarget) {
+        public void executeCastle(IndexPosition kingTarget) {
         Piece king = boardUI.getSelected();
         IndexPosition kingFrom = king.getPosition();
         int row = kingFrom.getRow();
@@ -481,10 +485,18 @@ public class GameService {
         piecesOnTheBoard[row][rookToCol] = rook;
 
         // record moves so hasPiecedMoved blocks future castling
-        moveStorage.add(new MoveRecord("King", kingFrom, kingTarget));
-        moveStorage.add(new MoveRecord("Rook", new IndexPosition(row, rookFromCol), new IndexPosition(row, rookToCol)));
+        moveStorage.add(parseInputData(new MoveRecord("King", kingFrom, kingTarget)) );
 
         boardUI.setSelected(null);
+    }
+
+    // a method for the promotion logic of the pawn( hard coded to auto promotion to the queen just for this iteration)
+    public void executePromotion(IndexPosition nextMove) {
+        Pawn pawn = (Pawn) boardUI.getSelected();
+        Queen queen = new Queen(pawn.getColor(), nextMove);
+        piecesOnTheBoard[pawn.getPosition().getRow()][pawn.getPosition().getCol()] = null;
+        piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = queen;
+        moveStorage.add(parseInputData(new MoveRecord("Queen", pawn.getPosition(), nextMove)) );
     }
 
     public boolean isCheckmate() {
@@ -506,6 +518,53 @@ public class GameService {
                 || drawService.isFiftyMoveRule()
                 || drawService.isThreefoldRepetition();
     }
+
+
+    public String parseInputData(MoveRecord moveRecord) {
+
+        IndexPosition from = moveRecord.getMovedFrom();
+        IndexPosition to   = moveRecord.getMovedTo();
+
+        char fileMovedFrom = (char) ('a' + from.getCol());
+        int  rankMovedFrom = from.getRow() + 1;
+        char fileMovedTo   = (char) ('a' + to.getCol());
+        int  rankMovedTo   = to.getRow() + 1;
+
+        return "" + fileMovedFrom + rankMovedFrom + fileMovedTo + rankMovedTo;
+    }
+    public String extractMove(JSONObject json) {
+        if (!json.getBoolean("success")) {
+            throw new RuntimeException("Engine error");
+        }
+        String raw = json.getString("bestmove");        // "bestmove e2e4 ponder e7e5"
+        String[] parts = raw.split("\\s+");
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Unexpected bestmove line: " + raw);
+        }
+        return parts[1];
+    }
+
+    public EngineMove decodeInputData(String uci) {
+        if (uci == null || uci.equals("(none)") || uci.equals("0000")) {
+            return null;
+        }
+        if (uci.length() != 4 && uci.length() != 5) {
+            throw new IllegalArgumentException("Invalid UCI move: " + uci);
+        }
+        int fromCol = uci.charAt(0) - 'a';
+        int fromRow = uci.charAt(1) - '1';
+        int toCol   = uci.charAt(2) - 'a';
+        int toRow   = uci.charAt(3) - '1';
+
+        Character promotion = uci.length() == 5 ? uci.charAt(4) : null;
+
+        return new EngineMove(
+                new IndexPosition(fromRow, fromCol),
+                new IndexPosition(toRow,   toCol),
+                promotion
+        );
+    }
+
 
 }
 
