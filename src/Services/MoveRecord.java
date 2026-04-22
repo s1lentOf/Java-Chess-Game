@@ -6,11 +6,13 @@ public class MoveRecord {
     private String pieceName;
     private IndexPosition movedFrom;
     private IndexPosition movedTo;
+    private Character promotionPiece;
 
-    public MoveRecord(String pieceName, IndexPosition movedFrom, IndexPosition movedTo) {
+    public MoveRecord(String pieceName, IndexPosition movedFrom, IndexPosition movedTo, Character promotionPiece) {
         this.pieceName = pieceName;
         this.movedFrom = movedFrom;
         this.movedTo = movedTo;
+        this.promotionPiece = promotionPiece;
     }
     public String getPieceName() {
         return pieceName;
@@ -30,6 +32,7 @@ public class MoveRecord {
     public void setMovedTo(IndexPosition movedTo) {
         this.movedTo = movedTo;
     }
+    public Character getPromotionPiece() {return promotionPiece;}
 
 
 

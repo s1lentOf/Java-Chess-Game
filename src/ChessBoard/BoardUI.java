@@ -260,9 +260,11 @@ public class BoardUI {
 
         board[promotionTarget.getRow()]
                 [promotionTarget.getCol()] = selectedPiece;
+        service.recordPromotion(selectedPiece,promotionPawn.getPosition(),promotionTarget);
 
         isPromoting = false;
         selected = null;
+
 
         refreshBoard();
     }

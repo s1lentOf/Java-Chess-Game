@@ -326,7 +326,7 @@ public class GameService {
 
         getPiecesOnTheBoard()[nextMove.getRow()][nextMove.getCol()] = selected;
 
-        moveStorage.add(parseInputData(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove)) );
+        moveStorage.add(addToMoveRecord(new MoveRecord(selected.getClass().getSimpleName(), oldPos, nextMove, null)));
 
         boardUI.setSelected(null);
     }
@@ -334,19 +334,19 @@ public class GameService {
     public void updateMoveResult() {
         moveResult.reset();
 
-        if(isCheckmate()){
+        if (isCheckmate()) {
             ColorForChessPieces winner = currentColorToMove == WHITE ? BLACK : WHITE;
             moveResult.setCheckmate(winner);
             return;
         }
 
-        if(drawService.isStalemate()){
+        if (drawService.isStalemate()) {
             moveResult.setDraw("Stalemate");
-        } else if(drawService.isInsufficientMaterial()){
+        } else if (drawService.isInsufficientMaterial()) {
             moveResult.setDraw("Insufficient material");
-        } else if(drawService.isFiftyMoveRule()){
+        } else if (drawService.isFiftyMoveRule()) {
             moveResult.setDraw("50-Move Rule");
-        } else if(drawService.isThreefoldRepetition()){
+        } else if (drawService.isThreefoldRepetition()) {
             moveResult.setDraw("Threefold repetition");
         }
     }
@@ -365,7 +365,7 @@ public class GameService {
     }
 
 
-    public ArrayList<IndexPosition> getLegalMoves(Piece piece,Piece[][] board) {
+    public ArrayList<IndexPosition> getLegalMoves(Piece piece, Piece[][] board) {
         if (piece instanceof King) {
             return getKingLegalMoves();
         }
@@ -483,7 +483,7 @@ public class GameService {
         return false;
     }
 
-        public void executeCastle(IndexPosition kingTarget) {
+    public void executeCastle(IndexPosition kingTarget) {
         Piece king = boardUI.getSelected();
         IndexPosition kingFrom = king.getPosition();
         int row = kingFrom.getRow();
@@ -505,7 +505,7 @@ public class GameService {
         piecesOnTheBoard[row][rookToCol] = rook;
 
         // record moves so hasPiecedMoved blocks future castling
-        moveStorage.add(parseInputData(new MoveRecord("King", kingFrom, kingTarget)) );
+        moveStorage.add(addToMoveRecord(new MoveRecord("King", kingFrom, kingTarget, null)));
 
         boardUI.setSelected(null);
     }
@@ -516,7 +516,7 @@ public class GameService {
         Queen queen = new Queen(pawn.getColor(), nextMove);
         piecesOnTheBoard[pawn.getPosition().getRow()][pawn.getPosition().getCol()] = null;
         piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()] = queen;
-        moveStorage.add(parseInputData(new MoveRecord("Queen", pawn.getPosition(), nextMove)) );
+        moveStorage.add(addToMoveRecord(new MoveRecord("Queen", pawn.getPosition(), nextMove, null)));
     }
 
     public boolean isCheckmate() {
@@ -540,18 +540,36 @@ public class GameService {
     }
 
 
-    public String parseInputData(MoveRecord moveRecord) {
+    public String addToMoveRecord(MoveRecord moveRecord) {
 
         IndexPosition from = moveRecord.getMovedFrom();
-        IndexPosition to   = moveRecord.getMovedTo();
+        IndexPosition to = moveRecord.getMovedTo();
 
         char fileMovedFrom = (char) ('a' + from.getCol());
-        int  rankMovedFrom = from.getRow() + 1;
-        char fileMovedTo   = (char) ('a' + to.getCol());
-        int  rankMovedTo   = to.getRow() + 1;
+        int rankMovedFrom = from.getRow() + 1;
+        char fileMovedTo = (char) ('a' + to.getCol());
+        int rankMovedTo = to.getRow() + 1;
+        String uci = "" + fileMovedFrom + rankMovedFrom + fileMovedTo + rankMovedTo;
+        if (moveRecord.getPromotionPiece() != null) {
+            uci += moveRecord.getPromotionPiece();
+        }
 
-        return "" + fileMovedFrom + rankMovedFrom + fileMovedTo + rankMovedTo;
+        return uci;
     }
+
+    public void recordPromotion(Piece promoted, IndexPosition promotedFrom, IndexPosition promotedTo) {
+        char letter = switch (promoted.getClass().getSimpleName()) {
+            case "Queen" -> 'q';
+            case "Rook" -> 'r';
+            case "Bishop" -> 'b';
+            case "Knight" -> 'n';
+            default ->
+                    throw new IllegalStateException("Invalid promotion piece: " + promoted.getClass().getSimpleName());
+        };
+        MoveRecord record = new MoveRecord(promoted.getClass().getSimpleName(), promotedFrom, promotedTo, letter);
+        moveStorage.add(addToMoveRecord(record));
+    }
+
     public String extractMove(JSONObject json) {
         if (!json.getBoolean("success")) {
             throw new RuntimeException("Engine error");
@@ -573,14 +591,14 @@ public class GameService {
         }
         int fromCol = uci.charAt(0) - 'a';
         int fromRow = uci.charAt(1) - '1';
-        int toCol   = uci.charAt(2) - 'a';
-        int toRow   = uci.charAt(3) - '1';
+        int toCol = uci.charAt(2) - 'a';
+        int toRow = uci.charAt(3) - '1';
 
         Character promotion = uci.length() == 5 ? uci.charAt(4) : null;
 
         return new EngineMove(
                 new IndexPosition(fromRow, fromCol),
-                new IndexPosition(toRow,   toCol),
+                new IndexPosition(toRow, toCol),
                 promotion
         );
     }
