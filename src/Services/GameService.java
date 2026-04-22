@@ -462,15 +462,11 @@ public class GameService {
     }
 
     public boolean isDraw() {
-        if (drawService.isStalemate()) {
-            return true;
-        } else if (drawService.isInsufficientMaterial()) {
-            return true;
-        }
-
-        return false;
+        return drawService.isStalemate()
+                || drawService.isInsufficientMaterial()
+                || drawService.isFiftyMoveRule()
+                || drawService.isThreefoldRepetition();
     }
-
 
 }
 
