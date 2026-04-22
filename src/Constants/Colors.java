@@ -10,7 +10,7 @@ public enum Colors {
 
     private final Color color;
 
-    private Colors(int r, int g, int b) {
+    Colors(int r, int g, int b) {
         this.color = new Color(r, g, b);
     }
 

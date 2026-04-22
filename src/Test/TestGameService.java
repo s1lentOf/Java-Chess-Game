@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
     private static GameService gameService;
-    private static BoardUI boardUI = new BoardUI();
+    private static final BoardUI boardUI = new BoardUI();
 
     @BeforeAll
     public static void setup() {

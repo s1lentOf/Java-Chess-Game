@@ -122,7 +122,7 @@ public class TestPawn {
         service.selectPiece(6,3);
         service.moveSelectedPiece(new IndexPosition(7,3));
 
-        assertTrue(service.getPiecesOnTheBoard()[7][3] instanceof  Queen);
+        assertInstanceOf(Queen.class, service.getPiecesOnTheBoard()[7][3]);
     }
 
     @Test
@@ -184,6 +184,7 @@ public class TestPawn {
         for (IndexPosition move : moves) {
             if (move.getRow() == 5 && move.getCol() == 4) {
                 found = true;
+                break;
             }
         }
         assertFalse(found, "En passant should not be possible if no pawn moved two squares last turn");
@@ -204,6 +205,7 @@ public class TestPawn {
         for (IndexPosition move : moves) {
             if (move.getRow() == 5 && move.getCol() == 5) {
                 found = true;
+                break;
             }
         }
         assertFalse(found, "En passant should not be possible if the pawn is not adjacent");

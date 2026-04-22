@@ -4,6 +4,7 @@ import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Constants.Colors;
 import Services.GameService;
+import Services.MoveRecord;
 import Services.MoveResult;
 
 import javax.swing.*;
@@ -16,11 +17,39 @@ public class BoardUI {
 
     private Piece selected = null;
 
-    private JButton[][] squares = new JButton[8][8];
+    private final JButton[][] squares = new JButton[8][8];
 
-    private GameService service = new GameService(this);
+    private final GameService service = new GameService(this);
 
     private JFrame gameWindow;
+
+    private boolean isPromoting = false;
+
+    private int promotionCol;
+
+    private int promotionRow;
+
+    private Piece[] promotionOptions;
+
+    public boolean isPromoting() {
+        return isPromoting;
+    }
+
+    public Piece[] getPromotionOptions() {
+        return promotionOptions;
+    }
+
+    public int getPromotionCol() {
+        return promotionCol;
+    }
+
+    public int getPromotionRow() {
+        return promotionRow;
+    }
+
+    private Pawn promotionPawn;
+    private IndexPosition promotionTarget;
+
 
     // getters for easier testing
     public Piece getSelected() {
@@ -162,6 +191,32 @@ public class BoardUI {
                     targetSquare.setIcon(new ImageIcon(image));
                 }
             }
+
+            // drawing of the pop-up for the promotion of the piece by creating a background,
+            // which depends on the color of the piece
+            if (isPromoting) {
+                for (int i = 0; i < 4; i++) {
+                    int row = (promotionRow == 0) ? i : 7 - i;
+                    JButton square = squares[row][promotionCol];
+
+                    int size = 75;
+                    BufferedImage composite = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g = composite.createGraphics();
+                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                    boolean isWhitePromotion = promotionPawn.getColor() == ColorForChessPieces.WHITE;
+                    Color bgColor  = isWhitePromotion ? new Color(50, 50, 50) : new Color(245, 245, 245);
+
+                    g.setColor(bgColor);
+                    g.fillRoundRect(0, 0, size, size, 8, 8);
+
+                    BufferedImage pieceImage = promotionOptions[i].paint();
+                    g.drawImage(pieceImage, 0, 0, null);
+
+                    g.dispose();
+                    square.setIcon(new ImageIcon(composite));
+                }
+            }
         }
 
         MoveResult result = service.getMoveResult();
@@ -173,5 +228,44 @@ public class BoardUI {
             String message = "Draw by " + result.getDrawReason() + "!";
             showGameOver(message);
         }
+    }
+
+    // a method to start the promotion of the pawn when it reaches the back rank
+    // it creates options for the promoting piece and refreshes board to display the overlay
+    public void startPromotion(Pawn pawn, IndexPosition target) {
+        this.isPromoting = true;
+        this.promotionPawn = pawn;
+        this.promotionTarget = target;
+
+        this.promotionCol = target.getCol();
+        this.promotionRow = target.getRow();
+
+        promotionOptions = new Piece[]{
+                new Queen(pawn.getColor(), null),
+                new Knight(pawn.getColor(), null),
+                new Rook(pawn.getColor(), null),
+                new Bishop(pawn.getColor(), null)
+        };
+
+        refreshBoard();
+    }
+
+    // a method to finish the promotion by placing the selected piece on the target square
+    // and removing the original pawn from the board then it refreshes the board
+    public void finishPromotion(Piece selectedPiece) {
+        selectedPiece.setPosition(promotionTarget);
+
+        Piece[][] board = service.getPiecesOnTheBoard();
+
+        board[promotionPawn.getPosition().getRow()]
+                [promotionPawn.getPosition().getCol()] = null;
+
+        board[promotionTarget.getRow()]
+                [promotionTarget.getCol()] = selectedPiece;
+
+        isPromoting = false;
+        selected = null;
+
+        refreshBoard();
     }
 }
