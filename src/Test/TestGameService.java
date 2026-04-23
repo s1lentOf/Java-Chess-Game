@@ -374,9 +374,9 @@ public class TestGameService {
     @Test
     @DisplayName("Move is parsed from MoveRecord to input data")
     void testMoveIsParsedFromMoveRecordToInputData() {
-        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5));
+        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5),null);
 
-        String parsedMove = gameService.parseInputData(move);
+        String parsedMove = gameService.addToMoveRecord(move);
         assertEquals(parsedMove,"e5f6");
     }
 

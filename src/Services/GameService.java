@@ -570,39 +570,6 @@ public class GameService {
         moveStorage.add(addToMoveRecord(record));
     }
 
-    public String extractMove(JSONObject json) {
-        if (!json.getBoolean("success")) {
-            throw new RuntimeException("Engine error");
-        }
-        String raw = json.getString("bestmove");        // "bestmove e2e4 ponder e7e5"
-        String[] parts = raw.split("\\s+");
-        if (parts.length < 2) {
-            throw new IllegalArgumentException("Unexpected bestmove line: " + raw);
-        }
-        return parts[1];
-    }
-
-    public EngineMove decodeInputData(String uci) {
-        if (uci == null || uci.equals("(none)") || uci.equals("0000")) {
-            return null;
-        }
-        if (uci.length() != 4 && uci.length() != 5) {
-            throw new IllegalArgumentException("Invalid UCI move: " + uci);
-        }
-        int fromCol = uci.charAt(0) - 'a';
-        int fromRow = uci.charAt(1) - '1';
-        int toCol = uci.charAt(2) - 'a';
-        int toRow = uci.charAt(3) - '1';
-
-        Character promotion = uci.length() == 5 ? uci.charAt(4) : null;
-
-        return new EngineMove(
-                new IndexPosition(fromRow, fromCol),
-                new IndexPosition(toRow, toCol),
-                promotion
-        );
-    }
-
 
 }
 
