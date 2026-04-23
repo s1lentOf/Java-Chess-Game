@@ -97,6 +97,10 @@ public class GameService {
         piecesOnTheBoard[row][col] = piece;
     }
 
+    public ArrayList<String> getMoveStorage() {
+        return moveStorage;
+    }
+
     public void setUpPiecesOnTheBoard() {
 
         // Pawns
@@ -570,7 +574,43 @@ public class GameService {
         moveStorage.add(addToMoveRecord(record));
     }
 
+    public void applyBotMove(EngineMove move) {
+        IndexPosition from = move.getFrom();
+        IndexPosition to = move.getTo();
+        Character promotion = move.getPromotion();
+
+        Piece moving = piecesOnTheBoard[from.getRow()][from.getCol()];
+        piecesOnTheBoard[from.getRow()][from.getCol()] = null;
+        Piece placed;
+        if (promotion != null) {
+            placed = createPromotedPiece(promotion, moving.getColor(), to);
+        } else {
+            moving.setPosition(to);
+            placed = moving;
+        }
+        piecesOnTheBoard[to.getRow()][to.getCol()] = placed;
+
+        String pieceName = (promotion != null)
+                ? placed.getClass().getSimpleName()
+                : moving.getClass().getSimpleName();
+        moveStorage.add(addToMoveRecord(new MoveRecord(pieceName, from, to, promotion)));
+
+        moveCounter++;
+        changeColorToMove();
+    }
+
+
+    private Piece createPromotedPiece(char promotion, ColorForChessPieces color, IndexPosition pos) {
+        return switch (Character.toLowerCase(promotion)) {
+            case 'q' -> new Queen(color, pos);
+            case 'r' -> new Rook(color, pos);
+            case 'b' -> new Bishop(color, pos);
+            case 'n' -> new Knight(color, pos);
+            default -> throw new IllegalArgumentException("Invalid promotion char: " + promotion);
+        };
+    }
 
 }
+
 
 
