@@ -312,7 +312,8 @@ public class GameService {
         // detect castling
         if (selected instanceof King
                 && Math.abs(nextMove.getCol() - oldPos.getCol()) == 2) {
-            executeCastle(nextMove);
+            executeCastle(selected, nextMove);
+            boardUI.setSelected(null);
             return;
         }
 
@@ -487,8 +488,7 @@ public class GameService {
         return false;
     }
 
-    public void executeCastle(IndexPosition kingTarget) {
-        Piece king = boardUI.getSelected();
+    public void executeCastle(Piece king, IndexPosition kingTarget) {
         IndexPosition kingFrom = king.getPosition();
         int row = kingFrom.getRow();
 
@@ -508,10 +508,7 @@ public class GameService {
         rook.setPosition(new IndexPosition(row, rookToCol));
         piecesOnTheBoard[row][rookToCol] = rook;
 
-        // record moves so hasPiecedMoved blocks future castling
         moveStorage.add(addToMoveRecord(new MoveRecord("King", kingFrom, kingTarget, null)));
-
-        boardUI.setSelected(null);
     }
 
     // a method for the promotion logic of the pawn( hard coded to auto promotion to the queen just for this iteration)
@@ -580,6 +577,18 @@ public class GameService {
         Character promotion = move.getPromotion();
 
         Piece moving = piecesOnTheBoard[from.getRow()][from.getCol()];
+
+        // detect castling: king moving 2 squares horizontally
+        if (moving instanceof King && Math.abs(to.getCol() - from.getCol()) == 2) {
+            executeCastle(moving, to);
+            moveCounter++;
+            changeColorToMove();
+            drawService.recordBoardState();
+            drawService.updateHalfMoveClock(moving, null);
+            return;
+        }
+
+        Piece captured = piecesOnTheBoard[to.getRow()][to.getCol()];
         piecesOnTheBoard[from.getRow()][from.getCol()] = null;
         Piece placed;
         if (promotion != null) {
@@ -597,6 +606,9 @@ public class GameService {
 
         moveCounter++;
         changeColorToMove();
+
+        drawService.recordBoardState();
+        drawService.updateHalfMoveClock(moving, captured);
     }
 
 
