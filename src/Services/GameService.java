@@ -583,8 +583,10 @@ public class GameService {
             executeCastle(moving, to);
             moveCounter++;
             changeColorToMove();
+            playPostMoveSound(false);
             drawService.recordBoardState();
             drawService.updateHalfMoveClock(moving, null);
+            updateMoveResult();
             return;
         }
 
@@ -606,9 +608,11 @@ public class GameService {
 
         moveCounter++;
         changeColorToMove();
+        playPostMoveSound(captured != null);
 
         drawService.recordBoardState();
         drawService.updateHalfMoveClock(moving, captured);
+        updateMoveResult();
     }
 
 
