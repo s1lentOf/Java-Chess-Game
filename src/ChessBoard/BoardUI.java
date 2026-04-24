@@ -156,6 +156,17 @@ public class BoardUI {
         endScreen.setVisible(true);
     }
 
+    private void resetGame() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].setIcon(null);
+            }
+        }
+        selected = null;
+        service.resetGame();
+        initialDrawOfPieces();
+    }
+
     private void initialDrawOfPieces() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -272,10 +283,10 @@ public class BoardUI {
 
         if (result.getCheckmate()) {
             String message = "Checkmate! " + result.getColorToWin() + " wins!";
-            showGameOver(message);
+            showEndScreen(message);
         } else if (result.getDraw()) {
             String message = "Draw by " + result.getDrawReason() + "!";
-            showGameOver(message);
+            showEndScreen(message);
         }
     }
 

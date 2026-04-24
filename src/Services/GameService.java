@@ -603,6 +603,25 @@ public class GameService {
         );
     }
 
+    public void resetGame(){
+        //clear the board
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                piecesOnTheBoard[row][col] = null;
+            }
+        }
+        //reset all state
+        moveCounter = 1;
+        currentColorToMove = WHITE;
+        lastDoubleStepPawn = null;
+        moveStorage.clear();
+        moveResult.reset();
+        drawService = new DrawService(checkService, this);
+        boardUI.setSelected(null);
+
+        // set up pieces again
+        setUpPiecesOnTheBoard();
+    }
 
 }
 
