@@ -225,6 +225,7 @@ public class GameService {
                 playPostMoveSound(true);
                 drawService.recordBoardState();
                 drawService.updateHalfMoveClock(selected, targetPiece);
+                updateMoveResult();
             }
         }
     }
