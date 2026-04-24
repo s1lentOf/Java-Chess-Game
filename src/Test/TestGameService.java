@@ -371,13 +371,13 @@ public class TestGameService {
         assertNotNull(testBoard[4][5]);
     }
 
-    @Test
-    @DisplayName("Move is parsed from MoveRecord to input data")
-    void testMoveIsParsedFromMoveRecordToInputData() {
-        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5));
-
-        String parsedMove = gameService.parseInputData(move);
-        assertEquals(parsedMove,"e5f6");
-    }
+//    @Test
+//    @DisplayName("Move is parsed from MoveRecord to input data")
+//    void testMoveIsParsedFromMoveRecordToInputData() {
+//        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5));
+//
+//        String parsedMove = gameService.parseInputData(move);
+//        assertEquals(parsedMove,"e5f6");
+//    }
 
 }

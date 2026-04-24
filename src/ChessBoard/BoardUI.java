@@ -99,6 +99,7 @@ public class BoardUI {
     public void showEndScreen(String message) {
         // create a modal dialog
         JDialog endScreen = new JDialog(gameWindow, "Game Over", true);
+
         endScreen.setSize(400, 250);
         endScreen.setLocationRelativeTo(gameWindow);
         endScreen.setResizable(false);
@@ -129,7 +130,7 @@ public class BoardUI {
         playAgainButton.setBackground(new Color(255, 255, 255));
         playAgainButton.setForeground(Color.BLACK);
         playAgainButton.setFocusPainted(false);
-        playAgainButton.setBorderPainted(false);
+        playAgainButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         playAgainButton.setPreferredSize(new Dimension(140, 45));
         playAgainButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         playAgainButton.addActionListener(e -> {
@@ -143,15 +144,18 @@ public class BoardUI {
         exitButton.setBackground(new Color(255, 255, 255));
         exitButton.setForeground(Color.BLACK);
         exitButton.setFocusPainted(false);
-        exitButton.setBorderPainted(false);
+        exitButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         exitButton.setPreferredSize(new Dimension(140, 45));
         exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         exitButton.addActionListener(e -> System.exit(0));
 
+        mainPanel.add(Box.createVerticalGlue());
         mainPanel.add(messageLabel);
         buttonPanel.add(playAgainButton);
         buttonPanel.add(exitButton);
+        mainPanel.add(Box.createVerticalGlue());
         mainPanel.add(buttonPanel);
+        mainPanel.add(Box.createVerticalGlue());
         endScreen.add(mainPanel, BorderLayout.CENTER);
         endScreen.setVisible(true);
     }
