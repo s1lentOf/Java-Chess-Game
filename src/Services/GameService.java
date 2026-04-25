@@ -578,6 +578,8 @@ public class GameService {
 
         Piece moving = piecesOnTheBoard[from.getRow()][from.getCol()];
 
+        updateLastDoubleStepPawn(moving, to);
+
         // detect castling: king moving 2 squares horizontally
         if (moving instanceof King && Math.abs(to.getCol() - from.getCol()) == 2) {
             executeCastle(moving, to);
@@ -590,7 +592,19 @@ public class GameService {
             return;
         }
 
+        // detect en passant: pawn moves diagonally to an empty destination
+        boolean isEnPassant = moving instanceof Pawn
+                && from.getCol() != to.getCol()
+                && piecesOnTheBoard[to.getRow()][to.getCol()] == null;
+
         Piece captured = piecesOnTheBoard[to.getRow()][to.getCol()];
+        if (isEnPassant) {
+            int capturedRow = from.getRow();
+            int capturedCol = to.getCol();
+            captured = piecesOnTheBoard[capturedRow][capturedCol];
+            piecesOnTheBoard[capturedRow][capturedCol] = null;
+        }
+
         piecesOnTheBoard[from.getRow()][from.getCol()] = null;
         Piece placed;
         if (promotion != null) {

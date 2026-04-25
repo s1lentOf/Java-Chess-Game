@@ -2,7 +2,7 @@ package Constants;
 
 public enum Environment {
     TEST("https://jsonplaceholder.typicode.com"), // Test URL.
-    PROD("https://test-api.com"); // Our real base URL for production.
+    PROD("https://chess-game-engine-backend.online"); // Our real base URL for production.
 
     private final String baseURL;
 

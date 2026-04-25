@@ -1,9 +1,9 @@
 package Constants;
 
 public enum Endpoint {
-    STARTGAME ("/posts", "/start"),
-    STOPGAME ("/posts","/stop"),
-    REQUESTMOVE ( "/posts","/request");
+    STARTGAME ("/posts", "/api/start"),
+    STOPGAME ("/posts","/api/stop"),
+    REQUESTMOVE ( "/posts","/api/request");
 
     private final String testPath;
     private final String prodPath;
