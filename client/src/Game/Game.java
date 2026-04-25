@@ -1,6 +1,9 @@
 package Game;
 
 import ChessBoard.BoardUI;
+import Constants.ColorForChessPieces;
+import Constants.GameMode;
+import Services.GameManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +12,14 @@ import java.awt.*;
 public class Game {
 
     private JFrame window;
-    private final BoardUI boardUI = new BoardUI();
+    private final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT, ColorForChessPieces.WHITE);
+    private GameManager gameManager;
 
     public Game() {
         setupWindow();
         boardUI.setupBoard(window);
+        gameManager = boardUI.getGameManager();
+        gameManager.start();
         this.window.setVisible(true); // we make the window visible after all setup is made
     }
 

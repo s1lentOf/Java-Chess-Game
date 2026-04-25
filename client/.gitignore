@@ -1,0 +1,7 @@
+# Java build output
+out/
+bin/
+*.class
+
+# Local Claude Code state
+.claude/
