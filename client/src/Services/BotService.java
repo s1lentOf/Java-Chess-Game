@@ -9,13 +9,12 @@ import java.util.List;
 public class BotService {
     private NetworkService networkService;
     private Environment environment;
-    private final int skillLevel;
-    private final int depth = 12;
+    private final int level;
 
-    public BotService(NetworkService networkService, Environment environment, int skillLevel) {
+    public BotService(NetworkService networkService, Environment environment, int level) {
         this.networkService = networkService;
         this.environment = environment;
-        this.skillLevel = skillLevel;
+        this.level = level;
     }
 
     public EngineMove getBestMove(List<String> moves) {
@@ -27,9 +26,9 @@ public class BotService {
 
     public void startSession() {
         JSONObject payload = new JSONObject();
-        payload.put("skillLevel", skillLevel);
-//        payload.put("depth", depth);
-        networkService.POST(payload, Endpoint.STARTGAME, environment);
+        payload.put("level", level);
+        JSONObject resp = networkService.POST(payload, Endpoint.STARTGAME, environment);
+        System.out.println("[startSession] sent=" + payload + " resp=" + resp);
     }
 
     public void endSession() {
