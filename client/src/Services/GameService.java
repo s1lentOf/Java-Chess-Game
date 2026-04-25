@@ -192,6 +192,7 @@ public class GameService {
 
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
+            if (boardUI.isPromoting()) return;
             moveCounter++;
             changeColorToMove();
             playPostMoveSound(isEnPassant);
@@ -224,6 +225,7 @@ public class GameService {
                 System.out.println("Captured piece");
                 Piece selected = boardUI.getSelected();
                 capturePiece(nextMove);
+                if (boardUI.isPromoting()) return;
                 moveCounter++;
                 changeColorToMove();
                 playPostMoveSound(true);
@@ -574,6 +576,13 @@ public class GameService {
         };
         MoveRecord record = new MoveRecord(promoted.getClass().getSimpleName(), promotedFrom, promotedTo, letter);
         moveStorage.add(addToMoveRecord(record));
+
+        moveCounter++;
+        changeColorToMove();
+        playPostMoveSound(false);
+        drawService.recordBoardState();
+        drawService.updateHalfMoveClock(promoted, null);
+        updateMoveResult();
     }
 
     public void applyBotMove(EngineMove move) {

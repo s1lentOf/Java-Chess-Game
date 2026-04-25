@@ -3,6 +3,7 @@ package Test;
 import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
+import Constants.GameMode;
 import Services.GameService;
 import Services.MoveRecord;
 import org.junit.jupiter.api.*;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
     private static GameService gameService;
-    private static final BoardUI boardUI = new BoardUI();
+    private static final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT,ColorForChessPieces.WHITE);
 
     @BeforeAll
     public static void setup() {

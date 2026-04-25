@@ -25,10 +25,9 @@ public class BoardUI {
     private final JButton[][] squares = new JButton[8][8];
 
     private final GameService service = new GameService(this);
-    private final GameManager manager;
+    private  GameManager manager;
 
     public BoardUI() {
-        this(GameMode.HUMAN_VS_BOT, ColorForChessPieces.BLACK);
     }
 
     public BoardUI(GameMode mode, ColorForChessPieces humanColor) {
@@ -37,7 +36,7 @@ public class BoardUI {
         } else {
             this.manager = new GameManager(
                     service,
-                    new BotService(new NetworkService(), Environment.PROD, 10),
+                    new BotService(new NetworkService(), Environment.PROD, 0),
                     humanColor);
         }
     }
