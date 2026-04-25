@@ -61,6 +61,9 @@ public class GameManager {
                     EngineMove move = get();
                     if(move!=null){
                         gameService.applyBotMove(move);
+                        if (gameService.getBoardUI() != null) {
+                            gameService.getBoardUI().refreshBoard();
+                        }
                     }
                 }catch (Exception e){
                     e.printStackTrace();

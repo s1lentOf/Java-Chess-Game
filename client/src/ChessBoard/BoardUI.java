@@ -28,7 +28,7 @@ public class BoardUI {
     private final GameManager manager;
 
     public BoardUI() {
-        this(GameMode.HUMAN_VS_BOT, ColorForChessPieces.BLACK);
+        this(GameMode.HUMAN_VS_BOT, ColorForChessPieces.WHITE);
     }
 
     public BoardUI(GameMode mode, ColorForChessPieces humanColor) {
@@ -37,7 +37,7 @@ public class BoardUI {
         } else {
             this.manager = new GameManager(
                     service,
-                    new BotService(new NetworkService(), Environment.PROD, 10),
+                    new BotService(new NetworkService(), Environment.PROD, 1),
                     humanColor);
         }
     }

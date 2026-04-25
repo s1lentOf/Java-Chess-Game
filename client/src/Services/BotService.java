@@ -28,8 +28,8 @@ public class BotService {
     public void startSession() {
         JSONObject payload = new JSONObject();
         payload.put("skillLevel", skillLevel);
-        payload.put("depth", depth);
-
+//        payload.put("depth", depth);
+        networkService.POST(payload, Endpoint.STARTGAME, environment);
     }
 
     public void endSession() {
