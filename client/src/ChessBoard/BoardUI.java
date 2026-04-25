@@ -3,9 +3,14 @@ package ChessBoard;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
 import Constants.Colors;
+import Constants.Environment;
+import Constants.GameMode;
+import Services.BotService;
+import Services.GameManager;
 import Services.GameService;
 import Services.MoveRecord;
 import Services.MoveResult;
+import Services.NetworkService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +25,22 @@ public class BoardUI {
     private final JButton[][] squares = new JButton[8][8];
 
     private final GameService service = new GameService(this);
+    private final GameManager manager;
+
+    public BoardUI() {
+        this(GameMode.HUMAN_VS_BOT, ColorForChessPieces.BLACK);
+    }
+
+    public BoardUI(GameMode mode, ColorForChessPieces humanColor) {
+        if (mode == GameMode.HUMAN_VS_HUMAN) {
+            this.manager = new GameManager(service);
+        } else {
+            this.manager = new GameManager(
+                    service,
+                    new BotService(new NetworkService(), Environment.PROD, 10),
+                    humanColor);
+        }
+    }
 
     private JFrame gameWindow;
 
@@ -45,6 +66,10 @@ public class BoardUI {
 
     public int getPromotionRow() {
         return promotionRow;
+    }
+
+    public GameManager getGameManager() {
+        return manager;
     }
 
     private Pawn promotionPawn;
@@ -83,8 +108,12 @@ public class BoardUI {
                 int currentCol = col;
 
                 square.addActionListener(e -> {
-                    service.handleSquareClick(new IndexPosition(currentRow, currentCol));
+                    int moveCounterBefore = manager.getGameService().getMoveCounter();
+                    manager.getGameService().handleSquareClick(new IndexPosition(currentRow, currentCol));
                     refreshBoard();
+                    if (manager.getGameService().getMoveCounter() != moveCounterBefore) {
+                        manager.onHumanMove();
+                    }
                 });
 
                 squares[row][col] = square;
@@ -92,7 +121,7 @@ public class BoardUI {
             }
         }
 
-        service.setUpPiecesOnTheBoard();
+        manager.getGameService().setUpPiecesOnTheBoard();
         initialDrawOfPieces();
     }
 
@@ -108,7 +137,7 @@ public class BoardUI {
     private void initialDrawOfPieces() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                Piece piece = service.getPiecesOnTheBoard()[row][col];
+                Piece piece = manager.getGameService().getPiecesOnTheBoard()[row][col];
                 if (piece != null) {
                     drawPiece(piece);
                 }
@@ -137,7 +166,7 @@ public class BoardUI {
 
                 square.setIcon(null);
 
-                Piece piece = service.getPiecesOnTheBoard()[row][col];
+                Piece piece = manager.getGameService().getPiecesOnTheBoard()[row][col];
 
                 if (piece != null) {
                     BufferedImage pieceImage = piece.paint();
@@ -148,7 +177,7 @@ public class BoardUI {
 
         // Then, draw elements for squares in possible moves of the selected piece.
         if (selected != null) {
-            ArrayList<IndexPosition> allPossibleMoves = service.getLegalMoves(selected, service.getPiecesOnTheBoard());
+            ArrayList<IndexPosition> allPossibleMoves = manager.getGameService().getLegalMoves(selected, manager.getGameService().getPiecesOnTheBoard());
 
             if (allPossibleMoves != null) {
                 for (IndexPosition move : allPossibleMoves) {
@@ -157,7 +186,7 @@ public class BoardUI {
                     int moveCol = move.getCol();
 
                     JButton targetSquare = squares[moveRow][moveCol];
-                    Piece targetPiece = service.getPiecesOnTheBoard()[moveRow][moveCol];
+                    Piece targetPiece = manager.getGameService().getPiecesOnTheBoard()[moveRow][moveCol];
 
                     int size = 75; // A size of a square.
 
@@ -220,6 +249,7 @@ public class BoardUI {
         MoveResult result = service.getMoveResult();
 
         if (result.getCheckmate()) {
+            System.out.println("Checkmate");
             String message = "Checkmate! " + result.getColorToWin() + " wins!";
             showGameOver(message);
         } else if (result.getDraw()) {
@@ -253,19 +283,20 @@ public class BoardUI {
     public void finishPromotion(Piece selectedPiece) {
         selectedPiece.setPosition(promotionTarget);
 
-        Piece[][] board = service.getPiecesOnTheBoard();
+        Piece[][] board = manager.getGameService().getPiecesOnTheBoard();
 
         board[promotionPawn.getPosition().getRow()]
                 [promotionPawn.getPosition().getCol()] = null;
 
         board[promotionTarget.getRow()]
                 [promotionTarget.getCol()] = selectedPiece;
-        service.recordPromotion(selectedPiece,promotionPawn.getPosition(),promotionTarget);
+        manager.getGameService().recordPromotion(selectedPiece,promotionPawn.getPosition(),promotionTarget);
 
         isPromoting = false;
         selected = null;
 
 
         refreshBoard();
+        manager.onHumanMove();
     }
 }

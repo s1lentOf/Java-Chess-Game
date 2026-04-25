@@ -229,6 +229,7 @@ public class GameService {
                 playPostMoveSound(true);
                 drawService.recordBoardState();
                 drawService.updateHalfMoveClock(selected, targetPiece);
+                updateMoveResult();
             }
         }
     }
@@ -342,6 +343,9 @@ public class GameService {
         if (isCheckmate()) {
             ColorForChessPieces winner = currentColorToMove == WHITE ? BLACK : WHITE;
             moveResult.setCheckmate(winner);
+
+            System.out.println("Checkmate is set");
+
             return;
         }
 
@@ -530,6 +534,7 @@ public class GameService {
         if (kingMoves != null && !kingMoves.isEmpty()) {
             return false; // King can escape, not checkmate
         }
+        System.out.println("Checkmate " + (!checkService.canBlockCheck(currentColorToMove) && !checkService.canCaptureAttacker(currentColorToMove)));
         return !checkService.canBlockCheck(currentColorToMove) && !checkService.canCaptureAttacker(currentColorToMove);
     }
 

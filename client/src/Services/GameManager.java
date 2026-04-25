@@ -22,6 +22,10 @@ public class GameManager {
                 : (humanColor == ColorForChessPieces.WHITE ? ColorForChessPieces.BLACK : ColorForChessPieces.WHITE);
     }
 
+    public GameService getGameService() {
+        return gameService;
+    }
+
     public boolean isBotGame(){
         return botService!=null;
     }

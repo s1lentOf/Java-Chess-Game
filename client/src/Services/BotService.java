@@ -11,13 +11,11 @@ public class BotService {
     private Environment environment;
     private final int skillLevel;
     private final int depth = 12;
-    private String sessionId;
 
     public BotService(NetworkService networkService, Environment environment, int skillLevel) {
         this.networkService = networkService;
         this.environment = environment;
         this.skillLevel = skillLevel;
-        this.sessionId = null;
     }
 
     public EngineMove getBestMove(List<String> moves) {
@@ -32,38 +30,30 @@ public class BotService {
         payload.put("skillLevel", skillLevel);
         payload.put("depth", depth);
 
-        JSONObject response = networkService.POST(payload, Endpoint.STARTGAME, environment);
-        this.sessionId = response.getString("sessionId");
     }
 
     public void endSession() {
-        if (this.sessionId == null) {
-            return;
-        }
-        JSONObject payload = new JSONObject().put("sessionId", this.sessionId);
-        networkService.POST(payload, Endpoint.STOPGAME, environment);
-        sessionId = null;
+        networkService.POST(new JSONObject(),Endpoint.STOPGAME, environment);
     }
 
     private JSONObject buildPayload(List<String> moves) {
         JSONObject payload = new JSONObject();
-        payload.put("sessionId", sessionId);
-        payload.put("moves",String.join(" ",moves));
+        payload.put("move",moves.getLast());
 
         return payload;
     }
 
     // this method extracts the field from jsonbject witha key "move"
     private String extractMove(JSONObject json) {
-        if (!json.getBoolean("success")) {
-            throw new RuntimeException("Engine error");
-        }
+//        if (!json.getBoolean("message")) {
+//            throw new RuntimeException("Engine error");
+//        }
         String raw = json.getString("bestmove");        // "bestmove e2e4 ponder e7e5"
-        String[] parts = raw.split("\\s+");
-        if (parts.length < 2) {
-            throw new IllegalArgumentException("Unexpected bestmove line: " + raw);
-        }
-        return parts[1];
+//        String[] parts = raw.split("\\s+");
+//        if (parts.length < 2) {
+//            throw new IllegalArgumentException("Unexpected bestmove line: " + raw);
+//        }
+        return raw;
     }
 
     private EngineMove decodeInputData(String uci) {
