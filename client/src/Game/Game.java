@@ -12,7 +12,7 @@ import java.awt.*;
 public class Game {
 
     private JFrame window;
-    private final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT, ColorForChessPieces.WHITE);
+    private final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT, ColorForChessPieces.BLACK);
     private GameManager gameManager;
 
     public Game() {

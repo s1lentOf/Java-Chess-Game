@@ -36,7 +36,7 @@ public class BoardUI {
         } else {
             this.manager = new GameManager(
                     service,
-                    new BotService(new NetworkService(), Environment.PROD, 1),
+                    new BotService(new NetworkService(), Environment.PROD, 0),
                     humanColor);
         }
     }

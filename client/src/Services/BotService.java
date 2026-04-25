@@ -37,8 +37,11 @@ public class BotService {
 
     private JSONObject buildPayload(List<String> moves) {
         JSONObject payload = new JSONObject();
-        payload.put("move",moves.getLast());
-
+        if (moves.isEmpty()) {
+            payload.put("move", "");
+            return payload;
+        }
+        payload.put("move", moves.getLast());
         return payload;
     }
 
