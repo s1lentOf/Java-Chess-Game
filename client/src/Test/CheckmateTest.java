@@ -76,4 +76,29 @@ public class CheckmateTest {
         assertFalse(gameService.isCheckmate());
     }
 
+    @Test
+    @DisplayName("Should not be a checkmate if the king is in check, has no escape move, but other piece can capture attacker.")
+    void isCheckmate_kingIsInCheck_noEscapeMove_canCaptureAttacker_shouldReturnFalse() {
+        gameService.setPieceAt(0, 0, new King(WHITE, new IndexPosition(0, 0)));
+        gameService.setPieceAt(1, 0, new Pawn(WHITE, new IndexPosition(1, 0)));
+        gameService.setPieceAt(0, 1, new Bishop(WHITE, new IndexPosition(0, 1)));
+        gameService.setPieceAt(7, 7, new King(BLACK, new IndexPosition(7, 7)));
+        gameService.setPieceAt(1, 1, new Bishop(BLACK, new IndexPosition(1, 1)));
+        gameService.setPieceAt(7, 1, new Queen(WHITE, new IndexPosition(7, 1)));
+
+        /*
+            7  . Q . . . . . k
+            6  . . . . . . . .
+            5  . . . . . . . .
+            4  . . . . . . . .
+            3  . . . . . . . .
+            2  . . . . . . . .
+            1  P b . . . . . .
+            0  K B . . . . .
+               0 1 2 3 4 5 6 7
+         */
+
+        assertFalse(gameService.isCheckmate());
+    }
+
 }
