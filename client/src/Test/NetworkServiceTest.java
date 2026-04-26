@@ -65,4 +65,15 @@ class NetworkServiceTest {
         assertEquals(200, response.getStatusCode());
         assertEquals("Engine stopped.", response.getBody().getString("message"));
     }
+
+    @Test
+    void post_stopGame_inProdEnv_engineWasNotRunning_shouldReturnErrorMessage() {
+        JSONObject request = new JSONObject();
+
+        NetworkResponse response = networkService.POST(request, Endpoint.STOPGAME, Environment.PROD);
+
+        assertNotNull(response);
+        assertEquals(409, response.getStatusCode());
+        assertEquals("No game is running.", response.getBody().getString("message"));
+    }
 }
