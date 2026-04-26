@@ -56,6 +56,18 @@ class NetworkServiceTest {
     }
 
     @Test
+    void post_startGame_inProdEnv_engineAlreadyStarted_withoutLevelInBody_shouldReturnEngineStartedMessageAndMaximumLevel() {
+        JSONObject request = new JSONObject();
+
+        NetworkResponse response = networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode());
+        assertEquals("Engine started and ready.", response.getBody().getString("message"));
+        assertEquals(20, response.getBody().getInt("level"));
+    }
+
+    @Test
     void post_stopGame_inProdEnv_engineAlreadyStarted_shouldReturnEngineStoppedMessage() {
         JSONObject request = new JSONObject();
 
