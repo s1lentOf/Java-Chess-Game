@@ -27,6 +27,18 @@ public class CheckmateTest {
         gameService.setPieceAt(0, 4, new King(WHITE, new IndexPosition(0, 4)));
         gameService.setPieceAt(7, 4, new King(BLACK, new IndexPosition(7, 4)));
 
+        /*
+            7  . . . . k . .
+            6  . . . . . . . .
+            5  . . . . . . . .
+            4  . . . . . . . .
+            3  . . . . . . . .
+            2  . . . . . . . .
+            1  . . . . . . . .
+            0  . . . . K . . .
+               0 1 2 3 4 5 6 7
+         */
+
         assertFalse(gameService.isCheckmate());
     }
 
