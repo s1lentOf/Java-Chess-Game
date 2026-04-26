@@ -460,6 +460,23 @@ public class TestGameService {
                 "Clicking an opponent's piece with no selection should leave selection null");
     }
 
+    @Test
+    @DisplayName("click on own piece when no piece is selected")
+    public void testHandleOccupiedClickOwnNothingSelected() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = whiteRook;
+        boardUI.setSelected(null);
+
+        gameService.handleOccupiedSquareClick(whiteRook, new IndexPosition(4, 4));
+
+        assertEquals(whiteRook, boardUI.getSelected(),
+                "Clicking own piece with no selection should select it");
+    }
 
 
 
