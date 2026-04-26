@@ -153,7 +153,7 @@ public class StartScreen {
     private JPanel createMainPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(new Color(255, 255, 255));
+        panel.setBackground(new Color(20, 20, 20));
         panel.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 60));
         return panel;
     }
@@ -162,7 +162,7 @@ public class StartScreen {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 18));
         button.setBackground(new Color(212, 175, 55));
-        button.setForeground(new Color(239, 239, 239));
+        button.setForeground(new Color(20, 20, 20));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setOpaque(true);
