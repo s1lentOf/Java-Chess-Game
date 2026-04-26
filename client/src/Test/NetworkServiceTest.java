@@ -32,7 +32,7 @@ class NetworkServiceTest {
     }
 
     @Test
-    void post_startGame_inProdEnv_withLevelInBody_shouldReturnEngineStartedMessageAndLevel() {
+    void post_startGame_inProdEnv_engineNotStartedPreviously_withLevelInBody_shouldReturnEngineStartedMessageAndLevel() {
         JSONObject request = new JSONObject();
         request.put("level", 1);
 
@@ -43,5 +43,18 @@ class NetworkServiceTest {
         assertEquals(200, response.getStatusCode());
         assertEquals("Engine started and ready.", response.getBody().getString("message"));
         assertEquals(1, response.getBody().getInt("level"));
+    }
+
+    @Test
+    void post_startGame_inProdEnv_engineAlreadyStarted_withLevelInBody_shouldReturnEngineStartedMessageAndLevel() {
+        JSONObject request = new JSONObject();
+        request.put("level", 1);
+
+        NetworkResponse response =
+                networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
+
+        assertNotNull(response);
+        assertEquals(409, response.getStatusCode());
+        assertEquals("A game is already running.", response.getBody().getString("message"));
     }
 }
