@@ -420,4 +420,27 @@ public class TestGameService {
         assertNull(board[5][5], "Destination should remain empty");
     }
 
+    @Test
+    @DisplayName("test en passant")
+    public void testHandleEmptySquareClickEnPassant() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = whitePawn;
+        board[4][5] = blackPawn;
+
+        gameService.setLastDoubleStepPawn(blackPawn);
+        boardUI.setSelected(whitePawn);
+
+        gameService.handleEmptySquareClick(new IndexPosition(5, 5));
+
+        assertNull(board[4][4], "White pawn should have left its starting square");
+        assertTrue(board[5][5] instanceof Pawn, "White pawn should be on the en passant target");
+        assertNull(board[4][5], "Captured black pawn should be removed via en passant");
+    }
+
 }
