@@ -22,8 +22,7 @@ class NetworkServiceTest {
         JSONObject request = new JSONObject();
         request.put("test", "test");
 
-        NetworkResponse response =
-                networkService.POST(request, Endpoint.STARTGAME, Environment.TEST);
+        NetworkResponse response = networkService.POST(request, Endpoint.STARTGAME, Environment.TEST);
 
         assertNotNull(response);
         assertEquals(201, response.getStatusCode());
@@ -36,8 +35,7 @@ class NetworkServiceTest {
         JSONObject request = new JSONObject();
         request.put("level", 1);
 
-        NetworkResponse response =
-                networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
+        NetworkResponse response = networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode());
@@ -46,15 +44,25 @@ class NetworkServiceTest {
     }
 
     @Test
-    void post_startGame_inProdEnv_engineAlreadyStarted_withLevelInBody_shouldReturnEngineStartedMessageAndLevel() {
+    void post_startGame_inProdEnv_engineAlreadyStarted_withLevelInBody_shouldReturnErrorMessage() {
         JSONObject request = new JSONObject();
         request.put("level", 1);
 
-        NetworkResponse response =
-                networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
+        NetworkResponse response = networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
 
         assertNotNull(response);
         assertEquals(409, response.getStatusCode());
         assertEquals("A game is already running.", response.getBody().getString("message"));
+    }
+
+    @Test
+    void post_stopGame_inProdEnv_engineAlreadyStarted_shouldReturnEngineStoppedMessage() {
+        JSONObject request = new JSONObject();
+
+        NetworkResponse response = networkService.POST(request, Endpoint.STOPGAME, Environment.PROD);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode());
+        assertEquals("Engine stopped.", response.getBody().getString("message"));
     }
 }
