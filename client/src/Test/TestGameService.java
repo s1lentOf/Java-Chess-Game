@@ -402,6 +402,22 @@ public class TestGameService {
         assertTrue(board[3][6] instanceof Rook);
     }
 
+    @Test
+    @DisplayName("test for illegal click")
+    public void testHandleEmptySquareClickIllegalMove() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = rook;
+        boardUI.setSelected(rook);
 
+        gameService.handleEmptySquareClick(new IndexPosition(5, 5));
+
+        assertNotNull(board[4][4], "Rook should not have moved on an illegal click");
+        assertNull(board[5][5], "Destination should remain empty");
+    }
 
 }
