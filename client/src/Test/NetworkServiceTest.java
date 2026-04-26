@@ -99,4 +99,16 @@ class NetworkServiceTest {
         assertEquals(409, response.getStatusCode());
         assertEquals("No game is running.", response.getBody().getString("message"));
     }
+
+    @Test
+    void post_requestMove_inProdEnv_engineIsRunning_shouldReturnBestMove() {
+        JSONObject request = new JSONObject();
+        request.put("move", "e2e4"); // Last player's move.
+
+        NetworkResponse response = networkService.POST(request, Endpoint.REQUESTMOVE, Environment.PROD);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode());
+        assertNotNull(response.getBody().getString("bestmove"));
+    }
 }
