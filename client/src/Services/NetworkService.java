@@ -53,8 +53,10 @@ public class NetworkService {
 
     // Helper method to write a body of the request.
     private void writeBody(HttpURLConnection connection, JSONObject data) throws Exception {
-        try (OutputStream os = connection.getOutputStream()) {
-            os.write(data.toString().getBytes());
+        if (data != null) {
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(data.toString().getBytes());
+            }
         }
     }
 
