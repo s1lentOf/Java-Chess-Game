@@ -478,6 +478,25 @@ public class TestGameService {
                 "Clicking own piece with no selection should select it");
     }
 
+    @Test
+    @DisplayName("test click on your own piece when the piece is already selected")
+    public void testHandleOccupiedClickReselectsOwnPiece() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook rook1 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Rook rook2 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 6));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = rook1;
+        board[4][6] = rook2;
+        boardUI.setSelected(rook1);
+
+        gameService.handleOccupiedSquareClick(rook2, new IndexPosition(4, 6));
+
+        assertEquals(rook2, boardUI.getSelected(),
+                "Clicking another of own pieces should reselect to the new piece");
+    }
 
 
 }
