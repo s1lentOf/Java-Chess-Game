@@ -498,5 +498,27 @@ public class TestGameService {
                 "Clicking another of own pieces should reselect to the new piece");
     }
 
+    @Test
+    @DisplayName("test capture opponents piece")
+    public void testHandleOccupiedClickCapturesOpponent() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Rook blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(4, 7));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = whiteRook;
+        board[4][7] = blackRook;
+        boardUI.setSelected(whiteRook);
+
+        gameService.handleOccupiedSquareClick(blackRook, new IndexPosition(4, 7));
+
+        assertNull(board[4][4], "Capturing rook should have left its starting square");
+        assertTrue(board[4][7] instanceof Rook, "White rook should now occupy the captured square");
+        assertEquals(ColorForChessPieces.WHITE, board[4][7].getColor(),
+                "Piece on capture square should be white");
+    }
+
 
 }
