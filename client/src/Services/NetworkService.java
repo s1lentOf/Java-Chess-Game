@@ -15,40 +15,71 @@ import org.json.JSONObject;
 public class NetworkService {
     public NetworkService() {}
 
-    // STUB: A method that handles sending POST requests to the server.
-    public  JSONObject POST(JSONObject data, Endpoint endpoint, Environment environment) {
+    // Main method of POST request, that combines the helper method and act as a brain of POST HTTP method.
+    public NetworkResponse POST(JSONObject data, Endpoint endpoint, Environment environment) {
         try {
-            URL url = new URL(environment.getBaseURL() + endpoint.getPath(environment));
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpURLConnection connection = createConnection(endpoint, environment);
 
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
+            writeBody(connection, data);
 
-            try (OutputStream os = connection.getOutputStream()) {
-                os.write(data.toString().getBytes());
-            }
+            int statusCode = connection.getResponseCode();
+            String responseBody = readResponse(connection);
 
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream())
-            );
-            StringBuilder stringBuilder = new StringBuilder();
-
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-
-            bufferedReader.close();
             connection.disconnect();
 
-            return new JSONObject(stringBuilder.toString());
+            return new NetworkResponse(
+                    statusCode,
+                    new JSONObject(responseBody)
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return new NetworkResponse(500, new JSONObject());
+        }
+    }
+
+    // Helper method to create a new HTTP connection.
+    private HttpURLConnection createConnection(Endpoint endpoint, Environment environment) throws Exception {
+        URL url = new URL(environment.getBaseURL() + endpoint.getPath(environment));
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        return connection;
+    }
+
+    // Helper method to write a body of the request.
+    private void writeBody(HttpURLConnection connection, JSONObject data) throws Exception {
+        if (data != null) {
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(data.toString().getBytes());
+            }
+        }
+    }
+
+    // Helper method to read a server response efficiently.
+    private String readResponse(HttpURLConnection connection) throws Exception {
+        InputStream stream;
+
+        // Additional validation for the status code.
+        if (connection.getResponseCode() >= 400) {
+            stream = connection.getErrorStream();
+        } else {
+            stream = connection.getInputStream();
         }
 
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder builder = new StringBuilder();
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            builder.append(line);
+        }
+
+        reader.close();
+        return builder.toString();
     }
 }
