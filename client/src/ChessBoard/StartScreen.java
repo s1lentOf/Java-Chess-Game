@@ -167,7 +167,7 @@ public class StartScreen {
         button.setBorderPainted(false);
         button.setOpaque(true);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setMaximumSize(new Dimension(200, 50));
+        button.setMaximumSize(new Dimension(250, 50));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         addHoverEffect(button, new Color(212, 175, 55), new Color(180, 145, 30));
         return button;
