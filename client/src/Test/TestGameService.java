@@ -520,7 +520,23 @@ public class TestGameService {
                 "Piece on capture square should be white");
     }
 
+    @Test
+    @DisplayName("test promotion state of the pawn")
+    public void testPawnPromotionEntersPromotingState() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 0));
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(6, 4));
+        board[0][0] = whiteKing;
+        board[7][0] = blackKing;
+        board[6][4] = pawn;
+        boardUI.setSelected(pawn);
 
+        gameService.handleSquareClick(new IndexPosition(7, 4));
+
+        assertTrue(boardUI.isPromoting(),
+                "Pushing a pawn to the last rank should trigger promotion state");
+    }
 
 
 }
