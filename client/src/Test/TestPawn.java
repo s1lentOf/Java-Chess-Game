@@ -6,10 +6,13 @@ import ChessPieces.Pawn;
 import ChessPieces.Piece;
 import ChessPieces.Queen;
 import Constants.ColorForChessPieces;
+import Services.GameManager;
 import Services.GameService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import Constants.*;
 
+import static Constants.GameMode.HUMAN_VS_HUMAN;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestPawn {
@@ -210,6 +213,7 @@ public class TestPawn {
         }
         assertFalse(found, "En passant should not be possible if the pawn is not adjacent");
     }
+
 
 
 

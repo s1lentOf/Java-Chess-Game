@@ -19,6 +19,7 @@ public class TestGameService {
     @BeforeAll
     public static void setup() {
         gameService = new GameService(boardUI);
+        gameService.resetGame();
     }
 
     @Test
@@ -380,5 +381,27 @@ public class TestGameService {
         String parsedMove = gameService.addToMoveRecord(move);
         assertEquals(parsedMove,"e5f6");
     }
+
+
+    @Test
+    @DisplayName("handleSquareClick for an empty target")
+    public void testHandleSquareClickEmptyTarget() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[3][3] = rook;
+        boardUI.setSelected(rook);
+
+        gameService.handleSquareClick(new IndexPosition(3, 6));
+
+        assertNull(board[3][3], "Rook should have left its starting square");
+        assertNotNull(board[3][6], "Rook should be on the new square");
+        assertTrue(board[3][6] instanceof Rook);
+    }
+
+
 
 }
