@@ -4,8 +4,6 @@ import ChessBoard.BoardUI;
 import Constants.ColorForChessPieces;
 
 public class Pawn extends Piece {
-    BoardUI boardUI = new BoardUI();
-
     public Pawn(ColorForChessPieces color, IndexPosition position) {
         super(color, position);
     }

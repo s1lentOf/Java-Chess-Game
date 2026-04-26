@@ -1,11 +1,11 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-.idea
+# OS
+.DS_Store
+Thumbs.db
 
-
-### Eclipse ###
+# IDE
+.idea/
+.vscode/
+*.iml
 .apt_generated
 .classpath
 .factorypath
@@ -17,16 +17,57 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Local Claude Code state
+.claude/
 
 ### VS Code ###
 .vscode/
 
 ### Mac OS ###
 .DS_Store
-/.claude/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Coverage reports
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS files
+Thumbs.db
+
+# Editor/IDE files
+.idea/
+
+# Optional cache
+.cache/
+.tmp/
+
+# Testing
+jest-cache/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock

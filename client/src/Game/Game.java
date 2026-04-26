@@ -1,19 +1,28 @@
 package Game;
 
 import ChessBoard.BoardUI;
+import Constants.ColorForChessPieces;
+import Constants.GameMode;
+import Services.GameManager;
+import Services.NetworkService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 // Main class that starts up the game
 public class Game {
 
     private JFrame window;
-    private final BoardUI boardUI = new BoardUI();
+    private final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT, ColorForChessPieces.BLACK);
+    private GameManager gameManager;
 
     public Game() {
         setupWindow();
         boardUI.setupBoard(window);
+        gameManager = boardUI.getGameManager();
+        gameManager.start();
         this.window.setVisible(true); // we make the window visible after all setup is made
     }
 
@@ -33,5 +42,12 @@ public class Game {
         this.window.setLayout(new GridLayout(8, 8));
         this.window.setResizable(false); // make the size fixed, which allows us to track the mouse click
         this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Stop the chess engine before the game window is closing.
+        this.window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                gameManager.stop();
+            }
+        });
     }
 }

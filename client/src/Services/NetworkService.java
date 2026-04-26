@@ -13,9 +13,10 @@ import Constants.Environment;
 import org.json.JSONObject;
 
 public class NetworkService {
+    public NetworkService() {}
 
     // STUB: A method that handles sending POST requests to the server.
-    public static JSONObject POST(JSONObject data, Endpoint endpoint, Environment environment) {
+    public  JSONObject POST(JSONObject data, Endpoint endpoint, Environment environment) {
         try {
             URL url = new URL(environment.getBaseURL() + endpoint.getPath(environment));
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -48,5 +49,6 @@ public class NetworkService {
             e.printStackTrace();
             return null;
         }
+
     }
 }

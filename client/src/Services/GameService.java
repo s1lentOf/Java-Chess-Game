@@ -97,6 +97,10 @@ public class GameService {
         piecesOnTheBoard[row][col] = piece;
     }
 
+    public ArrayList<String> getMoveStorage() {
+        return moveStorage;
+    }
+
     public void setUpPiecesOnTheBoard() {
 
         // Pawns
@@ -188,6 +192,7 @@ public class GameService {
 
             System.out.println("Just moved piece");
             moveSelectedPiece(nextMove);
+            if (boardUI.isPromoting()) return;
             moveCounter++;
             changeColorToMove();
             playPostMoveSound(isEnPassant);
@@ -220,6 +225,7 @@ public class GameService {
                 System.out.println("Captured piece");
                 Piece selected = boardUI.getSelected();
                 capturePiece(nextMove);
+                if (boardUI.isPromoting()) return;
                 moveCounter++;
                 changeColorToMove();
                 playPostMoveSound(true);
@@ -309,7 +315,8 @@ public class GameService {
         // detect castling
         if (selected instanceof King
                 && Math.abs(nextMove.getCol() - oldPos.getCol()) == 2) {
-            executeCastle(nextMove);
+            executeCastle(selected, nextMove);
+            boardUI.setSelected(null);
             return;
         }
 
@@ -338,6 +345,9 @@ public class GameService {
         if (isCheckmate()) {
             ColorForChessPieces winner = currentColorToMove == WHITE ? BLACK : WHITE;
             moveResult.setCheckmate(winner);
+
+            System.out.println("Checkmate is set");
+
             return;
         }
 
@@ -484,8 +494,7 @@ public class GameService {
         return false;
     }
 
-    public void executeCastle(IndexPosition kingTarget) {
-        Piece king = boardUI.getSelected();
+    public void executeCastle(Piece king, IndexPosition kingTarget) {
         IndexPosition kingFrom = king.getPosition();
         int row = kingFrom.getRow();
 
@@ -505,10 +514,7 @@ public class GameService {
         rook.setPosition(new IndexPosition(row, rookToCol));
         piecesOnTheBoard[row][rookToCol] = rook;
 
-        // record moves so hasPiecedMoved blocks future castling
         moveStorage.add(addToMoveRecord(new MoveRecord("King", kingFrom, kingTarget, null)));
-
-        boardUI.setSelected(null);
     }
 
     // a method for the promotion logic of the pawn( hard coded to auto promotion to the queen just for this iteration)
@@ -530,6 +536,7 @@ public class GameService {
         if (kingMoves != null && !kingMoves.isEmpty()) {
             return false; // King can escape, not checkmate
         }
+        System.out.println("Checkmate " + (!checkService.canBlockCheck(currentColorToMove) && !checkService.canCaptureAttacker(currentColorToMove)));
         return !checkService.canBlockCheck(currentColorToMove) && !checkService.canCaptureAttacker(currentColorToMove);
     }
 
@@ -569,39 +576,82 @@ public class GameService {
         };
         MoveRecord record = new MoveRecord(promoted.getClass().getSimpleName(), promotedFrom, promotedTo, letter);
         moveStorage.add(addToMoveRecord(record));
+
+        moveCounter++;
+        changeColorToMove();
+        playPostMoveSound(false);
+        drawService.recordBoardState();
+        drawService.updateHalfMoveClock(promoted, null);
+        updateMoveResult();
     }
 
-    public String extractMove(JSONObject json) {
-        if (!json.getBoolean("success")) {
-            throw new RuntimeException("Engine error");
+    public void applyBotMove(EngineMove move) {
+        IndexPosition from = move.getFrom();
+        IndexPosition to = move.getTo();
+        Character promotion = move.getPromotion();
+
+        Piece moving = piecesOnTheBoard[from.getRow()][from.getCol()];
+
+        updateLastDoubleStepPawn(moving, to);
+
+        // detect castling: king moving 2 squares horizontally
+        if (moving instanceof King && Math.abs(to.getCol() - from.getCol()) == 2) {
+            executeCastle(moving, to);
+            moveCounter++;
+            changeColorToMove();
+            playPostMoveSound(false);
+            drawService.recordBoardState();
+            drawService.updateHalfMoveClock(moving, null);
+            updateMoveResult();
+            return;
         }
-        String raw = json.getString("bestmove");        // "bestmove e2e4 ponder e7e5"
-        String[] parts = raw.split("\\s+");
-        if (parts.length < 2) {
-            throw new IllegalArgumentException("Unexpected bestmove line: " + raw);
+
+        // detect en passant: pawn moves diagonally to an empty destination
+        boolean isEnPassant = moving instanceof Pawn
+                && from.getCol() != to.getCol()
+                && piecesOnTheBoard[to.getRow()][to.getCol()] == null;
+
+        Piece captured = piecesOnTheBoard[to.getRow()][to.getCol()];
+        if (isEnPassant) {
+            int capturedRow = from.getRow();
+            int capturedCol = to.getCol();
+            captured = piecesOnTheBoard[capturedRow][capturedCol];
+            piecesOnTheBoard[capturedRow][capturedCol] = null;
         }
-        return parts[1];
+
+        piecesOnTheBoard[from.getRow()][from.getCol()] = null;
+        Piece placed;
+        if (promotion != null) {
+            placed = createPromotedPiece(promotion, moving.getColor(), to);
+        } else {
+            moving.setPosition(to);
+            placed = moving;
+        }
+        piecesOnTheBoard[to.getRow()][to.getCol()] = placed;
+
+        String pieceName = (promotion != null)
+                ? placed.getClass().getSimpleName()
+                : moving.getClass().getSimpleName();
+        moveStorage.add(addToMoveRecord(new MoveRecord(pieceName, from, to, promotion)));
+
+        moveCounter++;
+        changeColorToMove();
+        playPostMoveSound(captured != null);
+
+        drawService.recordBoardState();
+        drawService.updateHalfMoveClock(moving, captured);
+        updateMoveResult();
     }
 
-    public EngineMove decodeInputData(String uci) {
-        if (uci == null || uci.equals("(none)") || uci.equals("0000")) {
-            return null;
-        }
-        if (uci.length() != 4 && uci.length() != 5) {
-            throw new IllegalArgumentException("Invalid UCI move: " + uci);
-        }
-        int fromCol = uci.charAt(0) - 'a';
-        int fromRow = uci.charAt(1) - '1';
-        int toCol = uci.charAt(2) - 'a';
-        int toRow = uci.charAt(3) - '1';
 
-        Character promotion = uci.length() == 5 ? uci.charAt(4) : null;
-
-        return new EngineMove(
-                new IndexPosition(fromRow, fromCol),
-                new IndexPosition(toRow, toCol),
-                promotion
-        );
+    private Piece createPromotedPiece(char promotion, ColorForChessPieces color, IndexPosition pos) {
+        return switch (Character.toLowerCase(promotion)) {
+            case 'q' -> new Queen(color, pos);
+            case 'r' -> new Rook(color, pos);
+            case 'b' -> new Bishop(color, pos);
+            case 'n' -> new Knight(color, pos);
+            default -> throw new IllegalArgumentException("Invalid promotion char: " + promotion);
+        };
     }
 
     public void resetGame(){
@@ -625,5 +675,6 @@ public class GameService {
     }
 
 }
+
 
 

@@ -3,6 +3,7 @@ package Test;
 import ChessBoard.BoardUI;
 import ChessPieces.*;
 import Constants.ColorForChessPieces;
+import Constants.GameMode;
 import Services.GameService;
 import Services.MoveRecord;
 import org.junit.jupiter.api.*;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
     private static GameService gameService;
-    private static final BoardUI boardUI = new BoardUI();
+    private static final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT,ColorForChessPieces.WHITE);
 
     @BeforeAll
     public static void setup() {
@@ -371,13 +372,13 @@ public class TestGameService {
         assertNotNull(testBoard[4][5]);
     }
 
-//    @Test
-//    @DisplayName("Move is parsed from MoveRecord to input data")
-//    void testMoveIsParsedFromMoveRecordToInputData() {
-//        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5));
-//
-//        String parsedMove = gameService.parseInputData(move);
-//        assertEquals(parsedMove,"e5f6");
-//    }
+    @Test
+    @DisplayName("Move is parsed from MoveRecord to input data")
+    void testMoveIsParsedFromMoveRecordToInputData() {
+        MoveRecord move = new  MoveRecord("King",new IndexPosition(4, 4),new IndexPosition(5, 5),null);
+
+        String parsedMove = gameService.addToMoveRecord(move);
+        assertEquals(parsedMove,"e5f6");
+    }
 
 }
