@@ -442,5 +442,22 @@ public class TestGameService {
         assertTrue(board[5][5] instanceof Pawn, "White pawn should be on the en passant target");
         assertNull(board[4][5], "Captured black pawn should be removed via en passant");
     }
+    @Test
+    @DisplayName("test click on the opponent's piece when the piece users piece is not selected")
+    public void testHandleOccupiedClickOpponentNothingSelected() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(4, 4));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = blackRook;
+        boardUI.setSelected(null);
+
+        gameService.handleOccupiedSquareClick(blackRook, new IndexPosition(4, 4));
+
+        assertNull(boardUI.getSelected(),
+                "Clicking an opponent's piece with no selection should leave selection null");
+    }
 
 }
