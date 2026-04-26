@@ -30,4 +30,14 @@ public class CheckmateTest {
         assertFalse(gameService.isCheckmate());
     }
 
+    @Test
+    @DisplayName("Should not be a checkmate if the king is in check, but has escape move.")
+    void isCheckmate_kingIsInCheck_kingHasEscapeMove_shouldReturnFalse() {
+        gameService.setPieceAt(0, 4, new King(WHITE, new IndexPosition(0, 4)));
+        gameService.setPieceAt(1, 4, new Rook(BLACK, new IndexPosition(1, 4)));
+        gameService.setPieceAt(7, 7, new King(BLACK, new IndexPosition(7, 7)));
+
+        assertFalse(gameService.isCheckmate());
+    }
+
 }
