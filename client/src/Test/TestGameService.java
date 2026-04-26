@@ -538,5 +538,24 @@ public class TestGameService {
                 "Pushing a pawn to the last rank should trigger promotion state");
     }
 
+    @Test
+    @DisplayName("handlePromotionClick on the correct column finishes promotion")
+    public void testHandlePromotionClickCorrectColumn() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 0));
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(6, 4));
+        board[0][0] = whiteKing;
+        board[7][0] = blackKing;
+        board[6][4] = pawn;
+        boardUI.setSelected(pawn);
+        gameService.handleSquareClick(new IndexPosition(7, 4));
+
+        gameService.handlePromotionClick(new IndexPosition(0, 4));
+
+        assertFalse(boardUI.isPromoting(),
+                "Clicking a valid promotion option should finish promotion");
+    }
+
 
 }
