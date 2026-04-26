@@ -2,6 +2,7 @@ package Test;
 
 import Constants.Endpoint;
 import Constants.Environment;
+import Services.NetworkResponse;
 import Services.NetworkService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
@@ -21,11 +22,13 @@ class NetworkServiceTest {
         JSONObject request = new JSONObject();
         request.put("test", "test");
 
-        JSONObject response = networkService.POST(request, Endpoint.STARTGAME, Environment.TEST);
+        NetworkResponse response =
+                networkService.POST(request, Endpoint.STARTGAME, Environment.TEST);
 
         assertNotNull(response);
-        assertEquals("test", response.getString("test"));
-        assertEquals(101, response.getInt("id"));
+        assertEquals(201, response.getStatusCode());
+        assertEquals("test", response.getBody().getString("test"));
+        assertEquals(101, response.getBody().getInt("id"));
     }
 
     @Test
@@ -33,10 +36,12 @@ class NetworkServiceTest {
         JSONObject request = new JSONObject();
         request.put("level", 1);
 
-        JSONObject response = networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
+        NetworkResponse response =
+                networkService.POST(request, Endpoint.STARTGAME, Environment.PROD);
 
         assertNotNull(response);
-        assertEquals("Engine started and ready.", response.getString("message"));
-        assertEquals(1, response.getInt("level"));
+        assertEquals(200, response.getStatusCode());
+        assertEquals("Engine started and ready.", response.getBody().getString("message"));
+        assertEquals(1, response.getBody().getInt("level"));
     }
 }
