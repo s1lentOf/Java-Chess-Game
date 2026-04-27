@@ -72,7 +72,9 @@ public class Game {
         this.window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                gameManager.stop();
+                if (gameManager != null) {
+                    gameManager.stop();
+                }
             }
         });
     }
