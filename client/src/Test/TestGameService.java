@@ -245,7 +245,15 @@ public class TestGameService {
         Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
         testBoard[4][5] = blackPawn;
 
+        // copy testBoard into gameService's internal board
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                gameService.setPieceAt(row, col, testBoard[row][col]);
+            }
+        }
+
         gameService.setLastDoubleStepPawn(blackPawn);
+        gameService.setCurrentColorToMove(ColorForChessPieces.WHITE);
 
         ArrayList<IndexPosition> moves = gameService.getLegalMoves(whitePawn, testBoard);
 
@@ -270,7 +278,15 @@ public class TestGameService {
         Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(3, 4));
         testBoard[3][4] = whitePawn;
 
+        // copy testBoard into gameService's internal board
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                gameService.setPieceAt(row, col, testBoard[row][col]);
+            }
+        }
+
         gameService.setLastDoubleStepPawn(whitePawn);
+        gameService.setCurrentColorToMove(ColorForChessPieces.BLACK);
 
         ArrayList<IndexPosition> moves = gameService.getLegalMoves(blackPawn, testBoard);
 
@@ -293,7 +309,15 @@ public class TestGameService {
         Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 6));
         testBoard[4][6] = blackPawn;
 
+        // copy testBoard into gameService's internal board
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                gameService.setPieceAt(row, col, testBoard[row][col]);
+            }
+        }
+
         gameService.setLastDoubleStepPawn(blackPawn);
+        gameService.setCurrentColorToMove(ColorForChessPieces.WHITE);
 
         ArrayList<IndexPosition> moves = gameService.getLegalMoves(whitePawn, testBoard);
 
