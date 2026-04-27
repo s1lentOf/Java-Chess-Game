@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestGameService {
     private static GameService gameService;
-    private static final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT,ColorForChessPieces.WHITE);
+    private static final BoardUI boardUI = new BoardUI(GameMode.HUMAN_VS_BOT,ColorForChessPieces.WHITE, null);
 
     @BeforeAll
     public static void setup() {
