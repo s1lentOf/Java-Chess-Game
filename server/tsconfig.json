@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "esnext",
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true
+  }
+}
