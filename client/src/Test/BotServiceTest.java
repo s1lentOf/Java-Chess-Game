@@ -26,4 +26,13 @@ public class BotServiceTest {
         botService.startSession();
     }
 
+    @Test
+    @DisplayName("Test thta connection is stopped after the corresponding method")
+    void testStopSession() {
+        NetworkService networkService = new NetworkService();
+        BotService botService = new BotService(networkService, Environment.PROD, 1);
+        botService.endSession();
+    }
+
+
 }
