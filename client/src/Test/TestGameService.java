@@ -407,6 +407,93 @@ public class TestGameService {
     }
 
 
+    // ---------------------------------------------------------------
+// updateMoveResult tests
+// ---------------------------------------------------------------
+
+    @Test
+    @DisplayName("updateMoveResult sets checkmate with correct winner")
+    void testUpdateMoveResultCheckmate() {
+        // back rank mate — white king boxed in by pawns, black rook delivers checkmate
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 7));
+        Rook blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(0, 0));
+        Pawn wp1 = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 5));
+        Pawn wp2 = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 6));
+        Pawn wp3 = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(1, 7));
+
+        gameService.setPieceAt(0, 7, whiteKing);
+        gameService.setPieceAt(0, 0, blackRook);
+        gameService.setPieceAt(1, 5, wp1);
+        gameService.setPieceAt(1, 6, wp2);
+        gameService.setPieceAt(1, 7, wp3);
+
+        gameService.setCurrentColorToMove(ColorForChessPieces.WHITE);
+        gameService.updateMoveResult();
+
+        assertTrue(gameService.getMoveResult().getCheckmate());
+        assertEquals(ColorForChessPieces.BLACK, gameService.getMoveResult().getColorToWin());
+        assertFalse(gameService.getMoveResult().getDraw());
+    }
+
+    @Test
+    @DisplayName("updateMoveResult sets stalemate draw")
+    void testUpdateMoveResultStalemate() {
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 0));
+        Queen whiteQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(5, 1));
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(5, 3));
+
+        gameService.setPieceAt(7, 0, blackKing);
+        gameService.setPieceAt(5, 1, whiteQueen);
+        gameService.setPieceAt(5, 3, whiteKing);
+
+        gameService.setCurrentColorToMove(ColorForChessPieces.BLACK);
+        gameService.updateMoveResult();
+
+        assertTrue(gameService.getMoveResult().getDraw());
+        assertEquals("Stalemate", gameService.getMoveResult().getDrawReason());
+        assertFalse(gameService.getMoveResult().getCheckmate());
+    }
+
+    @Test
+    @DisplayName("updateMoveResult sets insufficient material draw")
+    void testUpdateMoveResultInsufficientMaterial() {
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
+
+        gameService.setPieceAt(0, 4, whiteKing);
+        gameService.setPieceAt(7, 4, blackKing);
+
+        gameService.setCurrentColorToMove(ColorForChessPieces.WHITE);
+        gameService.updateMoveResult();
+
+        assertTrue(gameService.getMoveResult().getDraw());
+        assertEquals("Insufficient material", gameService.getMoveResult().getDrawReason());
+    }
+
+    @Test
+    @DisplayName("updateMoveResult resets previous result before evaluating")
+    void testUpdateMoveResultResetsPreviousState() {
+        // manually set a stale checkmate result
+        gameService.getMoveResult().setCheckmate(ColorForChessPieces.WHITE);
+
+        // set up a normal position with no checkmate or draw
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 4));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 4));
+        Queen whiteQueen = new Queen(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+
+        gameService.setPieceAt(0, 4, whiteKing);
+        gameService.setPieceAt(7, 4, blackKing);
+        gameService.setPieceAt(3, 3, whiteQueen);
+
+        gameService.setCurrentColorToMove(ColorForChessPieces.WHITE);
+        gameService.updateMoveResult();
+
+        // stale checkmate should be cleared
+        assertFalse(gameService.getMoveResult().getCheckmate());
+        assertFalse(gameService.getMoveResult().getDraw());
+    }
+
+
     @Test
     @DisplayName("handleSquareClick for an empty target")
     public void testHandleSquareClickEmptyTarget() {
