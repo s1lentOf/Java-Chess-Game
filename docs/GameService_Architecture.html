@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GameService Architecture - Chess Project</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.6;
+    color: #1a1a1a;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #fff;
+  }
+  h1 { color: #1a1a1a; border-bottom: 3px solid #2c3e50; padding-bottom: 10px; font-size: 28px; }
+  h2 { color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 6px; margin-top: 35px; font-size: 22px; }
+  h3 { color: #34495e; margin-top: 25px; font-size: 18px; }
+  .subtitle { color: #7f8c8d; font-size: 14px; margin-top: -10px; }
+
+  /* Class diagram box */
+  .class-box {
+    border: 2px solid #2c3e50;
+    border-radius: 4px;
+    margin: 15px 0;
+    background: #fdfdfd;
+    overflow: hidden;
+  }
+  .class-box .class-name {
+    background: #2c3e50;
+    color: white;
+    padding: 8px 14px;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+  }
+  .class-box .class-name .stereotype {
+    font-weight: normal;
+    font-size: 12px;
+    display: block;
+    color: #bdc3c7;
+  }
+  .class-box .section {
+    padding: 10px 14px;
+    border-top: 1px solid #bdc3c7;
+  }
+  .class-box .section-title {
+    font-weight: bold;
+    font-size: 11px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .class-box code {
+    display: block;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #2c3e50;
+  }
+  .class-box .new { color: #27ae60; font-weight: bold; }
+  .class-box .moved { color: #2980b9; font-weight: bold; }
+  .class-box .kept { color: #7f8c8d; }
+  .class-box .removed { color: #c0392b; text-decoration: line-through; }
+
+  .legend {
+    display: flex;
+    gap: 25px;
+    margin: 15px 0;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend .dot {
+    width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+  }
+
+  .relation-box {
+    background: #f0f4f8;
+    border-left: 4px solid #2c3e50;
+    padding: 14px 18px;
+    margin: 15px 0;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 0;
+    gap: 12px;
+  }
+  .flow-step .step-num {
+    background: #2c3e50;
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .flow-step .step-content {
+    padding-top: 3px;
+  }
+  .flow-step .step-content code {
+    background: #ecf0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12.5px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 13.5px;
+  }
+  th { background: #2c3e50; color: white; padding: 10px 12px; text-align: left; }
+  td { padding: 8px 12px; border: 1px solid #ddd; vertical-align: top; }
+  tr:nth-child(even) { background: #f8f9fa; }
+
+  .note {
+    background: #fef9e7;
+    border-left: 4px solid #f39c12;
+    padding: 12px 16px;
+    margin: 15px 0;
+    font-size: 13.5px;
+  }
+  .note strong { color: #e67e22; }
+
+  pre {
+    background: #f4f6f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 14px;
+    font-size: 12.5px;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>GameService Architecture</h1>
+<p class="subtitle">Chess Project - Board & GameService Communication Design Document</p>
+<p class="subtitle">SD2 Project Group 15 | April 2026</p>
+
+<!-- ============================================================ -->
+<h2>1. Architecture Overview</h2>
+
+<p>The architecture follows a <strong>delegation pattern</strong> where <code>Board</code> handles only
+UI rendering and input detection, while <code>GameService</code> owns all game logic, state, and
+boardUI mutations. Communication is synchronous via method calls that return a
+<code>MoveResult</code> value object.</p>
+
+<div class="relation-box">
+Game.Game (entry point)
+  |
+  |--- creates ---> Board (UI layer)
+  |--- creates ---> GameService (logic layer)
+  |
+  |  Board --------uses--------> GameService
+  |    |                             |
+  |    |  handleSquareClick()        |  handleAction() -> MoveResult
+  |    |  refreshBoard()             |  getLegalMoves()
+  |    |  drawPiece()                |  isCorrectTurn()
+  |    |                             |
+  |    |                        Piece.getPossibleMoves()
+  |    |                          (raw moves, unfiltered)
+  |
+  MoveResult (immutable return value - no shared mutable state)
+</div>
+
+<p><strong>Key principle:</strong> Board never mutates <code>piecesOnTheBoard[][]</code> for game moves.
+Every move goes through <code>GameService.handleAction()</code>, which internally updates the
+boardUI array, game state, and returns a <code>MoveResult</code> describing what happened.</p>
+
+<!-- ============================================================ -->
+<h2>2. Class Diagram</h2>
+
+<div class="legend">
+  <span><span class="dot" style="background:#27ae60"></span> New method/field</span>
+  <span><span class="dot" style="background:#2980b9"></span> Moved from Board</span>
+  <span><span class="dot" style="background:#7f8c8d"></span> Kept (unchanged)</span>
+  <span><span class="dot" style="background:#c0392b"></span> Removed</span>
+</div>
+
+<!-- BOARD CLASS -->
+<div class="class-box">
+  <div class="class-name">Board<span class="stereotype">UI Layer - Rendering & Input Only</span></div>
+  <div class="section">
+    <div class="section-title">Fields</div>
+    <code>
+<span class="kept">- boardPositions : IndexPosition[][] {static}</span>
+<span class="kept">- piecesOnTheBoard : Piece[][]</span>
+<span class="kept">- squares : JPanel[][]</span>
+<span class="removed">- selected : Piece                       // REMOVED - moved to GameService</span>
+<span class="new">+ gameService : GameService               // NEW - reference to logic layer</span>
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - Kept (UI Responsibility)</div>
+    <code>
+<span class="kept">+ setupBoard(window: JFrame) : void</span>
+<span class="kept">+ setUpMatrix() : void</span>
+<span class="kept">+ setUpPiecesOnTheBoard() : void</span>
+<span class="kept">+ initialDrawOfPieces() : void</span>
+<span class="kept">+ detectMouseClickPosition(mouseEvent: MouseEvent) : void</span>
+<span class="kept">+ drawPiece(piece: Piece) : void</span>
+<span class="kept">+ refreshBoard() : void</span>
+<span class="kept">+ getPixelsToDraw(piece: Piece) : IndexPosition {static}</span>
+<span class="kept">+ getPiecesOnTheBoard() : Piece[][]</span>
+<span class="kept">+ getPieceAt(row: int, col: int) : Piece</span>
+<span class="kept">+ setPieceAt(row: int, col: int, piece: Piece) : void</span>
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - Modified</div>
+    <code>
+<span class="new">+ handleSquareClick(nextMove: IndexPosition) : void</span>
+      // SIMPLIFIED: now delegates entirely to GameService
+      // Calls gameService.handleAction(), reads MoveResult, updates UI
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - Removed (Moved to GameService)</div>
+    <code>
+<span class="removed">- isMovePossible(possibleMoves, nextMove) : boolean    // -> GameService</span>
+<span class="removed">- moveSelectedPiece(nextMove: IndexPosition) : void    // -> GameService</span>
+<span class="removed">- capturePiece(nextMove: IndexPosition) : void         // -> GameService</span>
+<span class="removed">- selectPiece(row: int, col: int) : void               // -> GameService</span>
+<span class="removed">- getSelected() : Piece                                // -> GameService</span>
+    </code>
+  </div>
+</div>
+
+<!-- GAMESERVICE CLASS -->
+<div class="class-box">
+  <div class="class-name">GameService<span class="stereotype">Logic Layer - Game.Game Rules, State & Board Mutation</span></div>
+  <div class="section">
+    <div class="section-title">Fields - Game.Game State</div>
+    <code>
+<span class="moved">- selected : Piece                                     // from Board</span>
+<span class="new">- currentTurn : ColorForChessPieces = WHITE</span>
+<span class="new">- lastMoveFrom : IndexPosition                         // for en passant</span>
+<span class="new">- lastMoveTo : IndexPosition                           // for en passant</span>
+<span class="new">- lastMovedPiece : Piece                               // for en passant</span>
+<span class="new">- whiteKingMoved : boolean = false                     // castling rights</span>
+<span class="new">- blackKingMoved : boolean = false</span>
+<span class="new">- whiteRookKingsideMoved : boolean = false              // rook at (0,7)</span>
+<span class="new">- whiteRookQueensideMoved : boolean = false             // rook at (0,0)</span>
+<span class="new">- blackRookKingsideMoved : boolean = false              // rook at (7,7)</span>
+<span class="new">- blackRookQueensideMoved : boolean = false             // rook at (7,0)</span>
+<span class="new">- positionHistory : Map&lt;String, Integer&gt;               // for threefold repetition</span>
+<span class="new">- halfMoveClock : int = 0                              // for 50-move rule</span>
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - Core (Entry Point)</div>
+    <code>
+<span class="new">+ handleAction(clicked: IndexPosition, boardUI: Piece[][]) : MoveResult</span>
+      // THE single entry point. Board calls ONLY this method for game actions.
+      // Internally handles: selection, validation, move execution,
+      // state updates, check/checkmate/draw detection.
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - Moved from Board</div>
+    <code>
+<span class="moved">- isMovePossible(possibleMoves: IndexPosition[], target: IndexPosition) : boolean</span>
+<span class="moved">- executeMove(piece: Piece, target: IndexPosition, boardUI: Piece[][]) : void</span>
+      // renamed from moveSelectedPiece - mutates the boardUI array
+<span class="moved">+ getSelected() : Piece</span>
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - New: Legal Move Filtering</div>
+    <code>
+<span class="new">+ getLegalMoves(piece: Piece, boardUI: Piece[][]) : IndexPosition[]</span>
+      // Gets raw moves via piece.getPossibleMoves(boardUI),
+      // then FILTERS OUT moves that would leave own king in check.
+      // Also appends castling moves (for King) and en passant moves (for Pawn).
+      // This single method handles pin logic implicitly:
+      // a pinned piece's moves that expose the king are filtered out.
+
+<span class="new">- filterMovesForCheck(piece: Piece, rawMoves: IndexPosition[], boardUI: Piece[][]) : IndexPosition[]</span>
+      // For each candidate move, simulates it and checks if own king
+      // is still in check. Removes illegal moves. This is the core
+      // mechanism that enforces pin rules automatically.
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - New: Check & Attack Detection</div>
+    <code>
+<span class="new">+ isInCheck(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Finds the king of given color, checks if any enemy piece
+      // attacks that square.
+
+<span class="new">+ isSquareAttacked(square: IndexPosition, byColor: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Checks if ANY piece of 'byColor' can reach the given square.
+      // Used by: isInCheck, castling validation, king move filtering.
+
+<span class="new">+ findKing(color: ColorForChessPieces, boardUI: Piece[][]) : IndexPosition</span>
+      // Scans boardUI for king of given color. Returns its position.
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - New: Game.Game End Detection</div>
+    <code>
+<span class="new">+ isCheckmate(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Returns true if 'color' is in check AND has no legal moves
+      // for ANY of their pieces. Iterates all pieces of that color,
+      // calls getLegalMoves() for each - if all return empty, it's checkmate.
+
+<span class="new">+ isStalemate(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Returns true if 'color' is NOT in check but has no legal moves.
+
+<span class="new">+ isDraw(boardUI: Piece[][]) : boolean</span>
+      // Checks all draw conditions:
+      //   - Stalemate (no legal moves, not in check)
+      //   - Insufficient material
+      //   - Threefold repetition (same position 3 times)
+      //   - 50-move rule (50 moves without pawn move or capture)
+
+<span class="new">- hasNoLegalMoves(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Helper: returns true if no piece of given color has any legal move.
+
+<span class="new">- hasInsufficientMaterial(boardUI: Piece[][]) : boolean</span>
+      // K vs K, K+B vs K, K+N vs K, K+B vs K+B (same color bishops)
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - New: Special Moves</div>
+    <code>
+<span class="new">+ canCastleKingside(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Checks: king not moved, rook not moved, squares between empty,
+      // king not in check, king doesn't pass through attacked square.
+
+<span class="new">+ canCastleQueenside(color: ColorForChessPieces, boardUI: Piece[][]) : boolean</span>
+      // Same as kingside but for queenside rook.
+
+<span class="new">- executeCastle(king: Piece, target: IndexPosition, boardUI: Piece[][]) : void</span>
+      // Moves both king and rook. Called from executeMove when castling detected.
+
+<span class="new">+ isEnPassantMove(pawn: Piece, target: IndexPosition) : boolean</span>
+      // Checks if the move is an en passant capture by comparing
+      // target with the en passant target square.
+
+<span class="new">+ getEnPassantTarget() : IndexPosition</span>
+      // Returns the en passant target square (the square the capturing
+      // pawn moves TO), or null if en passant is not available.
+      // Calculated from lastMoveFrom, lastMoveTo, lastMovedPiece.
+
+<span class="new">- executeEnPassant(pawn: Piece, target: IndexPosition, boardUI: Piece[][]) : IndexPosition</span>
+      // Moves capturing pawn, removes captured pawn from its actual square.
+      // Returns the position of the captured pawn (for UI update).
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods - New: State Management</div>
+    <code>
+<span class="new">- switchTurn() : void</span>
+      // Toggles currentTurn between WHITE and BLACK.
+
+<span class="new">+ getCurrentTurn() : ColorForChessPieces</span>
+
+<span class="new">+ isCorrectTurn(piece: Piece) : boolean</span>
+      // Returns true if piece color matches currentTurn.
+
+<span class="new">- updateCastlingRights(movedPiece: Piece, from: IndexPosition) : void</span>
+      // Called after each move. Sets hasMoved flags for kings/rooks.
+
+<span class="new">- updateMoveHistory(piece: Piece, isCapture: boolean) : void</span>
+      // Updates halfMoveClock and positionHistory for draw detection.
+
+<span class="new">- simulateMove(piece: Piece, target: IndexPosition, boardUI: Piece[][]) : Piece[][]</span>
+      // Creates a COPY of the boardUI, applies the move on the copy,
+      // and returns it. Used by filterMovesForCheck to test if a move
+      // would leave the king in check without mutating the real boardUI.
+
+<span class="new">- boardToString(boardUI: Piece[][]) : String</span>
+      // Serializes boardUI state to a string for threefold repetition tracking.
+    </code>
+  </div>
+</div>
+
+<!-- MOVERESULT CLASS -->
+<div class="class-box">
+  <div class="class-name">MoveResult<span class="stereotype">Immutable Value Object - Returned by GameService</span></div>
+  <div class="section">
+    <div class="section-title">Fields</div>
+    <code>
+<span class="new">+ moved : boolean                       // true if a move was actually made</span>
+<span class="new">+ isCheck : boolean                     // opponent's king is now in check</span>
+<span class="new">+ isCheckmate : boolean                 // opponent is checkmated - game over</span>
+<span class="new">+ isDraw : boolean                      // game is a draw</span>
+<span class="new">+ drawReason : String                   // "stalemate", "insufficient material",</span>
+                                        // "threefold repetition", "50-move rule"
+<span class="new">+ isCastle : boolean                    // move was a castling move</span>
+<span class="new">+ rookFrom : IndexPosition              // rook's original position (castling)</span>
+<span class="new">+ rookTo : IndexPosition                // rook's new position (castling)</span>
+<span class="new">+ isEnPassant : boolean                 // move was en passant capture</span>
+<span class="new">+ capturedPawnPos : IndexPosition       // position of captured pawn (en passant)</span>
+<span class="new">+ isPromotion : boolean                 // pawn reached last rank</span>
+<span class="new">+ promotionPosition : IndexPosition     // where promotion happens</span>
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Methods</div>
+    <code>
+<span class="new">+ static noop() : MoveResult            // returns a result with moved=false</span>
+      // Used when a click results in no move (selection, reselection, invalid)
+<span class="new">+ getters for all fields</span>
+    </code>
+  </div>
+</div>
+
+<!-- GAME CLASS -->
+<div class="class-box">
+  <div class="class-name">Game.Game<span class="stereotype">Entry Point - Modified</span></div>
+  <div class="section">
+    <div class="section-title">Fields</div>
+    <code>
+<span class="kept">- window : JFrame</span>
+<span class="kept">- boardUI : Board</span>
+<span class="new">- gameService : GameService              // NEW - created here, passed to Board</span>
+    </code>
+  </div>
+  <div class="section">
+    <div class="section-title">Constructor Change</div>
+    <code>
+// Game.Game creates both Board and GameService, then connects them:
+// gameService = new GameService();
+// boardUI = new Board(gameService);    // Board receives GameService via constructor
+    </code>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+<h2>3. Relationships Diagram</h2>
+
+<div class="relation-box">
++------------------+         +----------------------+
+|      Game.Game        |         |     MoveResult       |
+|  (entry point)   |         |  (value object)      |
++------------------+         +----------------------+
+| - window: JFrame |         | + moved: boolean     |
+| - boardUI: Board   |         | + isCheck: boolean   |
+| - gameService    |------+  | + isCheckmate: bool  |
++------------------+      |  | + isDraw: boolean    |
+        |                 |  | + isCastle: boolean  |
+        | creates         |  | + isEnPassant: bool  |
+        v                 |  | + isPromotion: bool  |
++------------------+      |  | + rookFrom/To        |
+|      Board       |      |  | + capturedPawnPos    |
+|   (UI layer)     |      |  +----------------------+
++------------------+      |            ^
+| - piecesOnBoard  |      |            | returns
+| - squares        |      |            |
+| - gameService ---|--+   |  +----------------------+
++------------------+  |   |  |    GameService       |
+| + setupBoard()   |  |   +->|   (logic layer)      |
+| + refreshBoard() |  |      +----------------------+
+| + handleClick()  |  +----->| - selected: Piece    |
+|   delegates to   |         | - currentTurn        |
+|   GameService    |         | - lastMove info      |
++------------------+         | - castling flags     |
+                              +----------------------+
+                              | + handleAction()     |
+                              | + getLegalMoves()    |
+                              | + isInCheck()        |
+                              | + isCheckmate()      |
+                              | + isDraw()           |
+                              | + canCastle*()       |
+                              | + isEnPassant*()     |
+                              +----------------------+
+                                        |
+                                        | calls
+                                        v
+                              +----------------------+
+                              |   Piece (abstract)   |
+                              +----------------------+
+                              | + getPossibleMoves() |
+                              |   (raw, unfiltered)  |
+                              +----------------------+
+                              | King | Queen | Rook  |
+                              | Bishop | Knight| Pawn|
+                              +----------------------+
+</div>
+
+<!-- ============================================================ -->
+<h2>4. Communication Flows</h2>
+
+<h3>4.1 Normal Move</h3>
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div class="step-content">User clicks a square. <code>Board.detectMouseClickPosition()</code> translates pixels to <code>IndexPosition</code>.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div class="step-content"><code>Board.handleSquareClick()</code> calls <code>gameService.handleAction(clicked, piecesOnTheBoard)</code>.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div class="step-content"><strong>GameService</strong> internally:
+    <br>a) Checks if it's a selection, reselection, or move attempt.
+    <br>b) Calls <code>getLegalMoves(selected, boardUI)</code> which internally calls <code>piece.getPossibleMoves(boardUI)</code> then filters via <code>filterMovesForCheck()</code>.
+    <br>c) If valid, calls <code>executeMove()</code> to mutate the boardUI array.
+    <br>d) Calls <code>switchTurn()</code>, <code>updateCastlingRights()</code>, <code>updateMoveHistory()</code>.
+    <br>e) Checks <code>isInCheck()</code>, <code>isCheckmate()</code>, <code>isDraw()</code> for the opponent.
+    <br>f) Builds and returns <code>MoveResult</code>.
+  </div>
+</div>
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div class="step-content"><code>Board</code> reads the returned <code>MoveResult</code>:
+    <br>- Calls <code>refreshBoard()</code> to redraw pieces.
+    <br>- If <code>result.isCheckmate</code> &rarr; shows game over dialog.
+    <br>- If <code>result.isDraw</code> &rarr; shows draw dialog.
+    <br>- If <code>result.isCastle</code> &rarr; rook already moved in array, refresh handles it.
+    <br>- If <code>result.isPromotion</code> &rarr; shows promotion picker dialog.
+  </div>
+</div>
+
+<h3>4.2 Castling Move</h3>
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div class="step-content">User selects King, clicks target 2 squares away (e.g. King at e1 clicks g1).</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div class="step-content"><code>Board</code> calls <code>gameService.handleAction(g1, boardUI)</code>.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div class="step-content"><code>GameService.getLegalMoves(king, boardUI)</code> already includes g1 as a legal move (because <code>canCastleKingside()</code> returned true). <code>executeMove()</code> detects it's a castle and calls <code>executeCastle()</code> which moves <strong>both</strong> King (e1&rarr;g1) and Rook (h1&rarr;f1) in the boardUI array.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div class="step-content">Returns <code>MoveResult</code> with <code>isCastle=true, rookFrom=(0,7), rookTo=(0,5)</code>. Board calls <code>refreshBoard()</code> and both pieces appear in new positions.</div>
+</div>
+
+<h3>4.3 En Passant</h3>
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div class="step-content">Opponent's pawn moved 2 squares forward on previous turn. <code>GameService</code> stored this in <code>lastMoveFrom</code>, <code>lastMoveTo</code>, <code>lastMovedPiece</code>.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div class="step-content">User selects own pawn adjacent to opponent's pawn. <code>getLegalMoves()</code> checks <code>getEnPassantTarget()</code> and adds the en passant capture square to legal moves.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div class="step-content">User clicks the en passant square. <code>executeMove()</code> detects en passant, calls <code>executeEnPassant()</code>: moves capturing pawn diagonally, removes captured pawn from its actual square.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div class="step-content">Returns <code>MoveResult</code> with <code>isEnPassant=true, capturedPawnPos=(row, col)</code>.</div>
+</div>
+
+<h3>4.4 Check Leading to Checkmate</h3>
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div class="step-content">White moves a piece. <code>GameService.executeMove()</code> completes the move.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div class="step-content"><code>isInCheck(BLACK, boardUI)</code> returns <strong>true</strong>.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div class="step-content"><code>hasNoLegalMoves(BLACK, boardUI)</code> iterates ALL black pieces, calls <code>getLegalMoves()</code> for each. Every move is filtered by <code>filterMovesForCheck()</code> &mdash; no move can get Black out of check.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div class="step-content">Returns <code>MoveResult</code> with <code>isCheck=true, isCheckmate=true</code>. Board shows game over.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+<h2>5. Method Mapping: Board &rarr; GameService</h2>
+
+<table>
+  <tr>
+    <th>Current Board Method</th>
+    <th>New Location</th>
+    <th>Changes</th>
+  </tr>
+  <tr>
+    <td><code>handleSquareClick()</code></td>
+    <td>Board (simplified) + GameService.handleAction()</td>
+    <td>Board version becomes 3 lines: call handleAction, read result, update UI. All logic moves to GameService.</td>
+  </tr>
+  <tr>
+    <td><code>isMovePossible()</code></td>
+    <td>GameService (private)</td>
+    <td>Moved as-is. Only called internally by handleAction.</td>
+  </tr>
+  <tr>
+    <td><code>moveSelectedPiece()</code></td>
+    <td>GameService.executeMove() (private)</td>
+    <td>Renamed. Now also handles castling and en passant branching.</td>
+  </tr>
+  <tr>
+    <td><code>capturePiece()</code></td>
+    <td>Merged into GameService.executeMove()</td>
+    <td>Was already just calling moveSelectedPiece. No longer needed as separate method.</td>
+  </tr>
+  <tr>
+    <td><code>selectPiece()</code></td>
+    <td>Inside GameService.handleAction()</td>
+    <td>Selection logic is part of handleAction's flow.</td>
+  </tr>
+  <tr>
+    <td><code>getSelected()</code></td>
+    <td>GameService.getSelected()</td>
+    <td>Moved. Board can call it if needed for highlighting.</td>
+  </tr>
+</table>
+
+<h2>6. New Methods Summary</h2>
+
+<table>
+  <tr>
+    <th>Method</th>
+    <th>Purpose</th>
+    <th>Used By</th>
+  </tr>
+  <tr>
+    <td><code>handleAction()</code></td>
+    <td>Single entry point for all click actions</td>
+    <td>Board.handleSquareClick()</td>
+  </tr>
+  <tr>
+    <td><code>getLegalMoves()</code></td>
+    <td>Raw moves filtered for check safety (handles pins implicitly)</td>
+    <td>handleAction(), hasNoLegalMoves()</td>
+  </tr>
+  <tr>
+    <td><code>filterMovesForCheck()</code></td>
+    <td>Simulates each move, removes those leaving king in check</td>
+    <td>getLegalMoves()</td>
+  </tr>
+  <tr>
+    <td><code>simulateMove()</code></td>
+    <td>Creates boardUI copy with move applied (non-destructive test)</td>
+    <td>filterMovesForCheck()</td>
+  </tr>
+  <tr>
+    <td><code>isInCheck()</code></td>
+    <td>Is the given color's king under attack?</td>
+    <td>handleAction(), filterMovesForCheck()</td>
+  </tr>
+  <tr>
+    <td><code>isSquareAttacked()</code></td>
+    <td>Can any piece of given color reach this square?</td>
+    <td>isInCheck(), canCastle*()</td>
+  </tr>
+  <tr>
+    <td><code>findKing()</code></td>
+    <td>Locates king position on boardUI</td>
+    <td>isInCheck()</td>
+  </tr>
+  <tr>
+    <td><code>isCheckmate()</code></td>
+    <td>In check + no legal moves = game over</td>
+    <td>handleAction()</td>
+  </tr>
+  <tr>
+    <td><code>isStalemate()</code></td>
+    <td>Not in check + no legal moves = draw</td>
+    <td>isDraw()</td>
+  </tr>
+  <tr>
+    <td><code>isDraw()</code></td>
+    <td>Checks all draw conditions</td>
+    <td>handleAction()</td>
+  </tr>
+  <tr>
+    <td><code>hasInsufficientMaterial()</code></td>
+    <td>K vs K, K+B vs K, K+N vs K</td>
+    <td>isDraw()</td>
+  </tr>
+  <tr>
+    <td><code>canCastleKingside()</code></td>
+    <td>All castling conditions for kingside</td>
+    <td>getLegalMoves()</td>
+  </tr>
+  <tr>
+    <td><code>canCastleQueenside()</code></td>
+    <td>All castling conditions for queenside</td>
+    <td>getLegalMoves()</td>
+  </tr>
+  <tr>
+    <td><code>isEnPassantMove()</code></td>
+    <td>Is this move an en passant capture?</td>
+    <td>getLegalMoves(), executeMove()</td>
+  </tr>
+  <tr>
+    <td><code>getEnPassantTarget()</code></td>
+    <td>Returns capturable en passant square or null</td>
+    <td>isEnPassantMove(), getLegalMoves()</td>
+  </tr>
+  <tr>
+    <td><code>switchTurn()</code></td>
+    <td>WHITE &harr; BLACK</td>
+    <td>handleAction()</td>
+  </tr>
+  <tr>
+    <td><code>isCorrectTurn()</code></td>
+    <td>Enforces turn order</td>
+    <td>handleAction()</td>
+  </tr>
+  <tr>
+    <td><code>updateCastlingRights()</code></td>
+    <td>Marks king/rook as moved</td>
+    <td>handleAction()</td>
+  </tr>
+  <tr>
+    <td><code>updateMoveHistory()</code></td>
+    <td>Tracks position count + half-move clock</td>
+    <td>handleAction()</td>
+  </tr>
+  <tr>
+    <td><code>boardToString()</code></td>
+    <td>Serializes boardUI for repetition detection</td>
+    <td>updateMoveHistory()</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+<h2>7. Board.handleSquareClick() - Before & After</h2>
+
+<h3>Before (current - all logic in Board)</h3>
+<pre>
+public void handleSquareClick(IndexPosition nextMove) {
+    Piece targetPiece = piecesOnTheBoard[nextMove.getRow()][nextMove.getCol()];
+
+    if (selected == null) {
+        if (targetPiece != null) {
+            selected = targetPiece;
+        }
+        return;
+    }
+
+    if (targetPiece != null) {
+        if (!selected.isEnemy(targetPiece)) {
+            selected = targetPiece;
+        } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
+            capturePiece(nextMove);
+        }
+    } else if (isMovePossible(selected.getPossibleMoves(piecesOnTheBoard), nextMove)) {
+        moveSelectedPiece(nextMove);
+    }
+}
+</pre>
+
+<h3>After (delegates to GameService)</h3>
+<pre>
+public void handleSquareClick(IndexPosition nextMove) {
+    MoveResult result = gameService.handleAction(nextMove, piecesOnTheBoard);
+
+    refreshBoard();
+
+    if (result.isCheckmate()) {
+        // Show game over dialog
+        JOptionPane.showMessageDialog(null,
+            gameService.getCurrentTurn() + " is checkmated! Game.Game over.");
+    } else if (result.isDraw()) {
+        JOptionPane.showMessageDialog(null,
+            "Game.Game is a draw: " + result.getDrawReason());
+    } else if (result.isPromotion()) {
+        // Show promotion picker, then call:
+        // gameService.promotePawn(result.getPromotionPosition(), chosenPiece, boardUI);
+        // refreshBoard();
+    }
+}
+</pre>
+
+<!-- ============================================================ -->
+<h2>8. How Pins Work (No Explicit Pin Logic Needed)</h2>
+
+<p>A common misconception is that pins need dedicated detection code. With the
+<code>filterMovesForCheck()</code> approach, pins are handled <strong>automatically</strong>:</p>
+
+<pre>
+getLegalMoves(piece, boardUI):
+    rawMoves = piece.getPossibleMoves(boardUI)      // piece doesn't know about pins
+    legalMoves = []
+
+    for each move in rawMoves:
+        simulatedBoard = simulateMove(piece, move, boardUI)  // copy boardUI, apply move
+        if NOT isInCheck(piece.color, simulatedBoard):     // does this expose my king?
+            legalMoves.add(move)                           // no -> legal move
+                                                           // yes -> filtered out (pinned!)
+    return legalMoves
+</pre>
+
+<p>If a bishop is pinned to its king by an enemy rook, any bishop move that isn't along
+the pin line will leave the king exposed. <code>simulateMove</code> + <code>isInCheck</code> catches
+this automatically. No separate "isPinned" flag or pin detection is required.</p>
+
+<div class="note">
+  <strong>Note:</strong> The <code>simulateMove()</code> approach is simple and correct. For each candidate
+  move, it creates a shallow copy of the 8x8 array, applies the move, and checks if the
+  king is attacked. With at most ~27 possible moves per piece and 32 pieces to scan for
+  attacks, this is fast enough for a chess game (no performance concern).
+</div>
+
+<!-- ============================================================ -->
+<h2>9. Implementation Priority Order</h2>
+
+<table>
+  <tr><th>#</th><th>Feature</th><th>Dependencies</th><th>Why This Order</th></tr>
+  <tr><td>1</td><td>GameService skeleton + handleAction + executeMove</td><td>None</td><td>Establishes the architecture. Board delegates to GameService. Existing functionality preserved.</td></tr>
+  <tr><td>2</td><td>Turn enforcement (currentTurn, switchTurn, isCorrectTurn)</td><td>#1</td><td>Simple state, immediately testable, needed by everything else.</td></tr>
+  <tr><td>3</td><td>isSquareAttacked + findKing + isInCheck</td><td>#1</td><td>Foundation for all check-related logic.</td></tr>
+  <tr><td>4</td><td>simulateMove + filterMovesForCheck + getLegalMoves</td><td>#3</td><td>Once this works, pins are automatically handled.</td></tr>
+  <tr><td>5</td><td>Checkmate + Stalemate detection</td><td>#4</td><td>Uses getLegalMoves to check if any moves exist.</td></tr>
+  <tr><td>6</td><td>Castling</td><td>#3</td><td>Needs isSquareAttacked + castling state flags.</td></tr>
+  <tr><td>7</td><td>En passant</td><td>#4</td><td>Needs move history tracking + legal move filtering.</td></tr>
+  <tr><td>8</td><td>Draw conditions (insufficient material, repetition, 50-move)</td><td>#5</td><td>Final polish. Needs move history infrastructure.</td></tr>
+  <tr><td>9</td><td>Pawn promotion</td><td>#4</td><td>Needs UI interaction (promotion picker). Can be added last.</td></tr>
+</table>
+
+</body>
+</html>
