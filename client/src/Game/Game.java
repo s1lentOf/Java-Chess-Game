@@ -1,6 +1,7 @@
 package Game;
 
 import ChessBoard.BoardUI;
+import ChessBoard.StartScreen;
 import Constants.ColorForChessPieces;
 import Constants.GameMode;
 import Services.GameManager;
@@ -10,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 
 // Main class that starts up the game
 public class Game {
