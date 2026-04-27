@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+
 // Main class that starts up the game
 public class Game {
 
