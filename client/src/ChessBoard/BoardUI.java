@@ -26,6 +26,7 @@ public class BoardUI {
 
     private final GameService service = new GameService(this);
     private  GameManager manager;
+    private ColorForChessPieces humanColor = ColorForChessPieces.WHITE;
 
     public BoardUI() {
     }
@@ -86,8 +87,16 @@ public class BoardUI {
     public void setupBoard(JFrame window) {
         this.gameWindow = window;
 
-        for (int row = 7; row >= 0; row--) {
-            for (int col = 7; col >= 0; col--) {
+        boolean blackAtBottom = humanColor == ColorForChessPieces.BLACK;
+        int rowStart = blackAtBottom ? 0 : 7;
+        int rowEnd   = blackAtBottom ? 8 : -1;
+        int rowStep  = blackAtBottom ? 1 : -1;
+        int colStart = blackAtBottom ? 0 : 7;
+        int colEnd   = blackAtBottom ? 8 : -1;
+        int colStep  = blackAtBottom ? 1 : -1;
+
+        for (int row = rowStart; row != rowEnd; row += rowStep) {
+            for (int col = colStart; col != colEnd; col += colStep) {
 
                 JButton square = new JButton();
                 square.setLayout(new BorderLayout());

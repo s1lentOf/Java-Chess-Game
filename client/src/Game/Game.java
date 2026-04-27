@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+
 // Main class that starts up the game
 public class Game {
 
@@ -80,7 +81,9 @@ public class Game {
         this.window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                gameManager.stop();
+                if (gameManager != null) {
+                    gameManager.stop();
+                }
             }
         });
     }

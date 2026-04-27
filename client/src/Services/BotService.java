@@ -19,20 +19,36 @@ public class BotService {
 
     public EngineMove getBestMove(List<String> moves) {
         JSONObject payload = buildPayload(moves);
-        JSONObject response = networkService.POST(payload, Endpoint.REQUESTMOVE, environment);
-        return decodeInputData(extractMove(response));
+        NetworkResponse response = networkService.POST(payload, Endpoint.REQUESTMOVE, environment);
 
+        if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+            return decodeInputData(extractMove(response));
+        } else {
+            System.out.println(response.getBody().getString("message"));
+            return null;
+        }
     }
 
     public void startSession() {
         JSONObject payload = new JSONObject();
         payload.put("level", level);
-        JSONObject resp = networkService.POST(payload, Endpoint.STARTGAME, environment);
-        System.out.println("[startSession] sent=" + payload + " resp=" + resp);
+        NetworkResponse response = networkService.POST(payload, Endpoint.STARTGAME, environment);
+
+        if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+            System.out.println("Engine has been successfully started.");
+        } else {
+            System.out.println(response.getBody().getString("message"));
+        }
     }
 
     public void endSession() {
-        networkService.POST(new JSONObject(),Endpoint.STOPGAME, environment);
+        NetworkResponse response = networkService.POST(null, Endpoint.STOPGAME, environment);
+
+        if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+            System.out.println("Engine has been successfully stopped.");
+        } else {
+            System.out.println(response.getBody().getString("message"));
+        }
     }
 
     private JSONObject buildPayload(List<String> moves) {
@@ -45,17 +61,9 @@ public class BotService {
         return payload;
     }
 
-    // this method extracts the field from jsonbject witha key "move"
-    private String extractMove(JSONObject json) {
-//        if (!json.getBoolean("message")) {
-//            throw new RuntimeException("Engine error");
-//        }
-        String raw = json.getString("bestmove");        // "bestmove e2e4 ponder e7e5"
-//        String[] parts = raw.split("\\s+");
-//        if (parts.length < 2) {
-//            throw new IllegalArgumentException("Unexpected bestmove line: " + raw);
-//        }
-        return raw;
+    // this method extracts the field from json object with a key "bestmove"
+    private String extractMove(NetworkResponse response) {
+        return response.getBody().getString("bestmove");
     }
 
     private EngineMove decodeInputData(String uci) {
