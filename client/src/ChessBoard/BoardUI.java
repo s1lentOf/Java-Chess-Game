@@ -31,15 +31,12 @@ public class BoardUI {
     public BoardUI() {
     }
 
-    public BoardUI(GameMode mode, ColorForChessPieces humanColor) {
-        this.humanColor = humanColor;
-        if (mode == GameMode.HUMAN_VS_HUMAN) {
+    public BoardUI(GameMode mode, ColorForChessPieces humanColor, BotService botService) {
+        GameService service = new GameService(this);
+        if (mode == GameMode.HUMAN_VS_HUMAN || botService == null) {
             this.manager = new GameManager(service);
         } else {
-            this.manager = new GameManager(
-                    service,
-                    new BotService(new NetworkService(), Environment.PROD, 18),
-                    humanColor);
+            this.manager = new GameManager(service, botService, humanColor);
         }
     }
 
