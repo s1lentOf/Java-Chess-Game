@@ -19,6 +19,7 @@ public class TestGameService {
     @BeforeAll
     public static void setup() {
         gameService = new GameService(boardUI);
+        gameService.resetGame();
     }
 
     @Test
@@ -380,5 +381,181 @@ public class TestGameService {
         String parsedMove = gameService.addToMoveRecord(move);
         assertEquals(parsedMove,"e5f6");
     }
+
+
+    @Test
+    @DisplayName("handleSquareClick for an empty target")
+    public void testHandleSquareClickEmptyTarget() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(3, 3));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[3][3] = rook;
+        boardUI.setSelected(rook);
+
+        gameService.handleSquareClick(new IndexPosition(3, 6));
+
+        assertNull(board[3][3], "Rook should have left its starting square");
+        assertNotNull(board[3][6], "Rook should be on the new square");
+        assertTrue(board[3][6] instanceof Rook);
+    }
+
+    @Test
+    @DisplayName("test for illegal click")
+    public void testHandleEmptySquareClickIllegalMove() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook rook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = rook;
+        boardUI.setSelected(rook);
+
+        gameService.handleEmptySquareClick(new IndexPosition(5, 5));
+
+        assertNotNull(board[4][4], "Rook should not have moved on an illegal click");
+        assertNull(board[5][5], "Destination should remain empty");
+    }
+
+    @Test
+    @DisplayName("test en passant")
+    public void testHandleEmptySquareClickEnPassant() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Pawn whitePawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Pawn blackPawn = new Pawn(ColorForChessPieces.BLACK, new IndexPosition(4, 5));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = whitePawn;
+        board[4][5] = blackPawn;
+
+        gameService.setLastDoubleStepPawn(blackPawn);
+        boardUI.setSelected(whitePawn);
+
+        gameService.handleEmptySquareClick(new IndexPosition(5, 5));
+
+        assertNull(board[4][4], "White pawn should have left its starting square");
+        assertTrue(board[5][5] instanceof Pawn, "White pawn should be on the en passant target");
+        assertNull(board[4][5], "Captured black pawn should be removed via en passant");
+    }
+    @Test
+    @DisplayName("test click on the opponent's piece when the piece users piece is not selected")
+    public void testHandleOccupiedClickOpponentNothingSelected() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(4, 4));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = blackRook;
+        boardUI.setSelected(null);
+
+        gameService.handleOccupiedSquareClick(blackRook, new IndexPosition(4, 4));
+
+        assertNull(boardUI.getSelected(),
+                "Clicking an opponent's piece with no selection should leave selection null");
+    }
+
+    @Test
+    @DisplayName("click on own piece when no piece is selected")
+    public void testHandleOccupiedClickOwnNothingSelected() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = whiteRook;
+        boardUI.setSelected(null);
+
+        gameService.handleOccupiedSquareClick(whiteRook, new IndexPosition(4, 4));
+
+        assertEquals(whiteRook, boardUI.getSelected(),
+                "Clicking own piece with no selection should select it");
+    }
+
+    @Test
+    @DisplayName("test click on your own piece when the piece is already selected")
+    public void testHandleOccupiedClickReselectsOwnPiece() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook rook1 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Rook rook2 = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 6));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = rook1;
+        board[4][6] = rook2;
+        boardUI.setSelected(rook1);
+
+        gameService.handleOccupiedSquareClick(rook2, new IndexPosition(4, 6));
+
+        assertEquals(rook2, boardUI.getSelected(),
+                "Clicking another of own pieces should reselect to the new piece");
+    }
+
+    @Test
+    @DisplayName("test capture opponents piece")
+    public void testHandleOccupiedClickCapturesOpponent() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 7));
+        Rook whiteRook = new Rook(ColorForChessPieces.WHITE, new IndexPosition(4, 4));
+        Rook blackRook = new Rook(ColorForChessPieces.BLACK, new IndexPosition(4, 7));
+        board[0][0] = whiteKing;
+        board[7][7] = blackKing;
+        board[4][4] = whiteRook;
+        board[4][7] = blackRook;
+        boardUI.setSelected(whiteRook);
+
+        gameService.handleOccupiedSquareClick(blackRook, new IndexPosition(4, 7));
+
+        assertNull(board[4][4], "Capturing rook should have left its starting square");
+        assertTrue(board[4][7] instanceof Rook, "White rook should now occupy the captured square");
+        assertEquals(ColorForChessPieces.WHITE, board[4][7].getColor(),
+                "Piece on capture square should be white");
+    }
+
+    @Test
+    @DisplayName("test promotion state of the pawn")
+    public void testPawnPromotionEntersPromotingState() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 0));
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(6, 4));
+        board[0][0] = whiteKing;
+        board[7][0] = blackKing;
+        board[6][4] = pawn;
+        boardUI.setSelected(pawn);
+
+        gameService.handleSquareClick(new IndexPosition(7, 4));
+
+        assertTrue(boardUI.isPromoting(),
+                "Pushing a pawn to the last rank should trigger promotion state");
+    }
+
+    @Test
+    @DisplayName("handlePromotionClick on the correct column finishes promotion")
+    public void testHandlePromotionClickCorrectColumn() {
+        Piece[][] board = gameService.getPiecesOnTheBoard();
+        King whiteKing = new King(ColorForChessPieces.WHITE, new IndexPosition(0, 0));
+        King blackKing = new King(ColorForChessPieces.BLACK, new IndexPosition(7, 0));
+        Pawn pawn = new Pawn(ColorForChessPieces.WHITE, new IndexPosition(6, 4));
+        board[0][0] = whiteKing;
+        board[7][0] = blackKing;
+        board[6][4] = pawn;
+        boardUI.setSelected(pawn);
+        gameService.handleSquareClick(new IndexPosition(7, 4));
+
+        gameService.handlePromotionClick(new IndexPosition(0, 4));
+
+        assertFalse(boardUI.isPromoting(),
+                "Clicking a valid promotion option should finish promotion");
+    }
+
 
 }

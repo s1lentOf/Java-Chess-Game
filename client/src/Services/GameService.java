@@ -177,7 +177,7 @@ public class GameService {
     }
 
 
-    private void handleEmptySquareClick(IndexPosition nextMove) {
+    public void handleEmptySquareClick(IndexPosition nextMove) {
 
         // checks for moving a piece to a new square( no capture)
         if (isMovePossible(getLegalMoves(boardUI.getSelected(), getPiecesOnTheBoard()), nextMove)) {
@@ -202,7 +202,7 @@ public class GameService {
         }
     }
 
-    private void handleOccupiedSquareClick(Piece targetPiece, IndexPosition nextMove) {
+    public void handleOccupiedSquareClick(Piece targetPiece, IndexPosition nextMove) {
         // an addition to set the selected to null anytime the wrong colored piece is clicked
         if (targetPiece != null && targetPiece.getColor() != currentColorToMove && boardUI.getSelected() == null) {
             boardUI.setSelected(null);
@@ -237,7 +237,7 @@ public class GameService {
     }
 
     // a method for handling click which results in promotion of the pawn
-    private void handlePromotionClick(IndexPosition nextMove) {
+    public void handlePromotionClick(IndexPosition nextMove) {
         int clickedCol = nextMove.getCol();
         int clickedRow = nextMove.getRow();
 
@@ -652,6 +652,26 @@ public class GameService {
             case 'n' -> new Knight(color, pos);
             default -> throw new IllegalArgumentException("Invalid promotion char: " + promotion);
         };
+    }
+
+    public void resetGame(){
+        //clear the board
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                piecesOnTheBoard[row][col] = null;
+            }
+        }
+        //reset all state
+        moveCounter = 1;
+        currentColorToMove = WHITE;
+        lastDoubleStepPawn = null;
+        moveStorage.clear();
+        moveResult.reset();
+        drawService = new DrawService(checkService, this);
+        boardUI.setSelected(null);
+
+        // set up pieces again
+        setUpPiecesOnTheBoard();
     }
 
 }

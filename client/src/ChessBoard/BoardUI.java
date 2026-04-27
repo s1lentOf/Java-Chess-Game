@@ -134,13 +134,79 @@ public class BoardUI {
         initialDrawOfPieces();
     }
 
-    public void showGameOver(String message) {
-        JOptionPane.showMessageDialog(
-                this.gameWindow,
-                message,
-                "Game Over",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+    public void showEndScreen(String message) {
+        // create a modal dialog
+        JDialog endScreen = new JDialog(gameWindow, "Game Over", true);
+
+        endScreen.setSize(400, 250);
+        endScreen.setLocationRelativeTo(gameWindow);
+        endScreen.setResizable(false);
+        endScreen.setLayout(new BorderLayout());
+        endScreen.setUndecorated(true); // removes the default window border
+
+        // main panel
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(new Color(255, 255, 255));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+
+        // message label
+        JLabel messageLabel = new JLabel(message);
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        messageLabel.setForeground(Color.BLACK);
+        messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // spacing
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setBackground(new Color(255, 255, 255));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+
+        // play again button
+        JButton playAgainButton = new JButton("Play Again");
+        playAgainButton.setFont(new Font("Arial", Font.BOLD, 16));
+        playAgainButton.setBackground(new Color(255, 255, 255));
+        playAgainButton.setForeground(Color.BLACK);
+        playAgainButton.setFocusPainted(false);
+        playAgainButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        playAgainButton.setPreferredSize(new Dimension(140, 45));
+        playAgainButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        playAgainButton.addActionListener(e -> {
+            endScreen.dispose();
+            resetGame();
+        });
+
+        // exit button
+        JButton exitButton = new JButton("Exit");
+        exitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        exitButton.setBackground(new Color(255, 255, 255));
+        exitButton.setForeground(Color.BLACK);
+        exitButton.setFocusPainted(false);
+        exitButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        exitButton.setPreferredSize(new Dimension(140, 45));
+        exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exitButton.addActionListener(e -> System.exit(0));
+
+        mainPanel.add(Box.createVerticalGlue());
+        mainPanel.add(messageLabel);
+        buttonPanel.add(playAgainButton);
+        buttonPanel.add(exitButton);
+        mainPanel.add(Box.createVerticalGlue());
+        mainPanel.add(buttonPanel);
+        mainPanel.add(Box.createVerticalGlue());
+        endScreen.add(mainPanel, BorderLayout.CENTER);
+        endScreen.setVisible(true);
+    }
+
+    private void resetGame() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].setIcon(null);
+            }
+        }
+        selected = null;
+        service.resetGame();
+        initialDrawOfPieces();
     }
 
     private void initialDrawOfPieces() {
@@ -260,10 +326,10 @@ public class BoardUI {
         if (result.getCheckmate()) {
             System.out.println("Checkmate");
             String message = "Checkmate! " + result.getColorToWin() + " wins!";
-            showGameOver(message);
+            showEndScreen(message);
         } else if (result.getDraw()) {
             String message = "Draw by " + result.getDrawReason() + "!";
-            showGameOver(message);
+            showEndScreen(message);
         }
     }
 
