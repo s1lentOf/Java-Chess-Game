@@ -3,8 +3,10 @@ package Game;
 import ChessBoard.BoardUI;
 import ChessBoard.StartScreen;
 import Constants.ColorForChessPieces;
+import Constants.Environment;
 import Constants.GameMode;
 import Services.GameManager;
+import Services.BotService;
 import Services.NetworkService;
 
 import javax.swing.*;
@@ -31,22 +33,28 @@ public class Game {
 
     // called by StartScreen when user picks 1v1
     public void startOneVsOne() {
-        setupBoardUI(GameMode.HUMAN_VS_HUMAN, ColorForChessPieces.WHITE);
+        setupBoardUI(GameMode.HUMAN_VS_HUMAN, ColorForChessPieces.WHITE, 0);
     }
 
     // called by StartScreen when user picks vs bot
     public void startVsBot(ColorForChessPieces playerColor, int difficulty) {
-        setupBoardUI(GameMode.HUMAN_VS_BOT, playerColor);
-//        if (gameManager != null) {
-//            gameManager.setDifficulty(difficulty);
-//        }
+        setupBoardUI(GameMode.HUMAN_VS_BOT, playerColor, difficulty);
     }
 
-    private void setupBoardUI(GameMode mode, ColorForChessPieces color) {
+    private void setupBoardUI(GameMode mode, ColorForChessPieces color, int difficulty) {
+        if (gameManager != null) {
+            gameManager.stop();
+        }
+
         window.getContentPane().removeAll();
         window.setLayout(new GridLayout(8, 8));
 
-        BoardUI boardUI = new BoardUI(mode, color);
+        BotService botService = mode == GameMode.HUMAN_VS_BOT
+                ? new BotService(new NetworkService(), Environment.PROD, difficulty)
+                : null;
+
+        BoardUI boardUI = new BoardUI(mode, color, botService); // always three args, null for 1v1
+
         boardUI.setupBoard(window);
 
         gameManager = boardUI.getGameManager();
